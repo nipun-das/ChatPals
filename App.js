@@ -11,8 +11,8 @@ import { auth } from './config/firebase';
 import { ActivityIndicator } from 'react-native';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useEffect } from 'react';
-
-
+import {LogBox} from 'react-native'; 
+LogBox.ignoreLogs(['Warning: Async Storage has been extracted from react-native core']);
 
 
 const Stack = createStackNavigator();

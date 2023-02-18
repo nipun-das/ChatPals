@@ -1,13 +1,12 @@
 import 'dotenv/config';
 
-
 export default {
   "expo": {
     "name": "ChatPals",
-    "slug": "ChatPals",
+    "slug": "nipunChatPals",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon1.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -27,18 +26,22 @@ export default {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.nipunChatPals.ChatPals"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    extra: {
+    "extra": {
+      "eas": {
+        "projectId": "79f4c245-63b4-4eeb-a262-22ad31cbf6f0"
+      },
       apiKey: process.env.API_KEY,
       authDomain: process.env.AUTH_DOMAIN,
       projectId: process.env.PROJECT_ID,
       storageBucket: process.env.STORAGE_BUCKET,
       messagingSenderId: process.env.MESSAGING_SENDER_ID,
-      appId: process.env.APP_ID
+      appId: process.env.APP_ID,
     }
   }
 }
