@@ -8,7 +8,6 @@ import { useNavigation } from '@react-navigation/native';
 import { AntDesign } from '@expo/vector-icons';
 import colors from '../colors';
 
-
 export default function Chat() {
 
     const [messages, setMessages] = useState([]);
