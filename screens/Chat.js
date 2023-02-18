@@ -40,7 +40,7 @@ export default function Chat() {
 
         const unsubscribe = onSnapshot(q, querySnapshot => {
             console.log('querySnapshot unsusbscribe');
-            const dd = doc.data()._id;
+            
 
             setMessages(
                 querySnapshot.docs.map(doc => ({
@@ -64,14 +64,14 @@ export default function Chat() {
             text,
             user,
         });
-        // const us = auth.getUserByEmail(_id);
-
     }, []);
     return (
         <GiftedChat
             messages={messages}
+            placeholder="Message"
             showAvatarForEveryMessage={false}
             showUserAvatar={true}
+            renderAvatarOnTop={true}
             onSend={messages => onSend(messages)}
             messagesContainerStyle={{
                 backgroundColor: 'white',
@@ -82,7 +82,7 @@ export default function Chat() {
             }}
             user={{
                 _id: auth?.currentUser?.email,
-                avatar: `https://i.pravatar.cc/300?${dd}`,
+                avatar: `https://i.pravatar.cc/300`,
             }}
         />
     );
