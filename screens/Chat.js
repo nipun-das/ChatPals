@@ -40,18 +40,19 @@ export default function Chat() {
 
         const unsubscribe = onSnapshot(q, querySnapshot => {
             console.log('querySnapshot unsusbscribe');
+            const dd = doc.data()._id;
+
             setMessages(
                 querySnapshot.docs.map(doc => ({
                     _id: doc.data()._id,
                     createdAt: doc.data().createdAt.toDate(),
                     text: doc.data().text,
-                    user: doc.data().user
+                    user: doc.data().user,
                 }))
             );
         });
         return unsubscribe;
     }, []);
-
     const onSend = useCallback((messages = []) => {
         setMessages(previousMessages =>
             GiftedChat.append(previousMessages, messages)
@@ -61,26 +62,27 @@ export default function Chat() {
             _id,
             createdAt,
             text,
-            user
+            user,
         });
-    }, []);
+        // const us = auth.getUserByEmail(_id);
 
+    }, []);
     return (
         <GiftedChat
             messages={messages}
             showAvatarForEveryMessage={false}
-            showUserAvatar={false}
+            showUserAvatar={true}
             onSend={messages => onSend(messages)}
             messagesContainerStyle={{
-                backgroundColor: '#fff'
+                backgroundColor: 'white',
             }}
             textInputStyle={{
-                backgroundColor: '#fff',
+                backgroundColor: 'white',
                 borderRadius: 20,
             }}
             user={{
                 _id: auth?.currentUser?.email,
-                avatar: 'https://i.pravatar.cc/300'
+                avatar: `https://i.pravatar.cc/300?${dd}`,
             }}
         />
     );

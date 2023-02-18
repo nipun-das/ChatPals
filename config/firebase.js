@@ -1,7 +1,11 @@
 import { initializeApp } from 'firebase/app';
+// import { initializeAuth } from 'firebase/auth';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+// import {getReactNativePersistence} from 'firebase/auth/react-native';
 import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 // Firebase config
 const firebaseConfig = {
     apiKey: Constants.manifest.extra.apiKey,
@@ -14,5 +18,6 @@ const firebaseConfig = {
 };
 // initialize firebase
 initializeApp(firebaseConfig);
-export const auth = getAuth();
+export const auth = getAuth();//
 export const database = getFirestore();
+
