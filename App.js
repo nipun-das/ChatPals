@@ -12,6 +12,7 @@ import { ActivityIndicator } from 'react-native';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useEffect } from 'react';
 import {LogBox} from 'react-native'; 
+import ClubSel from './screens/ClubSel';
 LogBox.ignoreLogs(['Warning: Async Storage has been extracted from react-native core']);
 
 
@@ -35,7 +36,10 @@ function ChatStack() {
   return (
     <Stack.Navigator defaultScreenOptions={Home} >
       {/* <Stack.Screen name="Home" component={Home} /> */}
-      <Stack.Screen name="Chat" component={Chat} />
+
+      {/* <Stack.Screen name="Chat" component={Chat} /> */}
+      <Stack.Screen name="ClubSel" component={ClubSel} />
+
     </Stack.Navigator>
   )
 }
@@ -46,6 +50,8 @@ function AuthStack() {
     <Stack.Navigator defaultScreenOptions={Login} screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Signup" component={Signup} />
+      <Stack.Screen name="ClubSel" component={ClubSel} />
+      
     </Stack.Navigator>
   )
 
