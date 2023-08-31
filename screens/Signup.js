@@ -2,21 +2,60 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, Button, TextInput, Image, SafeAreaView, TouchableOpacity, StatusBar, Alert } from "react-native";
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config/firebase';
+import { collection, addDoc } from 'firebase/firestore';
+
+import { database } from '../config/firebase';
 
 const bgImage = require("../assets/blue-pattern3.jpg");
 
 export default function Signup({ navigation }) {
 
+    
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
+    const [branch, setBranch] = useState('');
+    const [regNo, setRegNo] = useState('');
+    const [semester, setSemester] = useState('');
+    const [interests, setInterests] = useState('');
 
-    const onHandleSignup = () => {
+    // const onHandleSignup = () => {
+    //     if (email !== '' && password !== '') {
+    //         createUserWithEmailAndPassword(auth, email, password)
+    //             .then(() => console.log('Signup success'))
+    //             .catch((err) => Alert.alert("Login error", err.message));
+    //     }
+    // };
+
+
+    const onHandleSignup = async () => {
         if (email !== '' && password !== '') {
-            createUserWithEmailAndPassword(auth, email, password)
-                .then(() => console.log('Signup success'))
-                .catch((err) => Alert.alert("Login error", err.message));
+           try {
+              // Create the user account
+              const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+              
+              // Access the newly created user
+              const user = userCredential.user;
+     
+              // Create a new user document in Firestore with additional data
+              const userDocRef = await addDoc(collection(database, 'users'), {
+                 name,
+                 branch,
+                 regNo,
+                 semester,
+                 interests,
+                 uid: user.uid, // Store the user's UID as well
+              });
+     
+              console.log('Signup success');
+              navigation.navigate("ClubSel");
+           } catch (error) {
+              Alert.alert('Signup error', error.message);
+           }
         }
-    };
+     };
+     
+
 
     return (
         <View style={styles.container}>
@@ -44,6 +83,37 @@ export default function Signup({ navigation }) {
                     value={password}
                     onChangeText={(text) => setPassword(text)}
                 />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Full Name"
+                    value={name}
+                    onChangeText={(text) => setName(text)}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Branch"
+                    value={branch}
+                    onChangeText={(text) => setBranch(text)}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Registration Number"
+                    value={regNo}
+                    onChangeText={(text) => setRegNo(text)}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Semester"
+                    value={semester}
+                    onChangeText={(text) => setSemester(text)}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Interests"
+                    value={interests}
+                    onChangeText={(text) => setInterests(text)}
+                />
+
                 <TouchableOpacity style={styles.button} onPress={onHandleSignup}>
                     <Text style={{ fontWeight: 'bold', color: '#fff', fontSize: 18 }}> Sign Up</Text>
                 </TouchableOpacity>
@@ -70,7 +140,7 @@ const styles = StyleSheet.create({
         color: "#005A89",
         alignSelf: "center",
         paddingBottom: 28,
-        paddingTop:70
+        paddingTop: 70
     },
     input: {
         backgroundColor: "#F6F7FB",
@@ -85,7 +155,7 @@ const styles = StyleSheet.create({
         height: 340,
         position: "absolute",
         top: 0,
-        opacity:0.85,
+        opacity: 0.85,
         resizeMode: 'cover',
     },
     curvedBg: {
