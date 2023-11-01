@@ -3,8 +3,11 @@ import React, { useState } from "react";
 import { StyleSheet, Text, View, Button, TextInput, Image, SafeAreaView, TouchableOpacity, StatusBar, Alert } from "react-native";
 
 import { signInWithEmailAndPassword } from "firebase/auth";
-
+import { Ionicons } from '@expo/vector-icons';
 import { auth } from "../config/firebase";
+// import { useFonts } from '@expo-google-fonts/poppins';
+
+
 
 const bgImage = require("../assets/blue-pattern3.jpg");
 
@@ -20,39 +23,75 @@ export default function Login({ navigation }) {
         }
     }
 
+    const [showPassword, setShowPassword] = useState(false);
+
+    // const [fontsLoaded] = useFonts({
+    //     Poppins: require('@expo-google-fonts/poppins'),
+    //   });
+
+    //   if (!fontsLoaded) {
+    //     return null;
+    //   }
+
+
     return (
         <View style={styles.container}>
-            <Image source={bgImage} style={styles.bgImage} />
+            {/* <Image source={bgImage} style={styles.bgImage} /> */}
             <View style={styles.curvedBg} />
             <SafeAreaView style={styles.form}>
-                <Text style={styles.title}>Log In</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Enter email"
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                    textContentType="emailAddress"
-                    // autoFocus={true}
-                    value={email}
-                    onChangeText={(text) => setEmail(text)}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Enter password"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    secureTextEntry={true}
-                    textContentType="password"
-                    value={password}
-                    onChangeText={(text) => setPassword(text)}
-                />
+                <View style={styles.header}>
+                    <Image source={require('../assets/star.png')} style={styles.image} resizeMode="contain" />
+                    <View style={styles.titleContainer}>
+                        <Text style={styles.title}>Log in</Text>
+                    </View>
+                </View>
+                <View style={styles.inputContainer}>
+                    <View style={styles.labelContainer}>
+                        <Text style={styles.label}>Email Address</Text>
+                    </View>
+                    <TextInput
+                        style={styles.input}
+                        autoCapitalize="none"
+                        keyboardType="email-address"
+                        textContentType="emailAddress"
+                        value={email}
+                        onChangeText={(text) => setEmail(text)}
+                    />
+                </View>
+                <View style={styles.inputContainer}>
+                    <View style={styles.labelContainer}>
+                        <Text style={styles.label}>Password</Text>
+                    </View>
+                    <View style={styles.passwordInputContainer}>
+                        <TextInput
+                            style={styles.input}
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                            secureTextEntry={!showPassword}
+                            textContentType="password"
+                            value={password}
+                            onChangeText={(text) => setPassword(text)}
+                        />
+                        <TouchableOpacity
+                            style={styles.eyeButton}
+                            onPress={() => setShowPassword(!showPassword)}
+                        >
+                            <Ionicons
+                                name={showPassword ? 'eye' : 'eye-off'}
+                                size={24}
+                                color="gray"
+                            />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
                 <TouchableOpacity style={styles.button} onPress={onHandleLogin}>
-                    <Text style={{ fontWeight: 'bold', color: '#fff', fontSize: 18 }}> Log In</Text>
+                    <Text style={{ color: '#fff', fontSize: 17, fontFamily: 'Inter-SemiBold' }}> Log in</Text>
                 </TouchableOpacity>
                 <View style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center', alignSelf: 'center' }}>
-                    <Text style={{ color: 'gray', fontWeight: '600', fontSize: 14 }}>Don't have an account? </Text>
+                    <Text style={{ color: 'black', fontSize: 14, marginTop: 205, fontFamily: 'Inter-Regular', opacity: 0.7 }}>Don't have an account? </Text>
                     <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
-                        <Text style={{ color: '#005A89', fontWeight: '600', fontSize: 14 }}> Sign Up</Text>
+                        <Text style={{ color: 'black', fontSize: 14, marginTop: 205, fontFamily: 'Inter-SemiBold' }}> Sign up</Text>
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>
@@ -65,28 +104,54 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#fff",
     },
+    form: {
+        flex: 1,
+        justifyContent: 'flex-start',
+        marginHorizontal: 30,
+        fontFamily: 'Poppins-Regular'
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 40,
+        marginTop: 50
+    },
+    image: {
+        width: 40, // Set your desired width
+        height: 40, // Set your desired height
+        position: 'absolute',
+        top: 10,
+        right: 0,
+    },
+    titleContainer: {
+        flex: 1,
+        alignItems: 'center',
+    },
     title: {
-        fontSize: 25,
-        fontWeight: 'bold',
-        // fontFamily:'Poppins',"sans-serif",
-        color: "#005A89",
-        alignSelf: "center",
-        paddingBottom: 28,
-        paddingTop:70
+        fontSize: 26,
+        // fontWeight: 'bold',
+        color: 'black',
+        marginTop: 100,
+        fontFamily: 'Poppins-Bold',
     },
     input: {
-        backgroundColor: "#F6F7FB",
-        height: 58,
+        backgroundColor: "white",
+        height: 50,
         marginBottom: 20,
         fontSize: 16,
-        borderRadius: 10,
+        borderRadius: 6,
         padding: 12,
+        borderWidth: 0.2,
+        marginTop: 2,
+        borderColor: '#5B5B5B',
+        fontFamily: 'Poppins-Regular'
     },
     bgImage: {
         width: "100%",
         height: 340,
         position: "absolute",
-        opacity:0.85,
+        opacity: 0.85,
         top: 0,
         resizeMode: 'cover',
     },
@@ -98,14 +163,14 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderTopLeftRadius: 60,
     },
-    form: {
-        flex: 1,
-        justifyContent: 'center',
-        marginHorizontal: 30,
+    eyeButton: {
+        position: 'absolute', // Position the button absolutely
+        top: 16, // Adjust the top position as needed
+        right: 15, // Adjust the right position as needed
     },
     button: {
-        backgroundColor: '#005A89',
-        height: 58,
+        backgroundColor: 'black',
+        height: 50,
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',

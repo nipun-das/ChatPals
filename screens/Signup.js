@@ -10,7 +10,7 @@ const bgImage = require("../assets/blue-pattern3.jpg");
 
 export default function Signup({ navigation }) {
 
-    
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
@@ -30,31 +30,40 @@ export default function Signup({ navigation }) {
 
     const onHandleSignup = async () => {
         if (email !== '' && password !== '') {
-           try {
-              // Create the user account
-              const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-              
-              // Access the newly created user
-              const user = userCredential.user;
-     
-              // Create a new user document in Firestore with additional data
-              const userDocRef = await addDoc(collection(database, 'users'), {
-                 name,
-                 branch,
-                 regNo,
-                 semester,
-                 interests,
-                 uid: user.uid, // Store the user's UID as well
-              });
-     
-              console.log('Signup success');
-              navigation.navigate("ClubSel");
-           } catch (error) {
-              Alert.alert('Signup error', error.message);
-           }
+            try {
+                // Create the user account
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+                // Access the newly created user
+                const user = userCredential.user;
+
+                // Create a new user document in Firestore with additional data
+                const userDocRef = await addDoc(collection(database, 'users'), {
+                    name,
+                    branch,
+                    regNo,
+                    semester,
+                    interests,
+                    uid: user.uid, // Store the user's UID as well
+                });
+
+                console.log('Signup success');
+                console.log("Signup page : ", name, branch, regNo, semester, interests, user.uid)
+                console.log("Sign up pass to ClubSel: ", name, branch, regNo, semester, interests)
+                navigation.navigate("ClubSel", {
+                    name,
+                    branch,
+                    regNo,
+                    semester,
+                    interests,
+                });
+
+            } catch (error) {
+                Alert.alert('Signup error', error.message);
+            }
         }
-     };
-     
+    };
+
 
 
     return (
@@ -136,7 +145,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 25,
         fontWeight: 'bold',
-        // fontFamily:'Poppins',"sans-serif",
+        fontFamily:'Poppins-Regular',
         color: "#005A89",
         alignSelf: "center",
         paddingBottom: 28,
