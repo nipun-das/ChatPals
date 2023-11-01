@@ -3,6 +3,7 @@ import React, { useState, createContext, useContext } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { SplashScreen } from 'expo-splash-screen';
 import Chat from './screens/Chat';
 import Login from './screens/Login';
 import Signup from './screens/Signup';
@@ -11,9 +12,14 @@ import { auth } from './config/firebase';
 import { ActivityIndicator } from 'react-native';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useEffect } from 'react';
-import {LogBox} from 'react-native'; 
+import { LogBox } from 'react-native';
+// import { AppLoading } from 'expo';
 import ClubSel from './screens/ClubSel';
-LogBox.ignoreLogs(['Warning: Async Storage has been extracted from react-native core']);
+import ClubCreationScreen from './screens/ClubCreationScreen';
+import ClubCreationSuccess from './screens/ClubCreationSuccess';
+import { useFonts, Poppins_400Regular } from '@expo-google-fonts/poppins';
+import AppLoading from 'expo-app-loading';
+LogBox.ignoreLogs(['AsyncStorage has been extracted']);
 
 
 const Stack = createStackNavigator();
@@ -29,38 +35,32 @@ const AuthenticatedUserProvider = ({ children }) => {
   )
 }
 
-
-
-
 function ChatStack() {
   return (
     <Stack.Navigator defaultScreenOptions={Home} >
-      {/* <Stack.Screen name="Home" component={Home} /> */}
-
-      {/* <Stack.Screen name="Chat" component={Chat} /> */}
       <Stack.Screen name="ClubSel" component={ClubSel} />
-
+      <Stack.Screen name="ClubCreationScreen" component={ClubCreationScreen} />
+      <Stack.Screen name="ClubCreationSuccess" component={ClubCreationSuccess} />
     </Stack.Navigator>
   )
 }
 
 function AuthStack() {
   return (
-
     <Stack.Navigator defaultScreenOptions={Login} screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Signup" component={Signup} />
       <Stack.Screen name="ClubSel" component={ClubSel} />
-      
+      <Stack.Screen name="ClubCreationScreen" component={ClubCreationScreen} />
+      <Stack.Screen name="ClubCreationSuccess" component={ClubCreationSuccess} />
     </Stack.Navigator>
   )
-
 }
-
 
 function RootNavigator() {
   const { user, setUser } = useContext(AuthenticatedUserContext);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth,
       async authenticatedUser => {
@@ -78,8 +78,6 @@ function RootNavigator() {
       </View>
     );
   }
-
-
   return (
     <NavigationContainer>
       {user ? <ChatStack /> : <AuthStack />}
@@ -87,11 +85,27 @@ function RootNavigator() {
   )
 }
 
-
 export default function App() {
-  return (
+  const [fontsLoaded] = useFonts({
+    'Poppins-Regular': require('./assets/fonts/Poppins-Regular.ttf'),
+    'Poppins-Bold': require('./assets/fonts/Poppins-Bold.ttf'),
+    'Inter-Regular': require('./assets/fonts/inter/static/Inter-Regular.ttf'),
+    'Inter-SemiBold': require('./assets/fonts/inter/static/Inter-SemiBold.ttf'),
 
-    <AuthenticatedUserProvider><RootNavigator /></AuthenticatedUserProvider>)
+
+  });
+
+
+  if (!fontsLoaded) {
+    return <AppLoading />;
+  }
+
+  
+  return (
+    <AuthenticatedUserProvider>
+      <StatusBar style="light" backgroundColor='white' />
+      <RootNavigator />
+    </AuthenticatedUserProvider>)
 }
 
 
