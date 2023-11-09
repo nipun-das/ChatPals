@@ -34,6 +34,7 @@ export default function ClubCreationScreen({ navigation }) {
                 name: clubName,
                 description,
                 ownerId: userId,
+                motto,
                 // Add more club details here if needed
             });
 
@@ -70,6 +71,14 @@ export default function ClubCreationScreen({ navigation }) {
                 value={description}
                 multiline={true}
             />
+            <Text style={styles.label}>Club Motto</Text>
+            <TextInput
+                style={styles.input}
+                placeholder="Enter club motto"
+                onChangeText={text => setMotto(text)}
+                value={motto}
+                multiline={true}
+            />
 
             <Button
                 title="Create Club"
@@ -82,6 +91,7 @@ export default function ClubCreationScreen({ navigation }) {
 
 const styles = StyleSheet.create({
     container: {
+        marginTop:50,
         flex: 1,
         padding: 16,
     },

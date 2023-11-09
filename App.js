@@ -37,7 +37,7 @@ const AuthenticatedUserProvider = ({ children }) => {
 
 function ChatStack() {
   return (
-    <Stack.Navigator defaultScreenOptions={Home} >
+    <Stack.Navigator defaultScreenOptions={Home} screenOptions={{ headerShown: false }} >
       <Stack.Screen name="ClubSel" component={ClubSel} />
       <Stack.Screen name="ClubCreationScreen" component={ClubCreationScreen} />
       <Stack.Screen name="ClubCreationSuccess" component={ClubCreationSuccess} />
@@ -91,6 +91,7 @@ export default function App() {
     'Poppins-Bold': require('./assets/fonts/Poppins-Bold.ttf'),
     'Inter-Regular': require('./assets/fonts/inter/static/Inter-Regular.ttf'),
     'Inter-SemiBold': require('./assets/fonts/inter/static/Inter-SemiBold.ttf'),
+    'Poppins-Medium': require('./assets/fonts/Poppins-Medium.ttf'),
 
 
   });
