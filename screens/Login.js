@@ -45,28 +45,31 @@ export default function Login({ navigation }) {
                         <Text style={styles.title}>Log in</Text>
                     </View>
                 </View>
-                <View style={styles.inputContainer}>
-                    <View style={styles.labelContainer}>
+                <View style={styles.inputContainer1}>
+                    {/* <View style={styles.labelContainer}>
                         <Text style={styles.label}>Email Address</Text>
-                    </View>
+                    </View> */}
                     <TextInput
                         style={styles.input}
                         autoCapitalize="none"
                         keyboardType="email-address"
                         textContentType="emailAddress"
+                        placeholder="Enter email"
                         value={email}
                         onChangeText={(text) => setEmail(text)}
                     />
                 </View>
-                <View style={styles.inputContainer}>
-                    <View style={styles.labelContainer}>
+                <View style={styles.inputContainer2}>
+                    {/* <View style={styles.labelContainer}>
                         <Text style={styles.label}>Password</Text>
-                    </View>
+                    </View> */}
                     <View style={styles.passwordInputContainer}>
                         <TextInput
                             style={styles.input}
                             autoCapitalize="none"
                             autoCorrect={false}
+                        placeholder="Enter password"
+
                             secureTextEntry={!showPassword}
                             textContentType="password"
                             value={password}
@@ -86,12 +89,12 @@ export default function Login({ navigation }) {
                 </View>
 
                 <TouchableOpacity style={styles.button} onPress={onHandleLogin}>
-                    <Text style={{ color: '#fff', fontSize: 17, fontFamily: 'Inter-SemiBold' }}> Log in</Text>
+                    <Text style={{ color: '#fff', fontSize: 17, fontFamily: 'Inter-SemiBold' }}> Log In</Text>
                 </TouchableOpacity>
                 <View style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center', alignSelf: 'center' }}>
-                    <Text style={{ color: 'black', fontSize: 14, marginTop: 205, fontFamily: 'Inter-Regular', opacity: 0.7 }}>Don't have an account? </Text>
+                    <Text style={{ color: 'black', fontSize: 14, marginTop: 205, fontFamily: 'Inter-Regular', opacity: 0.7 }}>Don't have an account?</Text>
                     <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
-                        <Text style={{ color: 'black', fontSize: 14, marginTop: 205, fontFamily: 'Inter-SemiBold' }}> Sign up</Text>
+                        <Text style={{ color: 'black', fontSize: 14, marginTop: 205, textDecorationLine:'underline' ,fontFamily: 'Inter-SemiBold' }}> Sign up</Text>
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>
@@ -146,6 +149,12 @@ const styles = StyleSheet.create({
         marginTop: 2,
         borderColor: '#5B5B5B',
         fontFamily: 'Poppins-Regular'
+    },
+    inputContainer1:{
+        marginTop:35
+    },
+    inputContainer2:{
+        marginTop:10
     },
     bgImage: {
         width: "100%",
