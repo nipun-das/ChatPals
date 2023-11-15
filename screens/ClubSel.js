@@ -169,22 +169,30 @@ const ClubSelectionScreen = ({ navigation }) => {
 
     const handleCreateClub = async () => {
         try {
-            if (currentUser && currentUser.uid) {
-                console.log("Recv. by ClubSel: ", name, branch, regNo, semester, interests)
-                const ownerDocRef = doc(database, 'owners', currentUser.uid);
-                await setDoc(ownerDocRef, {
-                    uid: currentUser.uid,
-                    name,
-                    branch,
-                    regNo,
-                    semester,
-                    interests,
-                });
 
-                navigation.navigate('ClubCreationScreen');
-            } else {
-                console.error('User not authenticated');
+            if (!currentUser && currentUser.uid) {
+                setTimeout(() => handleCreateClub(), 500);
+                return;
             }
+
+
+            // if (currentUser && currentUser.uid) {
+            console.log("Recv. by ClubSel: ", name, branch, regNo, semester, interests)
+            const ownerDocRef = doc(database, 'owners', currentUser.uid);
+            await setDoc(ownerDocRef, {
+                uid: currentUser.uid,
+                name,
+                branch,
+                regNo,
+                semester,
+                interests,
+            }
+            );
+
+            navigation.navigate('ClubCreationScreen');
+            // } else {
+            //     console.error('User not authenticated');
+            // }
         } catch (error) {
             console.error('Error updating user role:', error);
         }
@@ -226,7 +234,7 @@ const ClubSelectionScreen = ({ navigation }) => {
             <SafeAreaView style={styles.form}>
                 <View style={styles.header}>
                     {/* <View style={styles.styleElement}/> */}
-                    
+
                     <Image source={require('../assets/star.png')} style={styles.image} resizeMode="contain" />
                     <View style={styles.titleContainer}>
                         <Text style={styles.title}>Join{'\n'}The{'\n'}Community!</Text>
@@ -280,10 +288,10 @@ const styles = StyleSheet.create({
         height: 500, // Adjust the height as needed
         backgroundColor: '#BF0B0B', // Set the desired background color
         // borderRadius: 10,groundColor: 'transparent', // Make it transparent so it doesn't block underlying content
-        opacity:0.12,
+        opacity: 0.12,
         transform: [{ rotate: '-55deg' }]
     },
-      
+
     title: {
         fontSize: 25,
         fontWeight: 'bold',

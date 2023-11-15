@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { collection, addDoc } from 'firebase/firestore';
 import { auth, database } from '../config/firebase';
-import { signOut } from 'firebase/auth'; 
+import { signOut } from 'firebase/auth';
 
 
 export default function ClubCreationScreen({ navigation }) {
     const [clubName, setClubName] = useState('');
     const [description, setDescription] = useState('');
+    const [motto, setMotto] = useState('');
+
+   
 
     const handleSignOut = async () => {
         try {
@@ -34,7 +37,7 @@ export default function ClubCreationScreen({ navigation }) {
                 name: clubName,
                 description,
                 ownerId: userId,
-                motto,
+                motto:motto || '',
                 // Add more club details here if needed
             });
 
@@ -91,7 +94,7 @@ export default function ClubCreationScreen({ navigation }) {
 
 const styles = StyleSheet.create({
     container: {
-        marginTop:50,
+        marginTop: 50,
         flex: 1,
         padding: 16,
     },
