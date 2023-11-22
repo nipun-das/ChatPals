@@ -19,38 +19,26 @@ export default function Signup({ navigation }) {
     const [semester, setSemester] = useState('');
     const [interests, setInterests] = useState('');
 
-    // const onHandleSignup = () => {
-    //     if (email !== '' && password !== '') {
-    //         createUserWithEmailAndPassword(auth, email, password)
-    //             .then(() => console.log('Signup success'))
-    //             .catch((err) => Alert.alert("Login error", err.message));
-    //     }
-    // };
-
-
     const onHandleSignup = async () => {
         if (email !== '' && password !== '') {
             try {
-                // Create the user account
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-                // Access the newly created user
                 const user = userCredential.user;
 
-                // Create a new user document in Firestore with additional data
                 const userDocRef = await addDoc(collection(database, 'users'), {
                     name,
                     branch,
                     regNo,
                     semester,
                     interests,
-                    uid: user.uid, // Store the user's UID as well
+                    uid: user.uid,
                 });
 
                 console.log('Signup success');
                 console.log("Signup page : ", name, branch, regNo, semester, interests, user.uid)
                 console.log("Sign up pass to ClubSel: ", name, branch, regNo, semester, interests)
-                navigation.navigate("ClubSel", {
+                navigation.navigate("UserAvatar", {
                     name,
                     branch,
                     regNo,
@@ -77,15 +65,7 @@ export default function Signup({ navigation }) {
                     </View>
 
                 </View>
-
-
                 <View style={styles.inputContainer}>
-
-                    {/* <View style={styles.container}>
-          <Image source={bgImage} style={styles.bgImage} />
-          <View style={styles.curvedBg} />
-          <SafeAreaView style={styles.form}>
-            <Text style={styles.title}>Sign Up</Text> */}
                     <TextInput
                         style={styles.input}
                         placeholder="Enter email"
