@@ -15,6 +15,7 @@ import { useEffect } from 'react';
 import { LogBox } from 'react-native';
 // import { AppLoading } from 'expo';
 import ClubSel from './screens/ClubSel';
+import UserAvatar from './screens/UserAvatar';
 import ClubCreationScreen from './screens/ClubCreationScreen';
 import ClubCreationSuccess from './screens/ClubCreationSuccess';
 import { useFonts, Poppins_400Regular } from '@expo-google-fonts/poppins';
@@ -38,6 +39,7 @@ const AuthenticatedUserProvider = ({ children }) => {
 function ChatStack() {
   return (
     <Stack.Navigator defaultScreenOptions={Home} screenOptions={{ headerShown: false }} >
+      <Stack.Screen name="UserAvatar" component={UserAvatar} />
       <Stack.Screen name="ClubSel" component={ClubSel} />
       <Stack.Screen name="ClubCreationScreen" component={ClubCreationScreen} />
       <Stack.Screen name="ClubCreationSuccess" component={ClubCreationSuccess} />
@@ -50,6 +52,7 @@ function AuthStack() {
     <Stack.Navigator defaultScreenOptions={Login} screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Signup" component={Signup} />
+      <Stack.Screen name="UserAvatar" component={UserAvatar} />
       <Stack.Screen name="ClubSel" component={ClubSel} />
       <Stack.Screen name="ClubCreationScreen" component={ClubCreationScreen} />
       <Stack.Screen name="ClubCreationSuccess" component={ClubCreationSuccess} />
