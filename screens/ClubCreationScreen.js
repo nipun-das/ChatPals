@@ -13,7 +13,6 @@ export default function ClubCreationScreen({ navigation }) {
     const [motto, setMotto] = useState('');
 
 
-
     const handleSignOut = async () => {
         try {
             if (currentUser && currentUser.uid) {
@@ -27,27 +26,21 @@ export default function ClubCreationScreen({ navigation }) {
         }
     };
 
-
-
     const handleCreateClub = async () => {
         try {
-            // Get the currently authenticated user's UID
             const userId = auth.currentUser.uid;
 
-            // Create a new club document
             const clubRef = await addDoc(collection(database, 'clubs'), {
                 name: clubName,
                 description,
                 ownerId: userId,
                 motto: motto || '',
-                // Add more club details here if needed
             });
 
             console.log('Club created with ID: ', clubRef.id);
 
-            // Optionally, navigate to a club details screen or another page
             console.log("sent", clubName)
-            navigation.navigate('ClubCreationSuccess', { clubId: clubRef.id, clubName: clubName });
+            navigation.navigate('ClubCreationSuccess', { clubId: clubRef.id, clubName: clubName, userId: userId });
         } catch (error) {
             console.error('Error creating club: ', error);
             Alert.alert('Error', 'Failed to create the club. Please try again.');
@@ -57,7 +50,6 @@ export default function ClubCreationScreen({ navigation }) {
     return (
         <ImageBackground source={require('../assets/createclub.png')} style={styles.bgImage}>
             <View style={styles.container}>
-               
                 <SafeAreaView style={styles.form}>
                     <View style={styles.header}>
                         <Image source={require('../assets/star.png')} style={styles.image} resizeMode="contain" />
@@ -66,23 +58,19 @@ export default function ClubCreationScreen({ navigation }) {
                         </View>
                     </View>
                     <View style={styles.inputContainer}>
-                        {/* <Text style={styles.label}>Club Name</Text> */}
                         <TextInput
                             style={styles.input}
                             placeholder="Enter club name"
                             onChangeText={text => setClubName(text)}
                             value={clubName}
                         />
-                        {/* <Text style={styles.label}>Club Description</Text> */}
                         <TextInput
                             style={styles.input}
                             placeholder="Enter club description"
-                            onChangeText={text => setDescription(text)}
+                            onChangeText={(text) => setDescription(text)}
                             value={description}
                             multiline={true}
                         />
-
-                        {/* <Text style={styles.label}>Club Motto</Text> */}
                         <TextInput
                             style={styles.input}
                             placeholder="Enter club motto"
@@ -110,17 +98,21 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: 16,
-        fontFamily:'Poppins-Regular',
+        fontFamily: 'Poppins-Regular',
         marginBottom: 8,
     },
     input: {
-        height: 40,
-        borderColor: 'gray',
-        borderWidth: 1,
-        borderRadius: 4,
-        marginBottom: 16,
-        paddingHorizontal: 8,
+        backgroundColor: "white",
+        // height: 50,
+        marginBottom: 20,
+        fontSize: 16,
+        borderRadius: 6,
+        padding: 12,
+        borderWidth: 0.2,
+        borderColor: '#5B5B5B',
+        fontFamily: 'Poppins-Regular',
     },
+
     bgImage: {
         width: "100%",
         height: "100%",
@@ -160,18 +152,7 @@ const styles = StyleSheet.create({
         marginTop: 30,
         fontFamily: 'Poppins-Bold',
     },
-    input: {
-        backgroundColor: "white",
-        height: 50,
-        marginBottom: 20,
-        fontSize: 16,
-        borderRadius: 6,
-        padding: 12,
-        borderWidth: 0.2,
-        // marginTop: 2,
-        borderColor: '#5B5B5B',
-        fontFamily: 'Poppins-Regular'
-    },
+
     inputContainer: {
         // marginTop: 3
     },

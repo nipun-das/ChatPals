@@ -2,55 +2,71 @@
 import React, { useState } from 'react';
 import { View, Image, TouchableOpacity, StyleSheet, Text } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import { getAuth, updateProfile as updateProfileFirebase } from 'firebase/auth';
-import { getFirestore, collection, doc, setDoc,updateDoc } from 'firebase/firestore';
-
+import { createUserWithEmailAndPassword, getAuth, updateProfile as updateProfileFirebase } from 'firebase/auth';
+import { getFirestore, collection, doc, setDoc, updateDoc } from 'firebase/firestore';
+import { useRoute } from '@react-navigation/native';
 
 const auth = getAuth();
-export const updateProfile = updateProfileFirebase;
+const updateProfile = updateProfileFirebase;
 const db = getFirestore();
 const avatars = [
-    require('../assets/avatar1.png'),
-    require('../assets/avatar2.png'),
-    require('../assets/avatar3.png'),
-    require('../assets/avatar4.png'),
-    require('../assets/avatar5.png'),
-    require('../assets/avatar6.png'),
-    require('../assets/avatar7.png'),
-    require('../assets/avatar8.png'),
-    require('../assets/avatar9.png'),
+    { id: 1, source: require('../assets/avatar1.png') },
+    { id: 2, source: require('../assets/avatar2.png') },
+    { id: 3, source: require('../assets/avatar3.png') },
+    { id: 4, source: require('../assets/avatar4.png') },
+    { id: 5, source: require('../assets/avatar5.png') },
+    { id: 6, source: require('../assets/avatar6.png') },
+    { id: 7, source: require('../assets/avatar7.png') },
+    { id: 8, source: require('../assets/avatar8.png') },
+    { id: 9, source: require('../assets/avatar9.png') },
 
 ];
 
 const UserAvatar = ({ navigation }) => {
-
+    const route = useRoute();
     const [selectedAvatar, setSelectedAvatar] = useState(null);
 
     const handleAvatarSelection = (avatar) => {
-        setSelectedAvatar(avatar);
+        // console.log("Avatar:", avatar);
+        console.log("handleAvatarSelection : ", avatar.id)
+        setSelectedAvatar(avatar.id);
     };
+
 
     const handleContinue = async () => {
 
-        const user = auth.currentUser;
+        const { name, email, password, branch, regNo, semester, interests } = route.params;
+        console.log("Sign up recv by useravatar: ", name, email, password, branch, regNo, semester, interests)
 
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
         if (!user) {
-            console.error('User not authenticated.');
+            console.error('User uid not provided.');
             return;
         }
-        else{
-            console.log("hi")
-        }
+        // setDoc instead of updateDoc in this situation. setDoc will create the document if it doesn't exist or update it if it does.
 
         try {
-            const userDocRef = doc(db, 'users', user.uid);
-
-            await updateDoc(userDocRef, { photoURL: selectedAvatar });
-            navigation.navigate('ClubSel');
+            await setDoc(doc(db, 'users', user.uid), {
+                name,
+                branch,
+                regNo,
+                semester,
+                interests,
+                avatarId: selectedAvatar,
+                uid: user.uid,
+            });
+            console.log('Name:', name);
+            console.log('Branch:', branch);
+            console.log('Reg No:', regNo);
+            console.log('Semester:', semester);
+            console.log('Interests:', interests);
+            console.log("avatarId : ", selectedAvatar)
+            navigation.navigate('ClubSel', { name, branch, regNo, semester, interests });
         } catch (error) {
             console.error('Error updating user profile:', error);
-        }
-    };
+        };
+    }
     const avatarsInRows = chunkArray(avatars, 3);
 
     const backgroundColors = ['#589BF7', '#FFC562', '#9A7ED9', '#E84B23', '#33A1FF', '#97CE64', '#F9CEC4', '#9A7ED9', '#FFC562'];
@@ -72,12 +88,14 @@ const UserAvatar = ({ navigation }) => {
                             onPress={() => handleAvatarSelection(avatar)}
                             style={{ backgroundColor: backgroundColors[rowIndex * 3 + colIndex], margin: 5, position: 'relative' }}
                         >
-                            <Image source={avatar} style={styles.avatar} />
-                            {selectedAvatar === avatar && (
+                            <Image source={avatar.source} style={styles.avatar} />
+                            {selectedAvatar === avatar.id ? (
                                 <FontAwesome name="check-circle" size={24} color="white" style={styles.checkmark} />
-                            )}
+                            ) : null}
                         </TouchableOpacity>
                     ))}
+
+
                 </View>
             ))}
             <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>

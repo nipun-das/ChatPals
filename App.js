@@ -3,7 +3,7 @@ import React, { useState, createContext, useContext } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { SplashScreen } from 'expo-splash-screen';
+import * as SplashScreen from 'expo-splash-screen';
 import Chat from './screens/Chat';
 import Login from './screens/Login';
 import Signup from './screens/Signup';
@@ -13,20 +13,20 @@ import { ActivityIndicator } from 'react-native';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useEffect } from 'react';
 import { LogBox } from 'react-native';
-// import { AppLoading } from 'expo';
 import ClubSel from './screens/ClubSel';
 import UserAvatar from './screens/UserAvatar';
 import ClubCreationScreen from './screens/ClubCreationScreen';
 import ClubCreationSuccess from './screens/ClubCreationSuccess';
 import { useFonts, Poppins_400Regular } from '@expo-google-fonts/poppins';
-import AppLoading from 'expo-app-loading';
+import ClubFeed from './screens/ClubFeed';
+import TestPage from './screens/TestPage';
 LogBox.ignoreLogs(['AsyncStorage has been extracted']);
 
 
 const Stack = createStackNavigator();
-const AuthenticatedUserContext = createContext({});
+export const AuthenticatedUserContext = createContext({});
 
-const AuthenticatedUserProvider = ({ children }) => {
+export const AuthenticatedUserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   return (
@@ -36,29 +36,42 @@ const AuthenticatedUserProvider = ({ children }) => {
   )
 }
 
+
+// for authenticated users
 function ChatStack() {
   return (
     <Stack.Navigator defaultScreenOptions={Home} screenOptions={{ headerShown: false }} >
-      <Stack.Screen name="UserAvatar" component={UserAvatar} />
+      {/* <Stack.Screen name="TestPage" component={TestPage} /> */}
+      
       <Stack.Screen name="ClubSel" component={ClubSel} />
       <Stack.Screen name="ClubCreationScreen" component={ClubCreationScreen} />
       <Stack.Screen name="ClubCreationSuccess" component={ClubCreationSuccess} />
+      <Stack.Screen name="ClubFeed" component={ClubFeed} />
+      
+      {/* <Stack.Screen name="ClubSel" component={ClubSel} />
+      <Stack.Screen name="ClubCreationScreen" component={ClubCreationScreen} />
+      <Stack.Screen name="ClubCreationSuccess" component={ClubCreationSuccess} /> */}
     </Stack.Navigator>
   )
 }
 
+// for unauthenticated users
 function AuthStack() {
   return (
     <Stack.Navigator defaultScreenOptions={Login} screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Signup" component={Signup} />
       <Stack.Screen name="UserAvatar" component={UserAvatar} />
-      <Stack.Screen name="ClubSel" component={ClubSel} />
-      <Stack.Screen name="ClubCreationScreen" component={ClubCreationScreen} />
-      <Stack.Screen name="ClubCreationSuccess" component={ClubCreationSuccess} />
     </Stack.Navigator>
   )
 }
+
+// *.*9wow
+// RootNavigator is a component that determines which stack to display based on the authentication status. 
+// It uses the onAuthStateChanged function from Firebase to check if a user is authenticated.
+// While authentication status is being checked (loading is true), it displays an ActivityIndicator. 
+// Once the authentication check is complete, it renders either the ChatStack or AuthStack based on the 
+// user's authentication status.
 
 function RootNavigator() {
   const { user, setUser } = useContext(AuthenticatedUserContext);
@@ -69,6 +82,7 @@ function RootNavigator() {
       async authenticatedUser => {
         authenticatedUser ? setUser(authenticatedUser) : setUser(null);
         setLoading(false);
+        SplashScreen.hideAsync(); 
       }
     );
     return () => unsubscribe();
@@ -99,12 +113,6 @@ export default function App() {
 
   });
 
-
-  if (!fontsLoaded) {
-    return <AppLoading />;
-  }
-
-  
   return (
     <AuthenticatedUserProvider>
       <StatusBar style="light" backgroundColor='white' />
