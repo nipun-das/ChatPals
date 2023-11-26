@@ -4,7 +4,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 function ClubCreationSuccess({ route }) {
-    const { clubName } = route.params || {};
+    const { clubName,userId } = route.params || {};
     console.log(route.params);
 
     useEffect(() => {
@@ -80,10 +80,10 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-Bold',
     },
     title2: {
-        fontSize: 19,
+        fontSize: 25,
         color: '#D90505',
         marginTop: 10,
-        fontFamily: 'Poppins-Regular',
+        fontFamily: 'Poppins-Medium',
 
     },
     title3: {

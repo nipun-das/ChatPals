@@ -22,30 +22,32 @@ export default function Signup({ navigation }) {
     const onHandleSignup = async () => {
         if (email !== '' && password !== '') {
             try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                // const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-                const user = userCredential.user;
+                // const user = userCredential.user;
 
-                const userDocRef = await addDoc(collection(database, 'users'), {
-                    name,
-                    branch,
-                    regNo,
-                    semester,
-                    interests,
-                    uid: user.uid,
-                });
+                // const userDocRef = await addDoc(collection(database, 'users'), {
+                //     name,
+                //     branch,
+                //     regNo,
+                //     semester,
+                //     interests,
+                //     uid: user.uid,
+                // });
 
                 console.log('Signup success');
-                console.log("Signup page : ", name, branch, regNo, semester, interests, user.uid)
-                console.log("Sign up pass to ClubSel: ", name, branch, regNo, semester, interests)
+                console.log("Signup page : ", name, email, password, branch, regNo, semester, interests)
+                console.log("Sign up pass to useravatar: ", name, branch, email, password, regNo, semester, interests)
                 navigation.navigate("UserAvatar", {
                     name,
+                    email,
+                    password,
                     branch,
                     regNo,
                     semester,
                     interests,
+                    // uid: user.uid,
                 });
-
             } catch (error) {
                 Alert.alert('Signup error', error.message);
             }
@@ -121,9 +123,9 @@ export default function Signup({ navigation }) {
                     <Text style={{ fontWeight: 'bold', color: '#fff', fontSize: 17, fontFamily: 'Inter-SemiBold' }}>Sign Up</Text>
                 </TouchableOpacity>
                 <View style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center', alignSelf: 'center' }}>
-                    <Text style={{ color: 'black', fontWeight: '600', fontSize: 14, fontFamily: 'Inter-Regular',opacity: 0.7 }}>Already have an account? </Text>
+                    <Text style={{ color: 'black', fontWeight: '600', fontSize: 14, fontFamily: 'Inter-Regular', opacity: 0.7 }}>Already have an account? </Text>
                     <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-                        <Text style={{ color: 'black', fontWeight: '600', fontSize: 14, fontFamily: 'Inter-SemiBold' ,textDecorationLine:'underline'}}>Log In</Text>
+                        <Text style={{ color: 'black', fontWeight: '600', fontSize: 14, fontFamily: 'Inter-SemiBold', textDecorationLine: 'underline' }}>Log In</Text>
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>
