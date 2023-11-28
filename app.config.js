@@ -9,7 +9,7 @@ export default {
     "icon": "./assets/icon1.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splash-screen11.jpg",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
