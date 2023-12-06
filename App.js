@@ -20,6 +20,11 @@ import ClubCreationSuccess from './screens/ClubCreationSuccess';
 import { useFonts, Poppins_400Regular } from '@expo-google-fonts/poppins';
 import ClubFeed from './screens/ClubFeed';
 import TestPage from './screens/TestPage';
+import HomeScreen from './screens/HomeScreen';
+import ProfileScreen from './screens/ProfileScreen';
+import ChatScreen from './screens/ChatScreen';
+import MainScreen from './screens/MainScreen';
+
 LogBox.ignoreLogs(['AsyncStorage has been extracted']);
 
 
@@ -28,7 +33,6 @@ export const AuthenticatedUserContext = createContext({});
 
 export const AuthenticatedUserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-
   return (
     <AuthenticatedUserContext.Provider value={{ user, setUser }}>
       {children}
@@ -36,21 +40,18 @@ export const AuthenticatedUserProvider = ({ children }) => {
   )
 }
 
-
 // for authenticated users
 function ChatStack() {
   return (
     <Stack.Navigator defaultScreenOptions={Home} screenOptions={{ headerShown: false }} >
-      {/* <Stack.Screen name="TestPage" component={TestPage} /> */}
-      
       <Stack.Screen name="ClubSel" component={ClubSel} />
       <Stack.Screen name="ClubCreationScreen" component={ClubCreationScreen} />
       <Stack.Screen name="ClubCreationSuccess" component={ClubCreationSuccess} />
+      <Stack.Screen name="MainScreen" component={MainScreen} />
       <Stack.Screen name="ClubFeed" component={ClubFeed} />
-      
-      {/* <Stack.Screen name="ClubSel" component={ClubSel} />
-      <Stack.Screen name="ClubCreationScreen" component={ClubCreationScreen} />
-      <Stack.Screen name="ClubCreationSuccess" component={ClubCreationSuccess} /> */}
+      <Stack.Screen name="HomeScreen" component={HomeScreen} />
+      <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+      <Stack.Screen name="ChatScreen" component={ChatScreen} />
     </Stack.Navigator>
   )
 }
@@ -109,8 +110,6 @@ export default function App() {
     'Inter-Regular': require('./assets/fonts/inter/static/Inter-Regular.ttf'),
     'Inter-SemiBold': require('./assets/fonts/inter/static/Inter-SemiBold.ttf'),
     'Poppins-Medium': require('./assets/fonts/Poppins-Medium.ttf'),
-
-
   });
 
   return (
