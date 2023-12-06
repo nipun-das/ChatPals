@@ -3,14 +3,16 @@ import { View, Text, StyleSheet, Image, ImageBackground } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-function ClubCreationSuccess({ route }) {
-    const { clubName,userId } = route.params || {};
+function ClubCreationSuccess({ route,navigation }) {
+    const { clubName, userId } = route.params || {};
     console.log(route.params);
 
     useEffect(() => {
         console.log("recv", clubName)
     }, []);
-
+    const handleProceed = async () => {
+        navigation.navigate('MainScreen',navigation)
+    }
     return (
         <ImageBackground source={require('../assets/success.png')} style={styles.bgImage}>
             <View style={styles.container}>
@@ -23,7 +25,7 @@ function ClubCreationSuccess({ route }) {
                             <Text style={styles.title3}>is now alive in the campus.{'\n'}Make it amazing!</Text>
                         </View>
                     </View>
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity style={styles.button} onPress={handleProceed}>
                         <Text style={{ color: '#fff', fontSize: 17, fontFamily: 'Inter-SemiBold' }}>Proceed</Text>
                     </TouchableOpacity>
                 </SafeAreaView>
@@ -91,7 +93,7 @@ const styles = StyleSheet.create({
         color: 'black',
         fontFamily: 'Poppins-Medium',
         textAlign: 'center',
-        marginTop:-5,
+        marginTop: -5,
         justifyContent: 'center',
         alignItems: 'center',
     },

@@ -40,7 +40,8 @@ export default function ClubCreationScreen({ navigation }) {
             console.log('Club created with ID: ', clubRef.id);
 
             console.log("sent", clubName)
-            navigation.navigate('ClubCreationSuccess', { clubId: clubRef.id, clubName: clubName, userId: userId });
+            navigation.navigate('ClubCreationSuccess', { clubName: clubName, userId: userId, navigation });
+
         } catch (error) {
             console.error('Error creating club: ', error);
             Alert.alert('Error', 'Failed to create the club. Please try again.');
