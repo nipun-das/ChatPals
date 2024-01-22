@@ -30,10 +30,8 @@ const ClubSelectionScreen = ({ navigation }) => {
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((authUser) => {
             if (authUser) {
-                // Set the authenticated user
                 setUser(authUser);
 
-                // Fetch user data from Firestore based on the authenticated user's UID
                 const userDocRef = doc(database, 'users', authUser.uid);
                 getDoc(userDocRef)
                     .then((snapshot) => {

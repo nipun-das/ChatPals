@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Image, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, Image, ImageBackground, LogBox } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
+// import { SafeAreaView } from 'react-native-safe-area-context';
+LogBox.ignoreLogs(['Non-serializable values were found in the navigation state. Check:']);
 function ClubCreationSuccess({ route,navigation }) {
     const { clubName, userId } = route.params || {};
     console.log(route.params);
@@ -16,7 +16,7 @@ function ClubCreationSuccess({ route,navigation }) {
     return (
         <ImageBackground source={require('../assets/success.png')} style={styles.bgImage}>
             <View style={styles.container}>
-                <SafeAreaView style={styles.form}>
+                <View style={styles.form}>
                     <View style={styles.header}>
                         <Image source={require('../assets/star.png')} style={styles.image} resizeMode="contain" />
                         <View style={styles.titleContainer}>
@@ -28,7 +28,7 @@ function ClubCreationSuccess({ route,navigation }) {
                     <TouchableOpacity style={styles.button} onPress={handleProceed}>
                         <Text style={{ color: '#fff', fontSize: 17, fontFamily: 'Inter-SemiBold' }}>Proceed</Text>
                     </TouchableOpacity>
-                </SafeAreaView>
+                </View>
             </View>
         </ImageBackground>
     );

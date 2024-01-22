@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 
-import { StyleSheet, Text, View, Button, TextInput, Image, SafeAreaView, TouchableOpacity, StatusBar, Alert } from "react-native";
+import { StyleSheet, Text, View, Button, TextInput, Image, SafeAreaView, TouchableOpacity, StatusBar, Alert, LogBox } from "react-native";
 
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { Ionicons } from '@expo/vector-icons';
 import { auth } from "../config/firebase";
 // import { useFonts } from '@expo-google-fonts/poppins';
 
+LogBox.ignoreLogs(['Require cycle:']);
 
 
-const bgImage = require("../assets/blue-pattern3.jpg");
+// const bgImage = require("../assets/blue-pattern3.jpg");
 
 export default function Login({ navigation }) {
     const [email, setEmail] = useState("");
