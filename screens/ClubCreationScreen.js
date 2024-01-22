@@ -3,7 +3,7 @@ import { View, Text, TextInput, Button, StyleSheet, Alert, Image, StatusBar, Ima
 import { collection, addDoc } from 'firebase/firestore';
 import { auth, database } from '../config/firebase';
 import { signOut } from 'firebase/auth';
-import { SafeAreaView } from 'react-native-safe-area-context';
+// import { SafeAreaView } from 'react-native-safe-area-context';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 
@@ -51,7 +51,7 @@ export default function ClubCreationScreen({ navigation }) {
     return (
         <ImageBackground source={require('../assets/createclub.png')} style={styles.bgImage}>
             <View style={styles.container}>
-                <SafeAreaView style={styles.form}>
+                <View style={styles.form}>
                     <View style={styles.header}>
                         <Image source={require('../assets/star.png')} style={styles.image} resizeMode="contain" />
                         <View style={styles.titleContainer}>
@@ -85,7 +85,7 @@ export default function ClubCreationScreen({ navigation }) {
                         <Text style={{ color: '#fff', fontSize: 17, fontFamily: 'Inter-SemiBold' }}> Create</Text>
                     </TouchableOpacity>
 
-                </SafeAreaView>
+                </View>
                 <StatusBar barStyle="light-content" />
             </View>
         </ImageBackground>

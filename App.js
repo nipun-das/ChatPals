@@ -17,8 +17,8 @@ import ClubSel from './screens/ClubSel';
 import UserAvatar from './screens/UserAvatar';
 import ClubCreationScreen from './screens/ClubCreationScreen';
 import ClubCreationSuccess from './screens/ClubCreationSuccess';
-import { useFonts, Poppins_400Regular } from '@expo-google-fonts/poppins';
 import ClubFeed from './screens/ClubFeed';
+import { useFonts } from '@expo-google-fonts/poppins';
 import TestPage from './screens/TestPage';
 import HomeScreen from './screens/HomeScreen';
 import ProfileScreen from './screens/ProfileScreen';
@@ -67,26 +67,20 @@ function AuthStack() {
   )
 }
 
-// *.*9wow
-// RootNavigator is a component that determines which stack to display based on the authentication status. 
-// It uses the onAuthStateChanged function from Firebase to check if a user is authenticated.
-// While authentication status is being checked (loading is true), it displays an ActivityIndicator. 
-// Once the authentication check is complete, it renders either the ChatStack or AuthStack based on the 
-// user's authentication status.
-
 function RootNavigator() {
   const { user, setUser } = useContext(AuthenticatedUserContext);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth,
-      async authenticatedUser => {
-        authenticatedUser ? setUser(authenticatedUser) : setUser(null);
-        setLoading(false);
-        SplashScreen.hideAsync(); 
-      }
-    );
-    return () => unsubscribe();
+    const unsubscribe = onAuthStateChanged(auth, async (authenticatedUser) => {
+      setUser(authenticatedUser);
+      setLoading(false);
+      await SplashScreen.hideAsync();
+    });
+
+    return async () => {
+      await unsubscribe();
+    };
   }, [user]);
 
   if (loading) {
@@ -105,13 +99,17 @@ function RootNavigator() {
 
 export default function App() {
   const [fontsLoaded] = useFonts({
-    'Poppins-Regular': require('./assets/fonts/Poppins-Regular.ttf'),
-    'Poppins-Bold': require('./assets/fonts/Poppins-Bold.ttf'),
-    'Inter-Regular': require('./assets/fonts/inter/static/Inter-Regular.ttf'),
-    'Inter-SemiBold': require('./assets/fonts/inter/static/Inter-SemiBold.ttf'),
-    'Poppins-Medium': require('./assets/fonts/Poppins-Medium.ttf'),
+    'Poppins-Regular': require('./assets/fonts/poppins/Poppins-Regular.ttf'),
+    'Poppins-Medium': require('./assets/fonts/poppins/Poppins-Medium.ttf'),
+    'Poppins-Bold': require('./assets/fonts/poppins/Poppins-Bold.ttf'),
+    'Inter-Regular': require('./assets/fonts/inter/Inter-Regular.ttf'),
+    'Inter-SemiBold': require('./assets/fonts/inter/Inter-SemiBold.ttf'),
   });
 
+  if (!fontsLoaded) {
+    console.error('Error loading fonts'
+    +);
+  }
   return (
     <AuthenticatedUserProvider>
       <StatusBar style="light" backgroundColor='white' />

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Button, TextInput, ScrollView, Image, SafeAreaView, TouchableOpacity, StatusBar, Alert } from "react-native";
+import { StyleSheet, Text, View, Button, TextInput, ScrollView, Image, SafeAreaView, TouchableOpacity, StatusBar, Alert, LogBox } from "react-native";
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config/firebase';
 import { collection, addDoc } from 'firebase/firestore';
@@ -7,7 +7,10 @@ import * as ImagePicker from 'expo-image-picker';
 import { S3 } from 'aws-sdk';
 import { database } from '../config/firebase';
 import { useEffect } from 'react';
-const bgImage = require("../assets/blue-pattern3.jpg");
+LogBox.ignoreLogs(['Require cycle:']);
+
+
+// const bgImage = require("../assets/blue-pattern3.jpg");
 
 export default function Signup({ navigation }) {
 
@@ -56,73 +59,73 @@ export default function Signup({ navigation }) {
         fetchUserId();
     }, []); 
 
-    const options = {
-        title: 'Select ID Card Photo',
-        storageOptions: {
-            skipBackup: true,
-            path: 'images',
-        },
-    };
+    // const options = {
+    //     title: 'Select ID Card Photo',
+    //     storageOptions: {
+    //         skipBackup: true,
+    //         path: 'images',
+    //     },
+    // };
 
 
-    const pickImage = async () => {
-        try {
-            let result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                aspect: [4, 3],
-                quality: 1,
-            });
-            console.log('ImagePicker result:', result);
-            if (!result.canceled) {
-                const selectedAsset = result.assets[0];
-                setSelectedImage(selectedAsset.uri);
-                console.log('Calling uplaod to s3');
-                uploadToS3(selectedAsset.uri);
-            }
-        } catch (error) {
-            console.error('Error picking image:', error);
-        }
-    };
+    // const pickImage = async () => {
+    //     try {
+    //         let result = await ImagePicker.launchImageLibraryAsync({
+    //             mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    //             allowsEditing: true,
+    //             aspect: [4, 3],
+    //             quality: 1,
+    //         });
+    //         console.log('ImagePicker result:', result);
+    //         if (!result.canceled) {
+    //             const selectedAsset = result.assets[0];
+    //             setSelectedImage(selectedAsset.uri);
+    //             console.log('Calling uplaod to s3');
+    //             uploadToS3(selectedAsset.uri);
+    //         }
+    //     } catch (error) {
+    //         console.error('Error picking image:', error);
+    //     }
+    // };
 
 
 
 
-    const uploadToS3 = async (uri) => {
-        console.log('Uploading to S3...');
-        try {
-            const s3 = new S3({
-                accessKeyId: 'AKIA3QFOOXI6SQE7FYU4',
-                secretAccessKey: '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',
-                region: 'eu-north-1',
-            });
-            console.log('File uploaded successfully to S3.');
-        } catch (error) {
-            console.error('Error uploading image to S3:', error);
-        }
-        const bucketName = 'idcard-clubwave';
-        const key = `user_${userId}_id_card.jpg`;
+    // const uploadToS3 = async (uri) => {
+    //     console.log('Uploading to S3...');
+    //     try {
+    //         const s3 = new S3({
+    //             accessKeyId: 'AKIA3QFOOXI6SQE7FYU4',
+    //             secretAccessKey: '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',
+    //             region: 'eu-north-1',
+    //         });
+    //         console.log('File uploaded successfully to S3.');
+    //     } catch (error) {
+    //         console.error('Error uploading image to S3:', error);
+    //     }
+    //     const bucketName = 'idcard-clubwave';
+    //     const key = `user_${userId}_id_card.jpg`;
 
-        try {
-            console.log('Reading file...');
-            const fileData = await RNFS.readFile(uri, 'base64');
-            console.log('File read successfully.');
+    //     try {
+    //         console.log('Reading file...');
+    //         const fileData = await RNFS.readFile(uri, 'base64');
+    //         console.log('File read successfully.');
 
-            const params = {
-                Bucket: bucketName,
-                Key: key,
-                Body: Buffer.from(fileData, 'base64'),
-                ACL: 'public-read',
-                ContentType: 'image/jpeg',
-            };
+    //         const params = {
+    //             Bucket: bucketName,
+    //             Key: key,
+    //             Body: Buffer.from(fileData, 'base64'),
+    //             ACL: 'public-read',
+    //             ContentType: 'image/jpeg',
+    //         };
 
-            await s3.upload(params).promise();
+    //         await s3.upload(params).promise();
 
-            onHandleSignup();
-        } catch (error) {
-            console.error('Error uploading image to S3:', error);
-        }
-    };
+    //         onHandleSignup();
+    //     } catch (error) {
+    //         console.error('Error uploading image to S3:', error);
+    //     }
+    // };
 
     return (
         <ScrollView style={{ flex: 1 }}>
