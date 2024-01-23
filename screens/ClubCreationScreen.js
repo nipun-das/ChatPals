@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, Image, StatusBar, ImageBackground } from 'react-native';
-import { collection, addDoc } from 'firebase/firestore';
-import { auth, database } from '../config/firebase';
+import { collection, addDoc, doc, setDoc, updateDoc } from 'firebase/firestore';
+import { auth, database, realtimeDatabase } from '../config/firebase';
 import { signOut } from 'firebase/auth';
 // import { SafeAreaView } from 'react-native-safe-area-context';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { ref, set } from 'firebase/database';
 
 
 export default function ClubCreationScreen({ navigation }) {
@@ -30,24 +31,44 @@ export default function ClubCreationScreen({ navigation }) {
         try {
             const userId = auth.currentUser.uid;
 
+            // Create a new club document with additional fields
             const clubRef = await addDoc(collection(database, 'clubs'), {
                 name: clubName,
                 description,
-                ownerId: userId,
                 motto: motto || '',
+                ownerId: userId,
+                cid: '', // This will be updated after creating the document
+                members: [], // Initially, the members array is empty
             });
 
-            console.log('Club created with ID: ', clubRef.id);
+            // Update the document with the 'cid' field set to the document ID
+            const clubId = clubRef.id;
+            await updateDoc(doc(database, 'clubs', clubId), { cid: clubId });
 
-            console.log("sent", clubName)
+            // Update the user's role to 'owner' and clubId
+            await updateDoc(doc(database, 'users', userId), { role: 'owner', clubId });
+
+
+            // Creating chatroom
+            const chatroomRef = doc(database, 'chatrooms', clubId);
+
+            const chatroomData = {
+                clubId: clubId,
+                messages: [], // Initially, the messages array is empty
+            };
+
+            // Set data in the chatroom document
+            await setDoc(chatroomRef, chatroomData);
+
+            console.log('Chat room created for club ID: ', clubId);
+
+            console.log("sent", clubName);
             navigation.navigate('ClubCreationSuccess', { clubName: clubName, userId: userId, navigation });
-
         } catch (error) {
             console.error('Error creating club: ', error);
             Alert.alert('Error', 'Failed to create the club. Please try again.');
         }
     };
-
     return (
         <ImageBackground source={require('../assets/createclub.png')} style={styles.bgImage}>
             <View style={styles.container}>

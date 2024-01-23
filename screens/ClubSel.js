@@ -14,18 +14,9 @@ const ClubSelectionScreen = ({ navigation }) => {
 
     const { user, setUser } = useContext(AuthenticatedUserContext);
     const [userData, setUserData] = useState(null);
-    // const route = useRoute();
-    // const { name, branch, regNo, semester, interests } = route.params || {};
-    // console.log('Route params:', route.params);
-    // console.log('Name:', name);
-    // console.log('Branch:', branch);
-    // console.log('Reg No:', regNo);
-    // console.log('Semester:', semester);
-    // console.log('Interests:', interests);
 
     const currentUser = getAuth().currentUser;
 
-    // const [currentUser, setCurrentUser] = useState(null);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((authUser) => {
@@ -36,7 +27,6 @@ const ClubSelectionScreen = ({ navigation }) => {
                 getDoc(userDocRef)
                     .then((snapshot) => {
                         if (snapshot.exists()) {
-                            // User data found
                             setUserData(snapshot.data());
                         } else {
                             console.error('User data not found.');
@@ -74,18 +64,17 @@ const ClubSelectionScreen = ({ navigation }) => {
 
     const handleCreateClub = async () => {
         try {
-
             if (!currentUser || !currentUser.uid) {
                 setTimeout(() => handleCreateClub(), 500);
                 return;
             }
 
-            // console.log("Recv. by ClubSel: ", name, branch, regNo, semester, interests)
-            const ownerDocRef = doc(database, 'owners', currentUser.uid);
-            await setDoc(ownerDocRef, userData);
+            const userDocRef = doc(database, 'users', currentUser.uid);
+
+            // Update the role field to 'owner'
+            await setDoc(userDocRef, { ...userData, role: 'owner' });
 
             navigation.navigate('ClubCreationScreen');
-
         } catch (error) {
             console.error('Error updating user role:', error);
         }
