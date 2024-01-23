@@ -107,8 +107,7 @@ export default function App() {
   });
 
   if (!fontsLoaded) {
-    console.error('Error loading fonts'
-    +);
+    console.error('Error loading fonts');
   }
   return (
     <AuthenticatedUserProvider>

@@ -4,6 +4,7 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 // import {getReactNativePersistence} from 'firebase/auth/react-native';
 import Constants from 'expo-constants';
+import { getDatabase } from 'firebase/database';
 
 // Firebase config
 const firebaseConfig = {
@@ -19,3 +20,4 @@ const firebaseConfig = {
 initializeApp(firebaseConfig);
 export const auth = getAuth();//
 export const database = getFirestore();
+export const realtimeDatabase = getDatabase();
