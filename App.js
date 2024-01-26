@@ -22,7 +22,7 @@ import { useFonts } from '@expo-google-fonts/poppins';
 import TestPage from './screens/TestPage';
 import HomeScreen from './screens/HomeScreen';
 import ProfileScreen from './screens/ProfileScreen';
-import ChatScreen from './screens/ChatScreen';
+import ChatScreenOwner from './screens/ChatScreenOwner';
 import MainScreen from './screens/MainScreen';
 
 LogBox.ignoreLogs(['AsyncStorage has been extracted']);
@@ -51,7 +51,7 @@ function ChatStack() {
       <Stack.Screen name="ClubFeed" component={ClubFeed} />
       <Stack.Screen name="HomeScreen" component={HomeScreen} />
       <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
-      <Stack.Screen name="ChatScreen" component={ChatScreen} />
+      <Stack.Screen name="ChatScreenOwner" component={ChatScreenOwner} />
     </Stack.Navigator>
   )
 }
@@ -106,9 +106,7 @@ export default function App() {
     'Inter-SemiBold': require('./assets/fonts/inter/Inter-SemiBold.ttf'),
   });
 
-  if (!fontsLoaded) {
-    console.error('Error loading fonts');
-  }
+  
   return (
     <AuthenticatedUserProvider>
       <StatusBar style="light" backgroundColor='white' />

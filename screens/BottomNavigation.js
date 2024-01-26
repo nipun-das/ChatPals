@@ -8,7 +8,7 @@ const BottomNavigation = ({style}) => {
     const route = useRoute();
 
     const isHomeActive = route.name === 'ClubFeed';
-    const isChatActive = route.name === 'ChatScreen';
+    const isChatActive = route.name === 'ChatScreenOwner';
     const isProfileActive = route.name === 'ProfileScreen';
 
     const calculateLinePosition = () => {
@@ -25,7 +25,7 @@ const BottomNavigation = ({style}) => {
                     <Icon name="home" size={30} color={isHomeActive ? 'black' : 'grey'} />
                 </View>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('ChatScreen')}>
+            <TouchableOpacity onPress={() => navigation.navigate('ChatScreenOwner')}>
                 <View style={[styles.iconContainer, isChatActive && styles.activeIcon]}>
                     <Icon name="comments" size={30} color={isChatActive ? 'black' : 'grey'} />
                 </View>

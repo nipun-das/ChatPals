@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import ClubFeed from './ClubFeed';
-import ChatScreen from './ChatScreen';
+import ChatScreenOwner from './ChatScreenOwner';
 import ProfileScreen from './ProfileScreen';
 import BottomNavigation from './BottomNavigation';
 
@@ -10,9 +10,9 @@ const MainScreen = () => {
 
     const renderScreen = () => {
         switch (activeScreen) {
-            case 'ChatScreen':
+            case 'ChatScreenOwner':
                 console.log("render-->", activeScreen)
-                return <ChatScreen />;
+                return <ChatScreenOwner/>;
             case 'ProfileScreen':
                 console.log("render-->", activeScreen)
                 return <ProfileScreen />;
