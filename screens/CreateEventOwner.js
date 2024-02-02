@@ -105,9 +105,27 @@ const CreateEventOwner = ({ route }) => {
                 event_date: formattedDate,
                 event_time: formattedTime,
                 event_location: eventLocation,
+                registered_members: [],
                 created_by: currentUser.uid,
                 created_at: new Date(),
             });
+
+            // Add a message to the chatroom with a reference to the event
+            const eventMessage = `Event Created: ${eventName}`;
+            await addDoc(collection(database, `chatrooms/${clubId}/messages`), {
+                senderId: currentUser.uid,
+                text: eventMessage,
+                timestamp: new Date(),
+                messageType: 'eventMessage',
+                eventId: eventRef.id,
+                eventName: eventName,
+                eventDate: formattedDate,
+                eventTime: formattedTime,
+                eventLocation: eventLocation,
+            });
+
+
+
             setSuccessModalVisible(true);
             console.log('Event created with ID: ', eventRef.id);
 
@@ -156,7 +174,6 @@ const CreateEventOwner = ({ route }) => {
                     >
                         <View style={styles.modalContainer}>
                             {days.map((day) => {
-                                console.log('Rendering day:', day);
                                 return (
                                     <TouchableHighlight
                                         key={day}
@@ -366,7 +383,7 @@ const styles = StyleSheet.create({
         padding: 12,
         borderWidth: 0.2,
         // marginTop: 2,
-        borderColor: '#5B5B5B',
+        borderColor: 'blue',
         fontFamily: 'Poppins-Regular'
     },
     multilineInput: {
@@ -377,11 +394,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
 
+
     },
     datePicker: {
         flex: 1,
         height: 40,
-        borderColor: 'gray',
+        borderColor: 'blue',
         borderWidth: 1,
         marginBottom: 15,
         padding: 10,
@@ -395,7 +413,7 @@ const styles = StyleSheet.create({
         padding: 12,
         borderWidth: 0.2,
         marginTop: 2,
-        borderColor: '#5B5B5B',
+        borderColor: 'blue',
         fontFamily: 'Poppins-Regular'
 
 
@@ -421,7 +439,7 @@ const styles = StyleSheet.create({
         padding: 12,
         borderWidth: 0.2,
         marginTop: 2,
-        borderColor: '#5B5B5B',
+        borderColor: 'blue',
         fontFamily: 'Poppins-Regular'
     },
     modalContainer: {
@@ -520,13 +538,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        borderWidth:2,
-        padding:10
+        borderWidth: 2,
+        padding: 10
         // backgroundColor:'white',
 
     },
     successInner: {
-        flex:1,
+        flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'rgba(255, 255, 255, 0.5)'
@@ -538,11 +556,11 @@ const styles = StyleSheet.create({
     successModalText: {
         marginTop: 10,
         fontSize: 18,
-        fontFamily:'Poppins-Medium',
-        marginBottom:10,
+        fontFamily: 'Poppins-Medium',
+        marginBottom: 10,
         // marginTop:20,
-        marginLeft:50,
-        marginRight:50
+        marginLeft: 50,
+        marginRight: 50
 
     },
     okButton: {
@@ -551,7 +569,7 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 20,
         alignSelf: 'center',
-        marginBottom:18
+        marginBottom: 1
     },
     okButtonText: {
         color: '#FFF',

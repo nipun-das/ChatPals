@@ -119,6 +119,7 @@ const ChatScreenOwner = ({ navigation }) => {
                 senderId: ownerId,
                 text: newMessage,
                 timestamp: new Date(),
+                messageType: 'normalMessage',
             });
             const messageId = messageRef.id;
 
@@ -181,30 +182,67 @@ const ChatScreenOwner = ({ navigation }) => {
         }
     };
 
+    const handleRenderMessage = (item) => {
+        if (item.messageType === 'normalMessage') {
+            // Render normal message
+            return (
+                <TouchableWithoutFeedback onLongPress={() => handleLongPress(item)}>
+                    <View
+                        style={[
+                            styles.messageContainer,
+                            item.senderId === ownerId ? styles.currentUserMessage : styles.otherUserMessage,
+                        ]}
+                    >
+                        <View style={styles.messageContent}>
+                            {item.senderId !== ownerId && (
+                                <View style={item.senderId === ownerId ? styles.currentUserSenderInfoContainer : styles.otherUserSenderInfoContainer}>
+                                    <Text style={item.senderId === ownerId ? styles.currentUserSenderInfo : styles.otherUserSenderInfo}>
+                                        {item.senderId === ownerId ? ' ' : 'Sender: ' + item.senderId}
+                                    </Text>
+                                </View>
+                            )}
+                            <View style={item.senderId === ownerId ? styles.currentUserMessageTextBox : styles.otherUserMessageTextBox}>
+                                <Text style={styles.messageText}>{item.text}</Text>
+                            </View>
+                            <Text style={styles.timestamp}>{formatTimestamp(item.timestamp)}</Text>
+                        </View>
+                    </View>
+                </TouchableWithoutFeedback>
+            );
+        } else if (item.messageType === 'eventMessage') {
+            return (
+                <View style={styles.eventMessageContainer}>
+                    <Text style={styles.eventMessageTitle}>{item.eventName}</Text>
+                    <Text style={styles.eventMessageDetail}>Date: {item.eventDate}</Text>
+                    <Text style={styles.eventMessageDetail}>Time: {item.eventTime}</Text>
+                    <Text style={styles.eventMessageDetail}>Location: {item.eventLocation}</Text>
+                    {/* Add more details as needed */}
+                </View>
+            );
+        }
+        return null; // Handle other message types if needed
+    };
+
 
     return (
         <View style={styles.container}>
 
             <View style={styles.topBar}>
-                {/* Dummy Image Icon */}
 
-                {/* Club Name */}
                 <View style={styles.infoContainer}>
                     <Text style={styles.profileName}>{clubName}</Text>
                     <Text style={styles.clubChat}>Chat Room</Text>
                 </View>
 
-
-
                 <TouchableOpacity onPress={() => handleDummyAction()}>
                     <Image
-                        source={require('../assets/leaderboard.png')} // Add the path to your dummy icon
+                        source={require('../assets/leaderboard.png')}
                         style={styles.leaderboardIcon}
                     />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => handleAdditionalAction()}>
                     <Image
-                        source={require('../assets/menu.png')} // Add the path to your additional icon
+                        source={require('../assets/menu.png')}
                         style={styles.hamIcon}
                     />
                 </TouchableOpacity>
@@ -216,31 +254,9 @@ const ChatScreenOwner = ({ navigation }) => {
                 <FlatList
                     data={messages}
                     keyExtractor={(item, index) => index.toString()}
-                    renderItem={({ item }) => (
-                        <TouchableWithoutFeedback onLongPress={() => handleLongPress(item)}>
-                            <View
-                                style={[
-                                    styles.messageContainer,
-                                    item.senderId === ownerId ? styles.currentUserMessage : styles.otherUserMessage,
-                                ]}
-                            >
-                                <View style={styles.messageContent}>
-                                    {item.senderId !== ownerId && (
-                                        <View style={item.senderId === ownerId ? styles.currentUserSenderInfoContainer : styles.otherUserSenderInfoContainer}>
-                                            <Text style={item.senderId === ownerId ? styles.currentUserSenderInfo : styles.otherUserSenderInfo}>
-                                                {item.senderId === ownerId ? ' ' : 'Sender: ' + item.senderId}
-                                            </Text>
-                                        </View>
-                                    )}
-                                    <View style={item.senderId === ownerId ? styles.currentUserMessageTextBox : styles.otherUserMessageTextBox}>
-                                        <Text style={styles.messageText}>{item.text}</Text>
-                                    </View>
-                                    <Text style={styles.timestamp}>{formatTimestamp(item.timestamp)}</Text>
-                                </View>
-                            </View>
-                        </TouchableWithoutFeedback>
-                    )}
+                    renderItem={({ item }) => handleRenderMessage(item)}
                 />
+
                 <View style={styles.inputContainer}>
                     <View style={styles.inputWrapper}>
                         <TextInput
@@ -272,7 +288,6 @@ const ChatScreenOwner = ({ navigation }) => {
                     }}
                 >
                     <View style={styles.modalContainer}>
-
                         <View style={styles.modalBackground}>
                             <TouchableOpacity style={styles.downArrowContainer} onPress={() => setModalVisible(false)}>
                                 <Image source={require('../assets/down-arrow.png')} style={styles.downArrowIcon} />
@@ -455,7 +470,9 @@ const styles = StyleSheet.create({
         flex: 1,
         marginLeft: 8,
     },
-
+eventMessageTitle:{
+    color:'black'
+},
     ///////////////////////////////////////////
     inputContainer: {
         flexDirection: 'row',
