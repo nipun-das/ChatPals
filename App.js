@@ -24,6 +24,8 @@ import HomeScreen from './screens/HomeScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import ChatScreenOwner from './screens/ChatScreenOwner';
 import MainScreen from './screens/MainScreen';
+import CreateEventOwner from './screens/CreateEventOwner';
+import ScheduleMeetingOwner from './screens/ScheduleMeetingOwner';
 
 LogBox.ignoreLogs(['AsyncStorage has been extracted']);
 
@@ -44,14 +46,18 @@ export const AuthenticatedUserProvider = ({ children }) => {
 function ChatStack() {
   return (
     <Stack.Navigator defaultScreenOptions={Home} screenOptions={{ headerShown: false }} >
-      <Stack.Screen name="ClubSel" component={ClubSel} />
+      {/* <Stack.Screen name="ClubSel" component={ClubSel} />
       <Stack.Screen name="ClubCreationScreen" component={ClubCreationScreen} />
       <Stack.Screen name="ClubCreationSuccess" component={ClubCreationSuccess} />
       <Stack.Screen name="MainScreen" component={MainScreen} />
       <Stack.Screen name="ClubFeed" component={ClubFeed} />
       <Stack.Screen name="HomeScreen" component={HomeScreen} />
-      <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+      <Stack.Screen name="ProfileScreen" component={ProfileScreen} /> */}
       <Stack.Screen name="ChatScreenOwner" component={ChatScreenOwner} />
+      <Stack.Screen name="CreateEventOwner" component={CreateEventOwner} />
+      <Stack.Screen name="ScheduleMeetingOwner" component={ScheduleMeetingOwner} />
+
+
     </Stack.Navigator>
   )
 }
