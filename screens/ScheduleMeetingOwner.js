@@ -15,9 +15,9 @@ import { auth, database } from '../config/firebase';
 import { addDoc, collection } from 'firebase/firestore';
 
 const ScheduleMeetingOwner = ({ route }) => {
-    const [MeetingTopic, setMeetingTopic] = useState('');
-    const [MeetingDescription, setMeetingDescription] = useState('');
-    const [MeetingLink, setMeetingLink] = useState('');
+    const [meetingTopic, setMeetingTopic] = useState('');
+    const [meetingDescription, setMeetingDescription] = useState('');
+    const [meetingLink, setMeetingLink] = useState('');
     const [selectedDay, setSelectedDay] = useState('');
     const [selectedMonth, setSelectedMonth] = useState('');
     const [selectedYear, setSelectedYear] = useState('');
@@ -97,19 +97,19 @@ const ScheduleMeetingOwner = ({ route }) => {
             const formattedDate = `${selectedYear}-${selectedMonth}-${selectedDay}`;
             const formattedTime = `${selectedHour}:${selectedMinute} ${selectedAmPm}`;
 
-            const MeetingRef = await addDoc(collection(database, `clubs/${clubId}/Meetings`), {
-                Meeting_topic: MeetingTopic,
+            const meetingRef = await addDoc(collection(database, `clubs/${clubId}/meetings`), {
+                meeting_topic: meetingTopic,
                 club_id: clubId,
-                Meeting: 'active',
-                Meeting: MeetingDescription,
-                Meeting_date: formattedDate,
-                Meeting_time: formattedTime,
-                Meeting_link: MeetingLink,
+                meeting_status: 'active',
+                meeting_description: meetingDescription,
+                meeting_date: formattedDate,
+                meeting_time: formattedTime,
+                meeting_link: meetingLink,
                 created_by: currentUser.uid,
                 created_at: new Date(),
             });
             setSuccessModalVisible(true);
-            console.log('Meeting created with ID: ', MeetingRef.id);
+            console.log('Meeting created with ID: ', meetingRef.id);
 
         } catch (error) {
             console.error('Error creating Meeting: ', error);
@@ -126,8 +126,8 @@ const ScheduleMeetingOwner = ({ route }) => {
                 <TextInput
                     style={styles.input}
                     placeholder="Enter topic for the meeting"
-                    value={MeetingTopic}
-                    onChangeText={(text) => setMeetingName(text)}
+                    value={meetingTopic}
+                    onChangeText={(text) => setMeetingTopic(text)}
                 />
             </View>
 
@@ -136,7 +136,7 @@ const ScheduleMeetingOwner = ({ route }) => {
                 <TextInput
                     style={[styles.input, styles.multilineInput]}
                     placeholder="Write about the meeting"
-                    value={MeetingDescription}
+                    value={meetingDescription}
                     onChangeText={(text) => setMeetingDescription(text)}
                     multiline
                 />
@@ -156,7 +156,6 @@ const ScheduleMeetingOwner = ({ route }) => {
                     >
                         <View style={styles.modalContainer}>
                             {days.map((day) => {
-                                console.log('Rendering day:', day);
                                 return (
                                     <TouchableHighlight
                                         key={day}
@@ -293,13 +292,19 @@ const ScheduleMeetingOwner = ({ route }) => {
 
             <View style={styles.inputContainer}>
                 <Text style={styles.label}>Meeting Link</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Enter meeting link"
-                    value={MeetingLink}
-                    onChangeText={(text) => setMeetingLink(text)}
-                />
+                <View style={styles.inputWithIcon}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Enter meeting link"
+                        value={meetingLink}
+                        onChangeText={(text) => setMeetingLink(text)}
+                    />
+                    <Image source={require('../assets/meet.png')} style={styles.meetIcon} />
+                </View>
             </View>
+
+
+
 
             <TouchableOpacity style={styles.createButton} onPress={handleCreateMeeting}>
                 <Text style={styles.createButtonText}>Create Meeting</Text>
@@ -520,13 +525,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        borderWidth:2,
-        padding:10
+        borderWidth: 2,
+        padding: 10
         // backgroundColor:'white',
 
     },
     successInner: {
-        flex:1,
+        flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'rgba(255, 255, 255, 0.5)'
@@ -538,11 +543,11 @@ const styles = StyleSheet.create({
     successModalText: {
         marginTop: 10,
         fontSize: 18,
-        fontFamily:'Poppins-Medium',
-        marginBottom:10,
+        fontFamily: 'Poppins-Medium',
+        marginBottom: 10,
         // marginTop:20,
-        marginLeft:50,
-        marginRight:50
+        marginLeft: 50,
+        marginRight: 50
 
     },
     okButton: {
@@ -551,13 +556,24 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 20,
         alignSelf: 'center',
-        marginBottom:18
+        marginBottom: 18
     },
     okButtonText: {
         color: '#FFF',
         fontSize: 16,
         fontFamily: "Poppins-Medium",
-    }
+    },
+    meetIcon: {
+        position:'absolute',
+        bottom:15,
+        right:9,
+        width: 28,
+        height: 28,
+        resizeMode: 'contain', 
+        marginLeft: 10,
+        // backgroundColor:'whitesmoke',
+        padding:19,
+      },
 });
 
 export default ScheduleMeetingOwner;
