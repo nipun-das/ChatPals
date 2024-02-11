@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet, Alert, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, TextInput, Button, FlatList, StyleSheet, Alert, TouchableOpacity, Modal, StatusBar, Vibration, TouchableHighlight } from 'react-native';
 import { collection, query, orderBy, onSnapshot, addDoc, doc, getDoc, where, getDocs, deleteDoc, updateDoc } from 'firebase/firestore';
 import { database, auth } from '../config/firebase';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
@@ -157,6 +157,7 @@ const ChatScreenOwner = ({ navigation }) => {
 
     const formatTimestamp = (timestamp) => {
         const jsDate = timestamp.toDate();
+
         return jsDate.toISOString().slice(11, 16);
     };
 
@@ -181,6 +182,14 @@ const ChatScreenOwner = ({ navigation }) => {
             setModalVisible(false); // Close the modal for other options as well
         }
     };
+
+
+    const handleTouch = () => {
+        // Vibrate for 100 milliseconds
+        Vibration.vibrate(110);
+    };
+
+
 
     const handleRenderMessage = (item) => {
         if (item.messageType === 'normalMessage') {
@@ -210,13 +219,75 @@ const ChatScreenOwner = ({ navigation }) => {
                 </TouchableWithoutFeedback>
             );
         } else if (item.messageType === 'eventMessage') {
+            const dateComponents = item.eventDate.split('-');
+
+            const year = parseInt(dateComponents[0]); 
+            const monthName = dateComponents[1]; 
+            const day = parseInt(dateComponents[2]); 
+
+            const monthIndex = new Date(Date.parse(monthName + ' 1, 2000')).getMonth();
+
+            const eventDateObj = new Date(year, monthIndex, day);
+
+            const formattedDate = `${day} ${monthName}`;
+            return (
+                <TouchableHighlight onPress={handleTouch} underlayColor="transparent">
+                    <View style={styles.eventMessageContainer}>
+                        <View style={styles.contentContainer}>
+                            <View style={styles.leftSection}>
+                                <Image source={require('../assets/schedule.png')} style={styles.icon} />
+                                <View style={styles.eventDetails}>
+                                    <Text style={styles.eventName}>{item.eventName}</Text>
+                                    <Text style={styles.eventDate}>{formattedDate}</Text>
+                                    <Text style={styles.eventLocation}>{item.eventLocation}</Text>
+                                </View>
+                            </View>
+
+                            <View style={styles.rightSection}>
+                                <View style={[styles.eventTag, { backgroundColor: '#FFB6C1', }]}>
+                                    <Text style={styles.eventTagText}>Event</Text>
+                                </View>
+                                <Image source={require('../assets/right-arrow.png')} style={styles.arrowIcon} />
+                            </View>
+                        </View>
+                    </View>
+                </TouchableHighlight>
+            );
+        }
+        else if (item.messageType === 'meetingMessage') {
+            const dateComponents = item.eventDate.split('-');
+
+            const year = parseInt(dateComponents[0]); // Convert to integer
+            const monthName = dateComponents[1]; // Month name
+            const day = parseInt(dateComponents[2]); // Convert to integer
+
+            const monthIndex = new Date(Date.parse(monthName + ' 1, 2000')).getMonth();
+
+            const eventDateObj = new Date(year, monthIndex, day);
+
+            const formattedDate = `${day} ${monthName}`;
             return (
                 <View style={styles.eventMessageContainer}>
-                    <Text style={styles.eventMessageTitle}>{item.eventName}</Text>
-                    <Text style={styles.eventMessageDetail}>Date: {item.eventDate}</Text>
-                    <Text style={styles.eventMessageDetail}>Time: {item.eventTime}</Text>
-                    <Text style={styles.eventMessageDetail}>Location: {item.eventLocation}</Text>
-                    {/* Add more details as needed */}
+                    {/* <View style={styles.borderTop} /> */}
+                    <View style={styles.contentContainer}>
+                        <View style={styles.leftSection}>
+                            <Image source={require('../assets/schedule.png')} style={styles.icon} />
+                            <View style={styles.eventDetails}>
+                                <Text style={styles.eventName}>{item.eventName}</Text>
+                                <Text style={styles.eventDate}>{formattedDate}</Text>
+                                <Text style={styles.eventLocation}>{item.eventLocation}</Text>
+                            </View>
+                        </View>
+
+                        <View style={styles.rightSection}>
+                            <View style={[styles.eventTag, { backgroundColor: '#FFB6C1', }]}>
+                                <Text style={styles.eventTagText}>Event</Text>
+                            </View>
+                            <Image source={require('../assets/right-arrow.png')} style={styles.arrowIcon} />
+                        </View>
+                    </View>
+
+                    {/* <View style={styles.borderBottom} /> */}
                 </View>
             );
         }
@@ -224,11 +295,15 @@ const ChatScreenOwner = ({ navigation }) => {
     };
 
 
+
     return (
         <View style={styles.container}>
+            <StatusBar backgroundColor="black" />
 
             <View style={styles.topBar}>
-
+            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                <Image source={require('../assets/backIcon.png')} style={styles.backIcon} />
+            </TouchableOpacity>
                 <View style={styles.infoContainer}>
                     <Text style={styles.profileName}>{clubName}</Text>
                     <Text style={styles.clubChat}>Chat Room</Text>
@@ -236,13 +311,13 @@ const ChatScreenOwner = ({ navigation }) => {
 
                 <TouchableOpacity onPress={() => handleDummyAction()}>
                     <Image
-                        source={require('../assets/leaderboard.png')}
+                        source={require('../assets/bell.png')}
                         style={styles.leaderboardIcon}
                     />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => handleAdditionalAction()}>
                     <Image
-                        source={require('../assets/menu.png')}
+                        source={require('../assets/ham2.png')}
                         style={styles.hamIcon}
                     />
                 </TouchableOpacity>
@@ -289,37 +364,50 @@ const ChatScreenOwner = ({ navigation }) => {
                 >
                     <View style={styles.modalContainer}>
                         <View style={styles.modalBackground}>
+
                             <TouchableOpacity style={styles.downArrowContainer} onPress={() => setModalVisible(false)}>
                                 <Image source={require('../assets/down-arrow.png')} style={styles.downArrowIcon} />
                             </TouchableOpacity>
+
                             <View style={styles.modalContent}>
-                                <TouchableOpacity onPress={() => handleOptionSelect('CreateEvent')} style={styles.optionContainer}>
-                                    <View style={[styles.optionBox, { backgroundColor: '#FFB6C1' }]}>
-                                        <Image source={require('../assets/schedule.png')} style={styles.optionIcon} />
+                                <TouchableHighlight onPress={() => { handleTouch(); handleOptionSelect('CreateEvent'); }} underlayColor="transparent" >
+                                    <View style={styles.optionContainer}>
+                                        <View style={[styles.optionBox, { backgroundColor: '#FFB6C1' }]}>
+                                            <Image source={require('../assets/schedule.png')} style={styles.optionIcon} />
+                                        </View>
+                                        <Text style={[styles.modalOption, { backgroundColor: '#FFB6C1' }]}>Create Event</Text>
                                     </View>
-                                    <Text style={[styles.modalOption, { backgroundColor: '#FFB6C1' }]}>Create Event</Text>
-                                </TouchableOpacity>
+                                </TouchableHighlight>
 
-                                <TouchableOpacity onPress={() => handleOptionSelect('ScheduleMeeting')} style={styles.optionContainer}>
-                                    <View style={[styles.optionBox, { backgroundColor: '#90EE90' }]}>
-                                        <Image source={require('../assets/meeting.png')} style={styles.optionIcon} />
-                                    </View>
-                                    <Text style={[styles.modalOption, { backgroundColor: '#90EE90' }]}>Schedule Meeting</Text>
-                                </TouchableOpacity>
+                                <TouchableHighlight onPress={() => { handleTouch(); handleOptionSelect('ScheduleMeeting'); }} underlayColor="transparent" >
+                                    <View style={styles.optionContainer}>
 
-                                <TouchableOpacity onPress={() => handleOptionSelect('OrganizeWorkshop')} style={styles.optionContainer}>
-                                    <View style={[styles.optionBox, { backgroundColor: '#FFDAB9' }]}>
-                                        <Image source={require('../assets/workshop.png')} style={styles.optionIcon} />
+                                        <View style={[styles.optionBox, { backgroundColor: '#90EE90' }]}>
+                                            <Image source={require('../assets/meeting.png')} style={styles.optionIcon} />
+                                        </View>
+                                        <Text style={[styles.modalOption, { backgroundColor: '#90EE90' }]}>Schedule Meeting</Text>
                                     </View>
-                                    <Text style={[styles.modalOption, { backgroundColor: '#FFDAB9' }]}>Organize Workshop</Text>
-                                </TouchableOpacity>
+                                </TouchableHighlight>
 
-                                <TouchableOpacity onPress={() => handleOptionSelect('BrainstormSession')} style={styles.optionContainer}>
-                                    <View style={[styles.optionBox, { backgroundColor: '#ADD8E6' }]}>
-                                        <Image source={require('../assets/brainstorm.png')} style={styles.optionIcon} />
+                                <TouchableHighlight onPress={() => { handleTouch(); handleOptionSelect('OrganizeWorkshop'); }} underlayColor="transparent" >
+                                    <View style={styles.optionContainer}>
+
+                                        <View style={[styles.optionBox, { backgroundColor: '#FFDAB9' }]}>
+                                            <Image source={require('../assets/workshop.png')} style={styles.optionIcon} />
+                                        </View>
+                                        <Text style={[styles.modalOption, { backgroundColor: '#FFDAB9' }]}>Organize Workshop</Text>
                                     </View>
-                                    <Text style={[styles.modalOption, { backgroundColor: '#ADD8E6' }]}>Brainstorm Session</Text>
-                                </TouchableOpacity>
+                                </TouchableHighlight>
+
+                                <TouchableHighlight onPress={() => { handleTouch(); handleOptionSelect('BrainstormSession'); }} underlayColor="transparent" >
+                                    <View style={styles.optionContainer}>
+
+                                        <View style={[styles.optionBox, { backgroundColor: '#ADD8E6' }]}>
+                                            <Image source={require('../assets/brainstorm.png')} style={styles.optionIcon} />
+                                        </View>
+                                        <Text style={[styles.modalOption, { backgroundColor: '#ADD8E6' }]}>Brainstorm Session</Text>
+                                    </View>
+                                </TouchableHighlight>
                             </View>
                         </View>
                     </View>
@@ -333,9 +421,19 @@ const ChatScreenOwner = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        marginTop: 40,
+        marginTop: 35,
         backgroundColor: 'black',
         fontFamily: 'Poppins-Regular'
+    },
+    backButton: {
+        position: 'absolute',
+        top: 28,
+        left: 20,
+        zIndex: 1,
+    },
+    backIcon: {
+        width: 18,
+        height: 18,
     },
     inContainer: {
         flex: 1,
@@ -352,42 +450,41 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         padding: 15,
         marginBottom: 3,
-        height: 80,
+        height: 75,
         backgroundColor: 'black',
     },
     infoContainer: {
+        marginLeft: 45,
         flexDirection: 'column',
         alignItems: 'flex-start',
     },
     profileName: {
-        fontSize: 22,
+        fontSize: 21,
         fontFamily: 'Poppins-Medium',
-
+        marginTop: 6,
         color: 'white',
     },
     clubChat: {
-        fontSize: 16,
+        fontSize: 15,
         color: 'white',
         marginRight: 40,
         marginTop: -5,
-        fontFamily: 'Poppins-Regular',
+        fontFamily: 'Poppins-Medium',
 
     },
     leaderboardIcon: {
         width: 30,
-        height: 30,
-
+        height: 26,
         resizeMode: 'contain',
         marginRight: -150,
-        marginLeft: 40
+        marginLeft: 20
     },
     hamIcon: {
         width: 30,
         height: 30,
-
+        // backgroundCol
         resizeMode: 'contain',
-        // marginRight: 10,
-        // marginLeft:-80
+        marginRight: 10,
     },
     clubName: {
         fontSize: 18,
@@ -410,6 +507,119 @@ const styles = StyleSheet.create({
         marginRight: 13,
         maxWidth: '67%',
     },
+    // ---------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+    eventMessageContainer: {
+        // Add any common styles here
+        position: 'relative',
+        marginBottom: 10, // Adjust as needed
+    },
+
+
+    contentContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 10,
+        backgroundColor: '#143946',
+        marginLeft: 15,
+        marginRight: 15,
+        borderRadius: 10,
+
+    },
+    leftSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+        marginBottom: 10
+    },
+    icon: {
+        width: 42,
+        height: 42,
+        marginRight: 10,
+        marginLeft: 20,
+        marginBottom: 30
+    },
+    eventDetails: {
+        flex: 1,
+
+    },
+    eventName: {
+        fontFamily: 'Poppins-Bold',
+        // marginBottom: 5,
+        marginTop: 10,
+        fontSize: 21,
+        color: 'white'
+
+    },
+    eventDate: {
+        color: 'white',
+        fontFamily: 'Poppins-Medium',
+        fontSize: 13,
+
+    },
+    eventLocation: {
+        color: 'white',
+        fontFamily: 'Poppins-Medium',
+        fontSize: 13,
+
+
+
+    },
+    rightSection: {
+        position: 'absolute',
+        top: 7, // Position at the top
+        right: 8,
+        marginBottom: 10
+    },
+    eventTag: {
+        paddingLeft: 8,
+        paddingRight: 8,
+        borderRadius: 3,
+        height: 19
+    },
+    eventTagText: {
+        color: 'black',
+        fontFamily: 'Poppins-Bold',
+        fontSize: 12
+    },
+    arrowIcon: {
+        width: 24,
+        height: 24,
+        marginRight: 10,
+        marginLeft: 10,
+        marginTop: 25
+    },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //------------------------------------------------------------------------------------------------------------
+
     messageContent: {
         // alignSelf: 'flex-end',
     },
@@ -439,7 +649,6 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 0,
         borderBottomLeftRadius: 20,
         borderTopLeftRadius: 20,
-
     },
     currentUserSenderInfoContainer: {
         flexDirection: 'row',
@@ -470,9 +679,9 @@ const styles = StyleSheet.create({
         flex: 1,
         marginLeft: 8,
     },
-eventMessageTitle:{
-    color:'black'
-},
+    eventMessageTitle: {
+        color: 'black'
+    },
     ///////////////////////////////////////////
     inputContainer: {
         flexDirection: 'row',
@@ -570,7 +779,6 @@ eventMessageTitle:{
         alignItems: 'center',
         marginBottom: 15,
         elevation: 10,
-
     },
     optionBox: {
         width: 47,

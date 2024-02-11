@@ -8,13 +8,14 @@ import {
     Modal,
     TouchableHighlight,
     Image,
+    StatusBar
 } from 'react-native';
 import { Gif } from 'react-native-gif';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { auth, database } from '../config/firebase';
 import { addDoc, collection } from 'firebase/firestore';
 
-const CreateEventOwner = ({ route }) => {
+const CreateEventOwner = ({ route,navigation  }) => {
     const [eventName, setEventName] = useState('');
     const [eventDescription, setEventDescription] = useState('');
     const [eventLocation, setEventLocation] = useState('');
@@ -137,8 +138,13 @@ const CreateEventOwner = ({ route }) => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Create Event</Text>
-
+            <StatusBar backgroundColor="black" />
+            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                <Image source={require('../assets/backIcon.png')} style={styles.backIcon} />
+            </TouchableOpacity>
+            <View style={styles.createContainer}>
+                <Text style={styles.title}>Create Event</Text>
+            </View>
             <View style={styles.inputContainer}>
                 <Text style={styles.label}>Event Name</Text>
                 <TextInput
@@ -354,12 +360,34 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         backgroundColor: '#fff',
     },
+    backButton: {
+        position: 'absolute',
+        top: 64,
+        left: 20,
+        zIndex: 1,
+    },
+    backIcon: {
+        width: 24,
+        height: 24,
+    },
+    createContainer: {
+        backgroundColor: 'black',
+        // padding:50,
+        // flex:1,
+        marginLeft: -20,
+        marginRight:-20,
+        height:89,
+        marginBottom: 30,
+        borderBottomRightRadius:30,
+        borderBottomLeftRadius:30,
+    },
     title: {
         fontSize: 26,
         // fontWeight: 'bold',
-        marginBottom: 20,
+        // marginBottom: -50,
+        marginTop:20,
         textAlign: 'center',
-        color: 'black',
+        color: 'white',
         fontFamily: "Poppins-Bold",
 
     },
