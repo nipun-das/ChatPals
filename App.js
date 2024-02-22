@@ -26,6 +26,7 @@ import ChatScreenOwner from './screens/ChatScreenOwner';
 import MainScreen from './screens/MainScreen';
 import CreateEventOwner from './screens/CreateEventOwner';
 import ScheduleMeetingOwner from './screens/ScheduleMeetingOwner';
+import OrganizeWorkshopOwner from './screens/OrganizeWorkshopOwner';
 
 LogBox.ignoreLogs(['AsyncStorage has been extracted']);
 
@@ -45,17 +46,71 @@ export const AuthenticatedUserProvider = ({ children }) => {
 // for authenticated users
 function ChatStack() {
   return (
-    <Stack.Navigator defaultScreenOptions={Home} screenOptions={{ headerShown: false }} >
-      {/* <Stack.Screen name="ClubSel" component={ClubSel} />
-      <Stack.Screen name="ClubCreationScreen" component={ClubCreationScreen} />
-      <Stack.Screen name="ClubCreationSuccess" component={ClubCreationSuccess} />
+    <Stack.Navigator defaultScreenOptions={Home} screenOptions={{
+      headerShown: false,
+      gestureEnabled: true,
+      gestureDirection: 'horizontal',
+      cardStyleInterpolator: ({ current }) => ({
+        cardStyle: {
+          opacity: current.progress,
+        },
+      }),
+    }} >
+      {/* <Stack.Screen name="ClubSel" component={ClubSel} /> */}
+      {/* <Stack.Screen name="ClubCreationScreen" component={ClubCreationScreen} /> */}
+      {/* <Stack.Screen name="ClubCreationSuccess" component={ClubCreationSuccess} /> */}
       <Stack.Screen name="MainScreen" component={MainScreen} />
       <Stack.Screen name="ClubFeed" component={ClubFeed} />
       <Stack.Screen name="HomeScreen" component={HomeScreen} />
-      <Stack.Screen name="ProfileScreen" component={ProfileScreen} /> */}
+      <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
       <Stack.Screen name="ChatScreenOwner" component={ChatScreenOwner} />
-      <Stack.Screen name="CreateEventOwner" component={CreateEventOwner} />
-      <Stack.Screen name="ScheduleMeetingOwner" component={ScheduleMeetingOwner} />
+      <Stack.Screen name="CreateEventOwner" component={CreateEventOwner} options={{
+        cardStyleInterpolator: ({ current }) => ({
+          cardStyle: {
+            opacity: current.progress,
+            transform: [
+              {
+                translateX: current.progress.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [100, 0],
+                }),
+              },
+            ],
+          },
+        }),
+      }} />
+      <Stack.Screen name="ScheduleMeetingOwner" component={ScheduleMeetingOwner} options={{
+        cardStyleInterpolator: ({ current }) => ({
+          cardStyle: {
+            opacity: current.progress,
+            transform: [
+              {
+                translateX: current.progress.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [100, 0],
+                }),
+              },
+            ],
+          },
+        }),
+      }} />
+      <Stack.Screen name="OrganizeWorkshopOwner" component={OrganizeWorkshopOwner} options={{
+        cardStyleInterpolator: ({ current }) => ({
+          cardStyle: {
+            opacity: current.progress,
+            transform: [
+              {
+                translateX: current.progress.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [100, 0],
+                }),
+              },
+            ],
+          },
+        }),
+      }} />
+
+
 
 
     </Stack.Navigator>
@@ -113,7 +168,7 @@ export default function App() {
     'Inter-SemiBold': require('./assets/fonts/inter/Inter-SemiBold.ttf'),
   });
 
-  
+
   return (
     <AuthenticatedUserProvider>
       <StatusBar style="light" backgroundColor='white' />

@@ -8,13 +8,14 @@ import {
     Modal,
     TouchableHighlight,
     Image,
+    StatusBar,
 } from 'react-native';
 import { Gif } from 'react-native-gif';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { auth, database } from '../config/firebase';
 import { addDoc, collection } from 'firebase/firestore';
 
-const ScheduleMeetingOwner = ({ route }) => {
+const ScheduleMeetingOwner = ({ route, navigation }) => {
     const [meetingTopic, setMeetingTopic] = useState('');
     const [meetingDescription, setMeetingDescription] = useState('');
     const [meetingLink, setMeetingLink] = useState('');
@@ -88,7 +89,7 @@ const ScheduleMeetingOwner = ({ route }) => {
     };
 
     const handleCreateMeeting = async () => {
-        console.log("adasdasd");
+        console.log("meeting schedule");
 
         try {
             const { clubId } = route.params;
@@ -108,6 +109,19 @@ const ScheduleMeetingOwner = ({ route }) => {
                 created_by: currentUser.uid,
                 created_at: new Date(),
             });
+            // Add a message to the chatroom with a reference to the meeting
+            const meetingMessage = `Meeting Created: ${meetingTopic}`;
+            await addDoc(collection(database, `chatrooms/${clubId}/messages`), {
+                senderId: currentUser.uid,
+                text: meetingMessage,
+                timestamp: new Date(),
+                messageType: 'meetingMessage',
+                meetingId: meetingRef.id,
+                meetingTopic: meetingTopic,
+                meetingTime: formattedTime,
+                meetingDate: formattedDate,
+                meetingLink:meetingLink,
+            });
             setSuccessModalVisible(true);
             console.log('Meeting created with ID: ', meetingRef.id);
 
@@ -119,197 +133,205 @@ const ScheduleMeetingOwner = ({ route }) => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Schedule Meeting</Text>
-
-            <View style={styles.inputContainer}>
-                <Text style={styles.label}>Meeting Topic</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Enter topic for the meeting"
-                    value={meetingTopic}
-                    onChangeText={(text) => setMeetingTopic(text)}
-                />
+            <StatusBar backgroundColor="black" />
+            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                <Image source={require('../assets/backIcon.png')} style={styles.backIcon} />
+            </TouchableOpacity>
+            <View style={styles.createContainer}>
+                <Text style={styles.title}>Schedule Meeting</Text>
             </View>
-
-            <View style={styles.inputContainer}>
-                <Text style={styles.label}>Meeting Description</Text>
-                <TextInput
-                    style={[styles.input, styles.multilineInput]}
-                    placeholder="Write about the meeting"
-                    value={meetingDescription}
-                    onChangeText={(text) => setMeetingDescription(text)}
-                    multiline
-                />
-            </View>
-
-            <View style={styles.inputContainer}>
-                <Text style={styles.label}>Date</Text>
-                <View style={styles.datePickerContainer}>
-                    <TouchableOpacity style={styles.datePicker} onPress={openDayModal}>
-                        <Text>{selectedDay || 'Day'}</Text>
-                    </TouchableOpacity>
-                    <Modal
-                        animationType="slide"
-                        transparent={true}
-                        visible={isDayModalVisible}
-                        onRequestClose={closeDayModal}
-                    >
-                        <View style={styles.modalContainer}>
-                            {days.map((day) => {
-                                return (
-                                    <TouchableHighlight
-                                        key={day}
-                                        style={styles.modalOption}
-                                        onPress={() => handleDaySelection(day)}
-                                    >
-                                        <Text style={styles.days}>{day}</Text>
-                                    </TouchableHighlight>
-                                );
-                            })}
-                        </View>
-                    </Modal>
-
-                    <TouchableOpacity style={styles.datePicker} onPress={openMonthModal}>
-                        <Text>{selectedMonth || 'Month'}</Text>
-                    </TouchableOpacity>
-                    <Modal
-                        animationType="slide"
-                        transparent={true}
-                        visible={isMonthModalVisible}
-                        onRequestClose={closeMonthModal}
-                    >
-                        <View style={styles.modalContainer}>
-                            {months.map((month) => (
-                                <TouchableHighlight
-                                    key={month}
-                                    style={styles.modalOption}
-                                    onPress={() => handleMonthSelection(month)}
-                                >
-                                    <Text style={styles.months}>{month}</Text>
-                                </TouchableHighlight>
-                            ))}
-                        </View>
-                    </Modal>
-
-                    <TouchableOpacity style={styles.datePicker} onPress={openYearModal}>
-                        <Text>{selectedYear || 'Year'}</Text>
-                    </TouchableOpacity>
-                    <Modal
-                        animationType="slide"
-                        transparent={true}
-                        visible={isYearModalVisible}
-                        onRequestClose={closeYearModal}
-                    >
-                        <View style={styles.modalContainer}>
-                            {years.map((year) => (
-                                <TouchableHighlight
-                                    key={year}
-                                    style={styles.modalOption}
-                                    onPress={() => handleYearSelection(year)}
-                                >
-                                    <Text style={styles.years}>{year}</Text>
-                                </TouchableHighlight>
-                            ))}
-                        </View>
-                    </Modal>
-                </View>
-            </View>
-
-
-            <View style={styles.inputContainer}>
-                <Text style={styles.label}>Time</Text>
-                <View style={styles.timePickerContainer}>
-                    <TouchableOpacity style={styles.timePicker} onPress={openHourModal}>
-                        <Text>{selectedHour || 'Hour'}</Text>
-                    </TouchableOpacity>
-                    <Modal
-                        animationType="slide"
-                        transparent={true}
-                        visible={isHourModalVisible}
-                        onRequestClose={closeHourModal}
-                    >
-                        <View style={styles.modalContainer}>
-                            {hours.map((hour) => (
-                                <TouchableHighlight
-                                    key={hour}
-                                    style={styles.modalOption}
-                                    onPress={() => handleHourSelection(hour)}
-                                >
-                                    <Text style={styles.hours}>{hour}</Text>
-                                </TouchableHighlight>
-                            ))}
-                        </View>
-                    </Modal>
-
-
-
-                    <TouchableOpacity style={styles.timePicker} onPress={openMinuteModal}>
-                        <Text>{selectedMinute || 'Minute'}</Text>
-                    </TouchableOpacity>
-                    <Modal
-                        animationType="slide"
-                        transparent={true}
-                        visible={isMinuteModalVisible}
-                        onRequestClose={closeMinuteModal}
-                    >
-                        <View style={styles.modalContainer}>
-                            {minutes.map((minute) => (
-                                <TouchableHighlight
-                                    key={minute}
-                                    style={styles.modalOptionMinutes}
-                                    onPress={() => handleMinuteSelection(minute)}
-                                >
-                                    <Text style={styles.minutes}>{minute}</Text>
-                                </TouchableHighlight>
-                            ))}
-                        </View>
-                    </Modal>
-
-                    <TouchableOpacity style={styles.timePicker} onPress={openAmPmModal}>
-                        <Text>{selectedAmPm || 'AM / PM'}</Text>
-                    </TouchableOpacity>
-                    <Modal
-                        animationType="slide"
-                        transparent={true}
-                        visible={isAmPmModalVisible}
-                        onRequestClose={closeAmPmModal}
-                    >
-                        <View style={styles.modalContainer}>
-                            {amPmOptions.map((ampm) => (
-                                <TouchableHighlight
-                                    key={ampm}
-                                    style={styles.modalOption}
-                                    onPress={() => handleAmPmSelection(ampm)}
-                                >
-                                    <Text style={styles.ampm}>{ampm}</Text>
-                                </TouchableHighlight>
-                            ))}
-                        </View>
-                    </Modal>
-                </View>
-            </View>
-
-
-            <View style={styles.inputContainer}>
-                <Text style={styles.label}>Meeting Link</Text>
-                <View style={styles.inputWithIcon}>
+            <View style={{ backgroundColor: 'white', paddingHorizontal: 20, flex: 1, paddingTop: 15, borderTopLeftRadius: 30, borderTopRightRadius: 30 }}>
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Meeting Topic</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="Enter meeting link"
-                        value={meetingLink}
-                        onChangeText={(text) => setMeetingLink(text)}
+                        placeholder="Enter agenda of the meeting"
+                        value={meetingTopic}
+                        onChangeText={(text) => setMeetingTopic(text)}
                     />
-                    <Image source={require('../assets/meet.png')} style={styles.meetIcon} />
                 </View>
+
+
+
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Meeting Description</Text>
+                    <TextInput
+                        style={[styles.input, styles.multilineInput]}
+                        placeholder="Write about the meeting"
+                        value={meetingDescription}
+                        onChangeText={(text) => setMeetingDescription(text)}
+                        multiline
+                    />
+                </View>
+
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Date</Text>
+                    <View style={styles.datePickerContainer}>
+                        <TouchableOpacity style={styles.datePicker} onPress={openDayModal}>
+                            <Text style={{ fontFamily: 'Poppins-Regular' }}>{selectedDay || 'Day'}</Text>
+                        </TouchableOpacity>
+                        <Modal
+                            animationType="slide"
+                            transparent={true}
+                            visible={isDayModalVisible}
+                            onRequestClose={closeDayModal}
+                        >
+                            <View style={styles.modalContainer}>
+                                {days.map((day) => {
+                                    return (
+                                        <TouchableHighlight
+                                            key={day}
+                                            style={styles.modalOption}
+                                            onPress={() => handleDaySelection(day)}
+                                        >
+                                            <Text style={styles.days}>{day}</Text>
+                                        </TouchableHighlight>
+                                    );
+                                })}
+                            </View>
+                        </Modal>
+
+                        <TouchableOpacity style={styles.datePicker} onPress={openMonthModal}>
+                            <Text style={{ fontFamily: 'Poppins-Regular' }}>{selectedMonth || 'Month'}</Text>
+                        </TouchableOpacity>
+                        <Modal
+                            animationType="slide"
+                            transparent={true}
+                            visible={isMonthModalVisible}
+                            onRequestClose={closeMonthModal}
+                        >
+                            <View style={styles.modalContainer}>
+                                {months.map((month) => (
+                                    <TouchableHighlight
+                                        key={month}
+                                        style={styles.modalOption}
+                                        onPress={() => handleMonthSelection(month)}
+                                    >
+                                        <Text style={styles.months}>{month}</Text>
+                                    </TouchableHighlight>
+                                ))}
+                            </View>
+                        </Modal>
+
+                        <TouchableOpacity style={styles.datePicker} onPress={openYearModal}>
+                            <Text style={{ fontFamily: 'Poppins-Regular' }}>{selectedYear || 'Year'}</Text>
+                        </TouchableOpacity>
+                        <Modal
+                            animationType="slide"
+                            transparent={true}
+                            visible={isYearModalVisible}
+                            onRequestClose={closeYearModal}
+                        >
+                            <View style={styles.modalContainer}>
+                                {years.map((year) => (
+                                    <TouchableHighlight
+                                        key={year}
+                                        style={styles.modalOption}
+                                        onPress={() => handleYearSelection(year)}
+                                    >
+                                        <Text style={styles.years}>{year}</Text>
+                                    </TouchableHighlight>
+                                ))}
+                            </View>
+                        </Modal>
+                    </View>
+                </View>
+
+
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Time</Text>
+                    <View style={styles.timePickerContainer}>
+                        <TouchableOpacity style={styles.timePicker} onPress={openHourModal}>
+                            <Text style={{ fontFamily: 'Poppins-Regular' }}>{selectedHour || 'Hour'}</Text>
+                        </TouchableOpacity>
+                        <Modal
+                            animationType="slide"
+                            transparent={true}
+                            visible={isHourModalVisible}
+                            onRequestClose={closeHourModal}
+                        >
+                            <View style={styles.modalContainer}>
+                                {hours.map((hour) => (
+                                    <TouchableHighlight
+                                        key={hour}
+                                        style={styles.modalOption}
+                                        onPress={() => handleHourSelection(hour)}
+                                    >
+                                        <Text style={styles.hours}>{hour}</Text>
+                                    </TouchableHighlight>
+                                ))}
+                            </View>
+                        </Modal>
+
+
+
+                        <TouchableOpacity style={styles.timePicker} onPress={openMinuteModal}>
+                            <Text style={{ fontFamily: 'Poppins-Regular' }}>{selectedMinute || 'Minute'}</Text>
+                        </TouchableOpacity>
+                        <Modal
+                            animationType="slide"
+                            transparent={true}
+                            visible={isMinuteModalVisible}
+                            onRequestClose={closeMinuteModal}
+                        >
+                            <View style={styles.modalContainer}>
+                                {minutes.map((minute) => (
+                                    <TouchableHighlight
+                                        key={minute}
+                                        style={styles.modalOptionMinutes}
+                                        onPress={() => handleMinuteSelection(minute)}
+                                    >
+                                        <Text style={styles.minutes}>{minute}</Text>
+                                    </TouchableHighlight>
+                                ))}
+                            </View>
+                        </Modal>
+
+                        <TouchableOpacity style={styles.timePicker} onPress={openAmPmModal}>
+                            <Text style={{ fontFamily: 'Poppins-Regular' }}>{selectedAmPm || 'AM / PM'}</Text>
+                        </TouchableOpacity>
+                        <Modal
+                            animationType="slide"
+                            transparent={true}
+                            visible={isAmPmModalVisible}
+                            onRequestClose={closeAmPmModal}
+                        >
+                            <View style={styles.modalContainer}>
+                                {amPmOptions.map((ampm) => (
+                                    <TouchableHighlight
+                                        key={ampm}
+                                        style={styles.modalOption}
+                                        onPress={() => handleAmPmSelection(ampm)}
+                                    >
+                                        <Text style={styles.ampm}>{ampm}</Text>
+                                    </TouchableHighlight>
+                                ))}
+                            </View>
+                        </Modal>
+                    </View>
+                </View>
+
+
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Meeting Link</Text>
+                    <View style={styles.inputWithIcon}>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter meeting link"
+                            value={meetingLink}
+                            onChangeText={(text) => setMeetingLink(text)}
+                        />
+                        <Image source={require('../assets/meet.png')} style={styles.meetIcon} />
+                    </View>
+                </View>
+
+
+
+
+                <TouchableOpacity style={styles.createButton} onPress={handleCreateMeeting}>
+                    <Text style={styles.createButtonText}>Create Meeting</Text>
+                </TouchableOpacity>
             </View>
-
-
-
-
-            <TouchableOpacity style={styles.createButton} onPress={handleCreateMeeting}>
-                <Text style={styles.createButtonText}>Create Meeting</Text>
-            </TouchableOpacity>
-
             <Modal
                 visible={isSuccessModalVisible}
                 animationType="slide"
@@ -339,15 +361,35 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
-        paddingHorizontal: 20,
-        backgroundColor: '#fff',
+        // paddingHorizontal: 20,
+        backgroundColor: 'black',
+    },
+    backButton: {
+        position: 'absolute',
+        top: 64,
+        left: 20,
+        zIndex: 1,
+    },
+    backIcon: {
+        width: 18,
+        height: 18,
+    },
+    createContainer: {
+        backgroundColor: 'black',
+        // padding:50,
+        // flex:1,
+        // marginLeft: -20,
+        // marginRight: -20,
+        height: 89,
+        marginTop: 30
+        // marginBottom: 30,
+
     },
     title: {
         fontSize: 26,
-        // fontWeight: 'bold',
-        marginBottom: 20,
+        marginTop: 20,
         textAlign: 'center',
-        color: 'black',
+        color: 'white',
         fontFamily: "Poppins-Bold",
 
     },
@@ -357,7 +399,6 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: 15,
-        // marginBottom: 5,
         color: 'black',
         fontFamily: "Poppins-Medium",
 
@@ -370,8 +411,7 @@ const styles = StyleSheet.create({
         borderRadius: 6,
         padding: 12,
         borderWidth: 0.2,
-        // marginTop: 2,
-        borderColor: '#5B5B5B',
+        borderColor: 'black',
         fontFamily: 'Poppins-Regular'
     },
     multilineInput: {
@@ -386,12 +426,11 @@ const styles = StyleSheet.create({
     datePicker: {
         flex: 1,
         height: 40,
-        borderColor: 'gray',
+        borderColor: 'black',
         borderWidth: 1,
         marginBottom: 15,
         padding: 10,
         marginRight: 10,
-
         backgroundColor: "white",
         height: 50,
         marginBottom: 20,
@@ -400,10 +439,7 @@ const styles = StyleSheet.create({
         padding: 12,
         borderWidth: 0.2,
         marginTop: 2,
-        borderColor: '#5B5B5B',
         fontFamily: 'Poppins-Regular'
-
-
     },
     timePickerContainer: {
         flexDirection: 'row',
@@ -412,12 +448,11 @@ const styles = StyleSheet.create({
     timePicker: {
         flex: 1,
         height: 40,
-        borderColor: 'gray',
+        borderColor: 'black',
         borderWidth: 1,
         marginBottom: 15,
         padding: 10,
         marginRight: 10,
-
         backgroundColor: "white",
         height: 50,
         marginBottom: 20,
@@ -426,27 +461,23 @@ const styles = StyleSheet.create({
         padding: 12,
         borderWidth: 0.2,
         marginTop: 2,
-        borderColor: '#5B5B5B',
         fontFamily: 'Poppins-Regular'
     },
     modalContainer: {
         flex: 1,
         justifyContent: 'center',
         fontSize: 25,
-        // color:'white',
         alignItems: 'center',
         backgroundColor: 'rgba(50, 50, 70, 0.8)',
     },
     modalOption: {
-        // padding: 20,
         borderBottomWidth: 2,
-        borderBottomColor: '#ffffff',
+        borderColor: 'black',
         width: '100%',
         fontSize: 25,
         alignItems: 'center',
         height: 24,
         justifyContent: 'center'
-        // color:'white',
 
     },
     days: {
@@ -564,16 +595,16 @@ const styles = StyleSheet.create({
         fontFamily: "Poppins-Medium",
     },
     meetIcon: {
-        position:'absolute',
-        bottom:15,
-        right:9,
+        position: 'absolute',
+        bottom: 15,
+        right: 9,
         width: 28,
         height: 28,
-        resizeMode: 'contain', 
+        resizeMode: 'contain',
         marginLeft: 10,
         // backgroundColor:'whitesmoke',
-        padding:19,
-      },
+        padding: 19,
+    },
 });
 
 export default ScheduleMeetingOwner;

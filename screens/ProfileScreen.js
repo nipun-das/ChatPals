@@ -1,41 +1,3 @@
-// // ProfileScreen.js
-
-// import React from 'react';
-// import { View, Text, StyleSheet, Image } from 'react-native';
-// import BottomNavigation from './BottomNavigation';
-
-// const ProfileScreen = () => {
-//   return (
-//     <View style={styles.container}>
-//       <Text style={{ top: 180, display: 'flex', justifyContent: 'center', fontFamily: 'Poppins-Bold', fontSize: 30, textAlign: 'center' }}>Under{'\n'}Development</Text>
-//       <Image source={require("../assets/error.png")} style={styles.image} resizeMode="contain" />
-//       <Text style={{ top: 320, display: 'flex', justifyContent: 'center', fontFamily: 'Poppins-Medium', fontSize: 18, textAlign: 'center' }}>This feature will arrive soon.</Text>
-
-
-
-
-//       <BottomNavigation />
-//     </View>
-//   );
-// };
-
-// export default ProfileScreen;
-
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: "white",
-//   },
-//   image: {
-//     width: 260,
-//     height: 260,
-//     position: 'absolute',
-//     top: 210,
-//     left: 45
-//   },
-// })
-
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
@@ -50,8 +12,9 @@ const ProfileScreen = () => {
 
   useEffect(() => {
     const fetchUserData = async (uid) => {
-      const userDoc = await getDoc(doc(database, 'owners', uid));
+      const userDoc = await getDoc(doc(database, 'users', uid));
       const userData = userDoc.data();
+
 
 
       const currentUser = auth.currentUser;
