@@ -8,17 +8,17 @@ import {
     Modal,
     TouchableHighlight,
     Image,
-    StatusBar
+    StatusBar,
 } from 'react-native';
 import { Gif } from 'react-native-gif';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { auth, database } from '../config/firebase';
 import { addDoc, collection } from 'firebase/firestore';
 
-const CreateEventOwner = ({ route, navigation }) => {
-    const [eventName, setEventName] = useState('');
-    const [eventDescription, setEventDescription] = useState('');
-    const [eventLocation, setEventLocation] = useState('');
+const OrganizeWorkshopOwner = ({ route, navigation }) => {
+    const [workshopTopic, setWorkshopTopic] = useState('');
+    const [workshopDescription, setWorkshopDescription] = useState('');
+    const [workshopLocation, setWorkshopLocation] = useState('');
     const [selectedDay, setSelectedDay] = useState('');
     const [selectedMonth, setSelectedMonth] = useState('');
     const [selectedYear, setSelectedYear] = useState('');
@@ -88,8 +88,8 @@ const CreateEventOwner = ({ route, navigation }) => {
         closeAmPmModal();
     };
 
-    const handleCreateEvent = async () => {
-        console.log("event create");
+    const handleOrganizeWorkshop = async () => {            
+        console.log("workshop organize");
 
         try {
             const { clubId } = route.params;
@@ -98,40 +98,35 @@ const CreateEventOwner = ({ route, navigation }) => {
             const formattedDate = `${selectedYear}-${selectedMonth}-${selectedDay}`;
             const formattedTime = `${selectedHour}:${selectedMinute} ${selectedAmPm}`;
 
-            const eventRef = await addDoc(collection(database, `clubs/${clubId}/events`), {
-                event_name: eventName,
+            const workshopRef = await addDoc(collection(database, `clubs/${clubId}/workshops`), {
+                workshop_topic: workshopTopic,
                 club_id: clubId,
-                event_status: 'active',
-                event_description: eventDescription,
-                event_date: formattedDate,
-                event_time: formattedTime,
-                event_location: eventLocation,
-                registered_members: [],
+                workshop_status: 'active',
+                workshop_description: workshopDescription,
+                workshop_date: formattedDate,
+                workshop_time: formattedTime,
+                workshop_location: workshopLocation,
                 created_by: currentUser.uid,
                 created_at: new Date(),
             });
-
-            // Add a message to the chatroom with a reference to the event
-            const eventMessage = `Event Created: ${eventName}`;
+            // Add a message to the chatroom with a reference to the workshop
+            const workshopMessage = `workshop Created: ${workshopTopic}`;
             await addDoc(collection(database, `chatrooms/${clubId}/messages`), {
                 senderId: currentUser.uid,
-                text: eventMessage,
+                text: workshopMessage,
                 timestamp: new Date(),
-                messageType: 'eventMessage',
-                eventId: eventRef.id,
-                eventName: eventName,
-                eventDate: formattedDate,
-                eventTime: formattedTime,
-                eventLocation: eventLocation,
+                messageType: 'workshopMessage',
+                workshopId: workshopRef.id,
+                workshopTopic: workshopTopic,
+                workshopTime: formattedTime,
+                workshopDate: formattedDate,
+                workshopLocation:workshopLocation,
             });
-
-
-
             setSuccessModalVisible(true);
-            console.log('Event created with ID: ', eventRef.id);
+            console.log('workshop created with ID: ', workshopRef.id);
 
         } catch (error) {
-            console.error('Error creating event: ', error);
+            console.error('Error creating workshop: ', error);
         }
 
     };
@@ -143,28 +138,28 @@ const CreateEventOwner = ({ route, navigation }) => {
                 <Image source={require('../assets/backIcon.png')} style={styles.backIcon} />
             </TouchableOpacity>
             <View style={styles.createContainer}>
-                <Text style={styles.title}>Create Event</Text>
+                <Text style={styles.title}>Organize Workshop</Text>
             </View>
-           
-
             <View style={{ backgroundColor: 'white', paddingHorizontal: 20, flex: 1, paddingTop: 15, borderTopLeftRadius: 30, borderTopRightRadius: 30 }}>
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Event Name</Text>
+                    <Text style={styles.label}>Workshop Topic</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="Enter name of the event"
-                        value={eventName}
-                        onChangeText={(text) => setEventName(text)}
+                        placeholder="Enter the topic of the workshop"
+                        value={workshopTopic}
+                        onChangeText={(text) => setWorkshopTopic(text)}
                     />
                 </View>
 
+
+
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Event Description</Text>
+                    <Text style={styles.label}>Workshop Description</Text>
                     <TextInput
                         style={[styles.input, styles.multilineInput]}
-                        placeholder="Write about the event"
-                        value={eventDescription}
-                        onChangeText={(text) => setEventDescription(text)}
+                        placeholder="Write about the workshop"
+                        value={workshopDescription}
+                        onChangeText={(text) => setWorkshopDescription(text)}
                         multiline
                     />
                 </View>
@@ -173,7 +168,6 @@ const CreateEventOwner = ({ route, navigation }) => {
                     <Text style={styles.label}>Date</Text>
                     <View style={styles.datePickerContainer}>
                         <TouchableOpacity style={styles.datePicker} onPress={openDayModal}>
-
                             <Text style={{ fontFamily: 'Poppins-Regular' }}>{selectedDay || 'Day'}</Text>
                         </TouchableOpacity>
                         <Modal
@@ -320,16 +314,22 @@ const CreateEventOwner = ({ route, navigation }) => {
 
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Location</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Enter event location"
-                        value={eventLocation}
-                        onChangeText={(text) => setEventLocation(text)}
-                    />
+                    <View style={styles.inputWithIcon}>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter workshop location"
+                            value={workshopLocation}
+                            onChangeText={(text) => setWorkshopLocation(text)}
+                        />
+                        {/* <Image source={require('../assets/meet.png')} style={styles.meetIcon} /> */}
+                    </View>
                 </View>
 
-                <TouchableOpacity style={styles.createButton} onPress={handleCreateEvent}>
-                    <Text style={styles.createButtonText}>Create</Text>
+
+
+
+                <TouchableOpacity style={styles.createButton} onPress={handleOrganizeWorkshop}>
+                    <Text style={styles.createButtonText}>Organize</Text>
                 </TouchableOpacity>
             </View>
             <Modal
@@ -341,7 +341,7 @@ const CreateEventOwner = ({ route, navigation }) => {
                 <View style={styles.successInner}>
                     <View style={styles.successModalContainer}>
                         <Image style={styles.gifImage} source={require('../assets/confetti.gif')} />
-                        <Text style={styles.successModalText}>Event Creation{'\n'}       Success</Text>
+                        <Text style={styles.successModalText}>Workshop Creation{'\n'}       Success</Text>
                         <TouchableOpacity
                             style={styles.okButton}
                             onPress={() => setSuccessModalVisible(false)}
@@ -363,7 +363,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         // paddingHorizontal: 20,
         backgroundColor: 'black',
-        // flexDirection: 'column',
     },
     backButton: {
         position: 'absolute',
@@ -387,8 +386,8 @@ const styles = StyleSheet.create({
 
     },
     title: {
-        fontSize: 26,
-        marginTop: 20,
+        fontSize: 23,
+        marginTop: 26,
         textAlign: 'center',
         color: 'white',
         fontFamily: "Poppins-Bold",
@@ -418,12 +417,10 @@ const styles = StyleSheet.create({
     multilineInput: {
         height: 80,
         textAlignVertical: 'top',
-
     },
     datePickerContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-
 
     },
     datePicker: {
@@ -590,13 +587,24 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 20,
         alignSelf: 'center',
-        marginBottom: 1
+        marginBottom: 18
     },
     okButtonText: {
         color: '#FFF',
         fontSize: 16,
         fontFamily: "Poppins-Medium",
-    }
+    },
+    meetIcon: {
+        position: 'absolute',
+        bottom: 15,
+        right: 9,
+        width: 28,
+        height: 28,
+        resizeMode: 'contain',
+        marginLeft: 10,
+        // backgroundColor:'whitesmoke',
+        padding: 19,
+    },
 });
 
-export default CreateEventOwner;
+export default OrganizeWorkshopOwner;

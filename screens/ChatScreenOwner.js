@@ -167,22 +167,28 @@ const ChatScreenOwner = ({ navigation }) => {
 
     const handleOptionSelect = (option) => {
         if (option === 'CreateEvent') {
-            console.log("club id sent bto create event: ", clubId)
-
+            console.log("club id sent to create event: ", clubId)
             navigation.navigate('CreateEventOwner', { clubId });
-            setModalVisible(false); // Close the modal if needed
+            setModalVisible(false);
         }
         if (option === 'ScheduleMeeting') {
-            console.log("club id sent bto create event: ", clubId)
-
+            console.log("club id sent to scdhule meet: ", clubId)
             navigation.navigate('ScheduleMeetingOwner', { clubId });
-            setModalVisible(false); // Close the modal if needed
-        } else {
-            // Handle other options if necessary
-            setModalVisible(false); // Close the modal for other options as well
+            setModalVisible(false); 
+        } 
+        if (option === 'OrganizeWorkshopOwner') {
+            console.log("club id sent to org workshop: ", clubId)
+            navigation.navigate('OrganizeWorkshopOwner', { clubId });
+            setModalVisible(false);
+        }
+        else {
+            setModalVisible(false); 
         }
     };
 
+    const goBack=()=>{
+        navigation.navigate("ClubFeed")
+    }
 
     const handleTouch = () => {
         // Vibrate for 100 milliseconds
@@ -219,16 +225,14 @@ const ChatScreenOwner = ({ navigation }) => {
                 </TouchableWithoutFeedback>
             );
         } else if (item.messageType === 'eventMessage') {
-            const dateComponents = item.eventDate.split('-');
 
+            const dateComponents = item.eventDate.split('-');
+            console.log("dateevent:",dateComponents)
             const year = parseInt(dateComponents[0]); 
             const monthName = dateComponents[1]; 
             const day = parseInt(dateComponents[2]); 
-
             const monthIndex = new Date(Date.parse(monthName + ' 1, 2000')).getMonth();
-
             const eventDateObj = new Date(year, monthIndex, day);
-
             const formattedDate = `${day} ${monthName}`;
             return (
                 <TouchableHighlight onPress={handleTouch} underlayColor="transparent">
@@ -255,44 +259,76 @@ const ChatScreenOwner = ({ navigation }) => {
             );
         }
         else if (item.messageType === 'meetingMessage') {
-            const dateComponents = item.eventDate.split('-');
-
+            const dateComponents = item.meetingDate.split('-');
+            console.log("datemeet:",dateComponents)
             const year = parseInt(dateComponents[0]); // Convert to integer
             const monthName = dateComponents[1]; // Month name
             const day = parseInt(dateComponents[2]); // Convert to integer
-
             const monthIndex = new Date(Date.parse(monthName + ' 1, 2000')).getMonth();
-
             const eventDateObj = new Date(year, monthIndex, day);
-
             const formattedDate = `${day} ${monthName}`;
             return (
+                <TouchableHighlight onPress={handleTouch} underlayColor="transparent">
                 <View style={styles.eventMessageContainer}>
-                    {/* <View style={styles.borderTop} /> */}
-                    <View style={styles.contentContainer}>
+                    <View style={[styles.contentContainer,{backgroundColor:'#211155'}]}>
                         <View style={styles.leftSection}>
-                            <Image source={require('../assets/schedule.png')} style={styles.icon} />
+                            <Image source={require('../assets/meeting.png')} style={styles.icon} />
                             <View style={styles.eventDetails}>
-                                <Text style={styles.eventName}>{item.eventName}</Text>
+                                <Text style={styles.eventName}>{item.meetingTopic}</Text>
                                 <Text style={styles.eventDate}>{formattedDate}</Text>
-                                <Text style={styles.eventLocation}>{item.eventLocation}</Text>
+                                <Text style={styles.eventLocation}>Google Meet : {item.meetingLink}</Text>
                             </View>
                         </View>
 
                         <View style={styles.rightSection}>
-                            <View style={[styles.eventTag, { backgroundColor: '#FFB6C1', }]}>
-                                <Text style={styles.eventTagText}>Event</Text>
+                            <View style={[styles.eventTag, { backgroundColor: '#90EE90', }]}>
+                                <Text style={styles.eventTagText}>Meeting</Text>
                             </View>
-                            <Image source={require('../assets/right-arrow.png')} style={styles.arrowIcon} />
+                            <Image source={require('../assets/right-arrow.png')} style={styles.arrowIconMeeting} />
                         </View>
                     </View>
 
-                    {/* <View style={styles.borderBottom} /> */}
                 </View>
+                </TouchableHighlight>
             );
         }
-        return null; // Handle other message types if needed
+        else if (item.messageType === 'workshopMessage') {
+            const dateComponents = item.workshopDate.split('-');
+            console.log("dateworkshop:",dateComponents)
+            const year = parseInt(dateComponents[0]); // Convert to integer
+            const monthName = dateComponents[1]; // Month name
+            const day = parseInt(dateComponents[2]); // Convert to integer
+            const monthIndex = new Date(Date.parse(monthName + ' 1, 2000')).getMonth();
+            const eventDateObj = new Date(year, monthIndex, day);
+            const formattedDate = `${day} ${monthName}`;
+            return (
+                <TouchableHighlight onPress={handleTouch} underlayColor="transparent">
+                <View style={styles.eventMessageContainer}>
+                    <View style={[styles.contentContainer,{backgroundColor:'#00160A'}]}>
+                        <View style={styles.leftSection}>
+                            <Image source={require('../assets/workshop.png')} style={styles.icon} />
+                            <View style={styles.eventDetails}>
+                                <Text style={styles.eventName}>{item.workshopTopic}</Text>
+                                <Text style={styles.eventDate}>{formattedDate}</Text>
+                                <Text style={styles.eventLocation}>Google Meet : {item.workshopLocation}</Text>
+                            </View>
+                        </View>
+
+                        <View style={styles.rightSection}>
+                            <View style={[styles.eventTag, { backgroundColor: '#90EE90', }]}>
+                                <Text style={styles.eventTagText}>Workshop</Text>
+                            </View>
+                            <Image source={require('../assets/right-arrow.png')} style={styles.arrowIconMeeting} />
+                        </View>
+                    </View>
+
+                </View>
+                </TouchableHighlight>
+            );
+        }
+        return null; 
     };
+    
 
 
 
@@ -324,6 +360,8 @@ const ChatScreenOwner = ({ navigation }) => {
 
             </View>
             <View style={styles.inContainer}>
+            <View style={styles.topLeftPadding}/>
+            <View style={styles.topRightPadding}/>
 
                 {/* Chat Messages */}
                 <FlatList
@@ -364,7 +402,6 @@ const ChatScreenOwner = ({ navigation }) => {
                 >
                     <View style={styles.modalContainer}>
                         <View style={styles.modalBackground}>
-
                             <TouchableOpacity style={styles.downArrowContainer} onPress={() => setModalVisible(false)}>
                                 <Image source={require('../assets/down-arrow.png')} style={styles.downArrowIcon} />
                             </TouchableOpacity>
@@ -389,7 +426,7 @@ const ChatScreenOwner = ({ navigation }) => {
                                     </View>
                                 </TouchableHighlight>
 
-                                <TouchableHighlight onPress={() => { handleTouch(); handleOptionSelect('OrganizeWorkshop'); }} underlayColor="transparent" >
+                                <TouchableHighlight onPress={() => { handleTouch(); handleOptionSelect('OrganizeWorkshopOwner'); }} underlayColor="transparent" >
                                     <View style={styles.optionContainer}>
 
                                         <View style={[styles.optionBox, { backgroundColor: '#FFDAB9' }]}>
@@ -444,6 +481,33 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
 
     },
+    topLeftPadding: {
+        position: 'absolute',
+        top: 13,
+        left: 9.5,
+        borderTopRightRadius:1050,
+        borderTopLeftRadius:150,
+        
+        width:16,
+        height: 5,
+        backgroundColor: 'white', // Adjust color as needed
+        position: 'absolute',
+        transform: [{ rotate: '-45deg' }],
+        zIndex:1000
+      },
+      topRightPadding: {
+        position: 'absolute',
+        top: 13,
+        right: 9.5,
+        borderTopLeftRadius:1050,
+        borderTopRightRadius:150,
+        width: 16,
+        height: 5,
+        backgroundColor: 'white', // Adjust color as needed
+        position: 'absolute',
+        transform: [{ rotate: '45deg' }],
+        zIndex:1000
+      },
     topBar: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -595,7 +659,13 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         marginTop: 25
     },
-
+    arrowIconMeeting:{
+        width: 24,
+        height: 24,
+        marginRight: 10,
+        marginLeft: 28,
+        marginTop: 25
+    },
 
 
 

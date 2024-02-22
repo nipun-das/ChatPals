@@ -1,43 +1,73 @@
-import React, { useState } from "react";
 
-import { StyleSheet, Text, View, Button, TextInput, Image, SafeAreaView, TouchableOpacity, StatusBar, Alert, LogBox } from "react-native";
 
-import { signInWithEmailAndPassword } from "firebase/auth";
 import { Ionicons } from '@expo/vector-icons';
-import { auth } from "../config/firebase";
-// import { useFonts } from '@expo-google-fonts/poppins';
 
-LogBox.ignoreLogs(['Require cycle:']);
+// LogBox.ignoreLogs(['Require cycle:']);
+
+// export default function Login({ navigation }) {
+//     const [email, setEmail] = useState("");
+//     const [password, setPassword] = useState("");
+
+//     const onHandleLogin = () => {
+//         if (email !== "" && password !== "") {
+//             signInWithEmailAndPassword(auth, email, password)
+//                 .then(() => console.log("Login success"))
+//                 .catch((err) => Alert.alert("Login error", err.message));
+//         }
+//     }
 
 
-// const bgImage = require("../assets/blue-pattern3.jpg");
 
-export default function Login({ navigation }) {
+
+import React, { useState, useEffect } from "react";
+import { StyleSheet, Text, View, TextInput, Image, SafeAreaView, TouchableOpacity, StatusBar, Alert } from "react-native";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth, firestore } from "../config/firebase";
+import { useNavigation } from "@react-navigation/native";
+
+export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const navigation = useNavigation();
+    const [showPassword, setShowPassword] = useState(false);
+
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged(async (user) => {
+            if (user) {
+
+                const userId = user.uid;
+                const userDoc = await firestore.collection('users').doc(userId).get();
+                const userData = userDoc.data();
+
+                if (userData) {
+                    if (userData.role === 'owner') {
+                        navigation.navigate('ClubFeed', { clubId: userData.clubId });
+                    } else if (userData.role === 'member') {
+                        navigation.navigate('ClubFeedMember', { clubId: userData.clubId });
+                    }
+                } else {
+                    console.log("user data not found")
+                }
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     const onHandleLogin = () => {
         if (email !== "" && password !== "") {
             signInWithEmailAndPassword(auth, email, password)
-                .then(() => console.log("Login success"))
+                .then(() => {
+                    console.log("Login success user id : ",user.uid," role:",userData.role);
+                })
                 .catch((err) => Alert.alert("Login error", err.message));
         }
     }
 
-    const [showPassword, setShowPassword] = useState(false);
-
-    // const [fontsLoaded] = useFonts({
-    //     Poppins: require('@expo-google-fonts/poppins'),
-    //   });
-
-    //   if (!fontsLoaded) {
-    //     return null;
-    //   }
 
 
     return (
         <View style={styles.container}>
-            {/* <Image source={bgImage} style={styles.bgImage} /> */}
             <View style={styles.curvedBg} />
             <SafeAreaView style={styles.form}>
                 <View style={styles.header}>
@@ -47,9 +77,7 @@ export default function Login({ navigation }) {
                     </View>
                 </View>
                 <View style={styles.inputContainer1}>
-                    {/* <View style={styles.labelContainer}>
-                        <Text style={styles.label}>Email Address</Text>
-                    </View> */}
+
                     <TextInput
                         style={styles.input}
                         autoCapitalize="none"
@@ -61,15 +89,13 @@ export default function Login({ navigation }) {
                     />
                 </View>
                 <View style={styles.inputContainer2}>
-                    {/* <View style={styles.labelContainer}>
-                        <Text style={styles.label}>Password</Text>
-                    </View> */}
+
                     <View style={styles.passwordInputContainer}>
                         <TextInput
                             style={styles.input}
                             autoCapitalize="none"
                             autoCorrect={false}
-                        placeholder="Enter password"
+                            placeholder="Enter password"
 
                             secureTextEntry={!showPassword}
                             textContentType="password"
@@ -95,7 +121,7 @@ export default function Login({ navigation }) {
                 <View style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center', alignSelf: 'center' }}>
                     <Text style={{ color: 'black', fontSize: 14, marginTop: 205, fontFamily: 'Inter-Regular', opacity: 0.7 }}>Don't have an account?</Text>
                     <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
-                        <Text style={{ color: 'black', fontSize: 14, marginTop: 205, textDecorationLine:'underline' ,fontFamily: 'Inter-SemiBold' }}> Sign up</Text>
+                        <Text style={{ color: 'black', fontSize: 14, marginTop: 205, textDecorationLine: 'underline', fontFamily: 'Inter-SemiBold' }}> Sign up</Text>
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>
@@ -122,8 +148,8 @@ const styles = StyleSheet.create({
         marginTop: 50
     },
     image: {
-        width: 40, // Set your desired width
-        height: 40, // Set your desired height
+        width: 40,
+        height: 40,
         position: 'absolute',
         top: 10,
         right: 0,
@@ -134,7 +160,6 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 26,
-        // fontWeight: 'bold',
         color: 'black',
         marginTop: 100,
         fontFamily: 'Poppins-Bold',
@@ -151,11 +176,11 @@ const styles = StyleSheet.create({
         borderColor: '#5B5B5B',
         fontFamily: 'Poppins-Regular'
     },
-    inputContainer1:{
-        marginTop:35
+    inputContainer1: {
+        marginTop: 35
     },
-    inputContainer2:{
-        marginTop:10
+    inputContainer2: {
+        marginTop: 10
     },
     bgImage: {
         width: "100%",
@@ -174,9 +199,9 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 60,
     },
     eyeButton: {
-        position: 'absolute', // Position the button absolutely
-        top: 16, // Adjust the top position as needed
-        right: 15, // Adjust the right position as needed
+        position: 'absolute',
+        top: 16,
+        right: 15,
     },
     button: {
         backgroundColor: 'black',
