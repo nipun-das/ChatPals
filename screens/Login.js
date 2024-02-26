@@ -25,10 +25,10 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, firestore } from "../config/firebase";
 import { useNavigation } from "@react-navigation/native";
 
-export default function Login() {
+export default function Login({navigation}) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const navigation = useNavigation();
+    // const navigation = useNavigation();
     const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {

@@ -145,7 +145,7 @@ const CreateEventOwner = ({ route, navigation }) => {
             <View style={styles.createContainer}>
                 <Text style={styles.title}>Create Event</Text>
             </View>
-           
+
 
             <View style={{ backgroundColor: 'white', paddingHorizontal: 20, flex: 1, paddingTop: 15, borderTopLeftRadius: 30, borderTopRightRadius: 30 }}>
                 <View style={styles.inputContainer}>
@@ -377,14 +377,8 @@ const styles = StyleSheet.create({
     },
     createContainer: {
         backgroundColor: 'black',
-        // padding:50,
-        // flex:1,
-        // marginLeft: -20,
-        // marginRight: -20,
         height: 89,
         marginTop: 30
-        // marginBottom: 30,
-
     },
     title: {
         fontSize: 26,
