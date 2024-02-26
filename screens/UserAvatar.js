@@ -19,10 +19,10 @@ const avatars = [
     { id: 7, source: require('../assets/avatar7.png') },
     { id: 8, source: require('../assets/avatar8.png') },
     { id: 9, source: require('../assets/avatar9.png') },
-
 ];
 
 const UserAvatar = ({ navigation }) => {
+    // const navigation = useNavigation();
     const route = useRoute();
     const [selectedAvatar, setSelectedAvatar] = useState(null);
 
@@ -39,12 +39,12 @@ const UserAvatar = ({ navigation }) => {
         console.log("Sign up recv by useravatar: ", name, email, password, branch, regNo, semester, interests)
 
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        console.log("user created!!")
         const user = userCredential.user;
         if (!user) {
             console.error('User uid not provided.');
             return;
         }
-        // setDoc instead of updateDoc in this situation. setDoc will create the document if it doesn't exist or update it if it does.
 
         try {
             await setDoc(doc(db, 'users', user.uid), {
@@ -56,13 +56,13 @@ const UserAvatar = ({ navigation }) => {
                 avatarId: selectedAvatar,
                 uid: user.uid,
             });
-            console.log('Name:', name);
+            console.log('user avatar page -->Name:', name);
             console.log('Branch:', branch);
             console.log('Reg No:', regNo);
             console.log('Semester:', semester);
             console.log('Interests:', interests);
             console.log("avatarId : ", selectedAvatar)
-            navigation.navigate('ClubSel', { name, branch, regNo, semester, interests });
+            navigation.navigate('JoinOrCreate');
         } catch (error) {
             console.error('Error updating user profile:', error);
         };
@@ -143,9 +143,7 @@ const styles = StyleSheet.create({
         width: 95,
         height: 95,
         borderRadius: 40,
-        // backgroundColor:
     },
-
     checkmark: {
         position: 'absolute',
         top: 8,

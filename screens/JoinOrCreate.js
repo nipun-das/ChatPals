@@ -10,13 +10,12 @@ import { useContext } from 'react';
 import { AuthenticatedUserContext } from '../App';
 
 
-const ClubSelectionScreen = ({ navigation }) => {
+const JoinOrCreate = ({ navigation }) => {
 
     const { user, setUser } = useContext(AuthenticatedUserContext);
     const [userData, setUserData] = useState(null);
 
     const currentUser = getAuth().currentUser;
-
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((authUser) => {
@@ -24,10 +23,13 @@ const ClubSelectionScreen = ({ navigation }) => {
                 setUser(authUser);
 
                 const userDocRef = doc(database, 'users', authUser.uid);
+                console.log("auth user in joinorcreate : ", authUser.uid)
                 getDoc(userDocRef)
                     .then((snapshot) => {
                         if (snapshot.exists()) {
                             setUserData(snapshot.data());
+                            // console.log('User Data in JoinOrCreate:--', userData);
+
                         } else {
                             console.error('User data not found.');
                         }
@@ -36,7 +38,6 @@ const ClubSelectionScreen = ({ navigation }) => {
                         console.error('Error fetching user data:', error);
                     });
             } else {
-                // No authenticated user
                 setUser(null);
             }
         });
@@ -44,35 +45,39 @@ const ClubSelectionScreen = ({ navigation }) => {
         return () => unsubscribe();
     }, []);
     useEffect(() => {
-        console.log('User Data:', userData);
+        console.log('User Data in JoinOrCreate:', userData);
     }, [userData]);
 
-    const handleSignOut = async () => {
+    // const handleSignOut = async () => {
 
+    //     console.log("handle signout pressed")
 
-        try {
-            if (currentUser && currentUser.uid) {
-                await signOut(auth);
-                navigation.navigate('Login');
-            } else {
-                console.error('No authenticated user to sign out');
-            }
-        } catch (error) {
-            console.error('Sign-out error: ', error);
-        }
-    };
+    //     try {
+    //         if (currentUser && currentUser.uid) {
+    //             await signOut(auth);
+    //             navigation.navigate('Login');
+    //         } else {
+    //             console.error('No authenticated user to sign out');
+    //         }
+    //     } catch (error) {
+    //         console.error('Sign-out error: ', error);
+    //     }
+    // };
 
     const handleCreateClub = async () => {
         try {
-            if (!currentUser || !currentUser.uid) {
-                setTimeout(() => handleCreateClub(), 500);
-                return;
-            }
+            console.log("user in joinorcreate", currentUser.uid)
 
-            const userDocRef = doc(database, 'users', currentUser.uid);
+            console.log("handle create pressed")
 
-            // Update the role field to 'owner'
-            await setDoc(userDocRef, { ...userData, role: 'owner' });
+            // if (!currentUser || !currentUser.uid) {
+            //     setTimeout(() => handleCreateClub(), 500);
+            //     return;
+            // }
+
+            // const userDocRef = doc(database, 'users', currentUser.uid);
+
+            // await setDoc(userDocRef, { ...userData, role: 'owner' });
 
             navigation.navigate('ClubCreationScreen');
         } catch (error) {
@@ -81,42 +86,36 @@ const ClubSelectionScreen = ({ navigation }) => {
     };
 
 
-    const handleJoinClub = async () => {
-        try {
-            if (currentUser && currentUser.uid) {
-                const memberDocRef = doc(database, 'members', currentUser.uid);
-                await setDoc(memberDocRef, {
-                    uid: currentUser.uid,
-                    name,
-                    branch,
-                    regNo,
-                    semester,
-                    interests,
-                });
+    // const handleJoinClub = async () => {
+    //     console.log("handle join pressed")
 
-                navigation.navigate('ClubJoiningScreen');
-            } else {
-                console.error('User not authenticated');
-            }
-        } catch (error) {
-            console.error('Error updating user role:', error);
-        }
-    };
+    //     try {
+    //         if (currentUser && currentUser.uid) {
+    //             const memberDocRef = doc(database, 'members', currentUser.uid);
+    //             await setDoc(memberDocRef, {
+    //                 uid: currentUser.uid,
+    //                 name,
+    //                 branch,
+    //                 regNo,
+    //                 semester,
+    //                 interests,
+    //             });
+
+    //             navigation.navigate('ClubJoiningScreen');
+    //         } else {
+    //             console.error('User not authenticated');
+    //         }
+    //     } catch (error) {
+    //         console.error('Error updating user role:', error);
+    //     }
+    // };
 
     return (
-        // <View>
-        //      <Button
-        //         title="Sign Out"
-        //         onPress={handleSignOut}
-        //         style={styles.signOutButton}
-        //     /> 
-
 
         <View style={styles.container}>
             <View style={styles.curvedBg} />
             <SafeAreaView style={styles.form}>
-                <View style={styles.header}>
-                    {/* <View style={styles.styleElement}/> */}
+                {/* <View style={styles.header}>
 
                     <Image source={require('../assets/star.png')} style={styles.image} resizeMode="contain" />
                     <View style={styles.titleContainer}>
@@ -128,25 +127,26 @@ const ClubSelectionScreen = ({ navigation }) => {
                     <Text style={styles.motto1}>Connect.</Text>
                     <Text style={styles.motto2}>Create.</Text>
                     <Text style={styles.motto3}>Collaborate.</Text>
-                </View>
+                </View> */}
 
-                {/* <TouchableOpacity style={styles.button} onPress={handleSignOut}>
-                        <Text style={{ fontWeight: 'bold', color: '#fff', fontSize: 17,fontFamily: 'Inter-SemiBold' }}>Sign Out</Text>
-                    </TouchableOpacity>
-             */}
-                <TouchableOpacity style={styles.button1} onPress={handleJoinClub}>
+                {/* <TouchableOpacity style={styles.button1} onPress={handleJoinClub}>
                     <Text style={{ fontWeight: 'bold', color: '#fff', fontSize: 16, fontFamily: 'Inter-SemiBold' }}>Join a a Club</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
-                <TouchableOpacity style={styles.button2} onPress={handleCreateClub}>
-                    <Text style={{ fontWeight: 'bold', color: '#fff', fontSize: 16, fontFamily: 'Inter-SemiBold' }}>Create a Club</Text>
-                </TouchableOpacity>
+                <Button
+                    title="Create a Club"
+                    onPress={handleCreateClub}
+                    style={styles.button2} // You may need to remove this line if Button component doesn't support style prop
+                    color="black" // You can customize the color if needed
+                />
+
+                {/* 
                 <View style={{ marginTop: 90, flexDirection: 'row', alignItems: 'center', alignSelf: 'center' }}>
                     <Text style={{ color: 'black', fontWeight: '600', fontSize: 14, fontFamily: 'Inter-Regular', opacity: 0.7 }}>Do you want to Sign out? </Text>
                     <TouchableOpacity onPress={handleSignOut}>
                         <Text style={{ color: 'black', fontWeight: '600', fontSize: 14, fontFamily: 'Inter-SemiBold', textDecorationLine: 'underline' }}>Sign out</Text>
                     </TouchableOpacity>
-                </View>
+                </View> */}
 
             </SafeAreaView>
             <StatusBar barStyle="light-content" />
@@ -337,4 +337,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ClubSelectionScreen;
+export default JoinOrCreate;

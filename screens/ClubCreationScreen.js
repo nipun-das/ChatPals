@@ -8,11 +8,12 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { ref, set } from 'firebase/database';
 
 
-export default function ClubCreationScreen({ navigation }) {
+const ClubCreationScreen = ({ navigation }) => {
     const [clubName, setClubName] = useState('');
     const [description, setDescription] = useState('');
     const [motto, setMotto] = useState('');
 
+    // console.log(navigation)
 
     const handleSignOut = async () => {
         try {
@@ -31,39 +32,39 @@ export default function ClubCreationScreen({ navigation }) {
         try {
             const userId = auth.currentUser.uid;
 
-            // Create a new club document with additional fields
+            console.log("user in clubcreationscreen", userId)
             const clubRef = await addDoc(collection(database, 'clubs'), {
                 name: clubName,
                 description,
                 motto: motto || '',
                 ownerId: userId,
-                cid: '', // This will be updated after creating the document
-                members: [], // Initially, the members array is empty
+                cid: '',
+                members: [],
             });
+            console.log("Club created")
 
-            // Update the document with the 'cid' field set to the document ID
             const clubId = clubRef.id;
             await updateDoc(doc(database, 'clubs', clubId), { cid: clubId });
+            console.log("clubid as cid added to clubs")
 
-            // Update the user's role to 'owner' and clubId
+
             await updateDoc(doc(database, 'users', userId), { role: 'owner', clubId });
+            console.log("clubid and role=owner added to users")
 
 
-            // Creating chatroom
             const chatroomRef = doc(database, 'chatrooms', clubId);
 
             const chatroomData = {
                 clubId: clubId,
-                messages: [], // Initially, the messages array is empty
+                messages: [],
             };
 
-            // Set data in the chatroom document
             await setDoc(chatroomRef, chatroomData);
 
             console.log('Chat room created for club ID: ', clubId);
 
             console.log("sent", clubName);
-            navigation.navigate('ClubCreationSuccess', { clubName: clubName, userId: userId, navigation });
+            navigation.navigate('ClubCreationSuccess', { clubName: clubName, userId: userId });
         } catch (error) {
             console.error('Error creating club: ', error);
             Alert.alert('Error', 'Failed to create the club. Please try again.');
@@ -102,9 +103,14 @@ export default function ClubCreationScreen({ navigation }) {
                         />
                     </View>
 
-                    <TouchableOpacity style={styles.button} onPress={handleCreateClub} disabled={!clubName || !description}>
-                        <Text style={{ color: '#fff', fontSize: 17, fontFamily: 'Inter-SemiBold' }}> Create</Text>
-                    </TouchableOpacity>
+                    <Button
+                        title="Create"
+                        onPress={handleCreateClub}
+                        disabled={!clubName || !description}
+                        style={styles.button} // You may need to remove this line if Button component doesn't support style prop
+                        color="black" // You can customize the color if needed
+                    />
+
 
                 </View>
                 <StatusBar barStyle="light-content" />
@@ -208,3 +214,4 @@ const styles = StyleSheet.create({
         marginTop: 330,
     },
 });
+export default ClubCreationScreen;

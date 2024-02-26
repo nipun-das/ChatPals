@@ -57,75 +57,7 @@ export default function Signup({ navigation }) {
     };
     useEffect(() => {
         fetchUserId();
-    }, []); 
-
-    // const options = {
-    //     title: 'Select ID Card Photo',
-    //     storageOptions: {
-    //         skipBackup: true,
-    //         path: 'images',
-    //     },
-    // };
-
-
-    // const pickImage = async () => {
-    //     try {
-    //         let result = await ImagePicker.launchImageLibraryAsync({
-    //             mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    //             allowsEditing: true,
-    //             aspect: [4, 3],
-    //             quality: 1,
-    //         });
-    //         console.log('ImagePicker result:', result);
-    //         if (!result.canceled) {
-    //             const selectedAsset = result.assets[0];
-    //             setSelectedImage(selectedAsset.uri);
-    //             console.log('Calling uplaod to s3');
-    //             uploadToS3(selectedAsset.uri);
-    //         }
-    //     } catch (error) {
-    //         console.error('Error picking image:', error);
-    //     }
-    // };
-
-
-
-
-    // const uploadToS3 = async (uri) => {
-    //     console.log('Uploading to S3...');
-    //     try {
-    //         const s3 = new S3({
-    //             accessKeyId: 'AKIA3QFOOXI6SQE7FYU4',
-    //             secretAccessKey: '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',
-    //             region: 'eu-north-1',
-    //         });
-    //         console.log('File uploaded successfully to S3.');
-    //     } catch (error) {
-    //         console.error('Error uploading image to S3:', error);
-    //     }
-    //     const bucketName = 'idcard-clubwave';
-    //     const key = `user_${userId}_id_card.jpg`;
-
-    //     try {
-    //         console.log('Reading file...');
-    //         const fileData = await RNFS.readFile(uri, 'base64');
-    //         console.log('File read successfully.');
-
-    //         const params = {
-    //             Bucket: bucketName,
-    //             Key: key,
-    //             Body: Buffer.from(fileData, 'base64'),
-    //             ACL: 'public-read',
-    //             ContentType: 'image/jpeg',
-    //         };
-
-    //         await s3.upload(params).promise();
-
-    //         onHandleSignup();
-    //     } catch (error) {
-    //         console.error('Error uploading image to S3:', error);
-    //     }
-    // };
+    }, []);
 
     return (
         <ScrollView style={{ flex: 1 }}>
@@ -178,15 +110,7 @@ export default function Signup({ navigation }) {
                                 value={regNo}
                                 onChangeText={(text) => setRegNo(text)}
                             />
-                            {/* <View>
-                                <TouchableOpacity onPress={pickImage}>
-                                    <Text>Select Image</Text>
-                                </TouchableOpacity>
 
-                                {selectedImage && (
-                                    <Image source={{ uri: selectedImage }} style={{ width: 200, height: 200 }} />
-                                )}
-                            </View> */}
 
                             <TextInput
                                 style={styles.input}
@@ -264,14 +188,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginHorizontal: 30,
     },
-    button: {
-        backgroundColor: '#005A89',
-        height: 58,
-        borderRadius: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 40,
-    },
+
     container: {
         flex: 1,
         backgroundColor: "#fff",
@@ -336,9 +253,9 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 60,
     },
     eyeButton: {
-        position: 'absolute', // Position the button absolutely
-        top: 16, // Adjust the top position as needed
-        right: 15, // Adjust the right position as needed
+        position: 'absolute',
+        top: 16,
+        right: 15,
     },
     button: {
         backgroundColor: 'black',

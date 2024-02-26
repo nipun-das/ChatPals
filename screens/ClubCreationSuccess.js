@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Image, ImageBackground, LogBox } from 'react-native';
+import { View, Text, StyleSheet, Image, ImageBackground, LogBox, Button } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 // import { SafeAreaView } from 'react-native-safe-area-context';
 LogBox.ignoreLogs(['Non-serializable values were found in the navigation state. Check:']);
@@ -11,7 +11,7 @@ function ClubCreationSuccess({ route,navigation }) {
         console.log("recv", clubName)
     }, []);
     const handleProceed = async () => {
-        navigation.navigate('MainScreen',navigation)
+        navigation.navigate('ClubFeed')
     }
     return (
         <ImageBackground source={require('../assets/success.png')} style={styles.bgImage}>
@@ -25,9 +25,13 @@ function ClubCreationSuccess({ route,navigation }) {
                             <Text style={styles.title3}>is now alive in the campus.{'\n'}Make it amazing!</Text>
                         </View>
                     </View>
-                    <TouchableOpacity style={styles.button} onPress={handleProceed}>
-                        <Text style={{ color: '#fff', fontSize: 17, fontFamily: 'Inter-SemiBold' }}>Proceed</Text>
-                    </TouchableOpacity>
+                    <Button
+  title="Proceed"
+  onPress={handleProceed}
+  style={styles.button} // You may need to remove this line if Button component doesn't support style prop
+  color="black" // You can customize the color if needed
+/>
+
                 </View>
             </View>
         </ImageBackground>
