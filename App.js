@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useState, createContext, useContext } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator,TransitionPresets } from '@react-navigation/stack';
 import * as SplashScreen from 'expo-splash-screen';
 import Chat from './screens/Chat';
 import Login from './screens/Login';
@@ -28,6 +28,8 @@ import CreateEventOwner from './screens/CreateEventOwner';
 import ScheduleMeetingOwner from './screens/ScheduleMeetingOwner';
 import OrganizeWorkshopOwner from './screens/OrganizeWorkshopOwner';
 import { doc, getDoc } from 'firebase/firestore';
+import BottomNavigator from './screens/BottomNavigator';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 LogBox.ignoreLogs(['AsyncStorage has been extracted']);
 
@@ -117,47 +119,27 @@ export const AuthenticatedUserProvider = ({ children }) => {
 // }
 
 function ChatStack() {
-  // const { user } = useContext(AuthenticatedUserContext);
-
-  
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {/* <Stack.Screen name="MainScreen" component={MainScreen} /> */}
-      {/* <Stack.Screen name="HomeScreen" component={HomeScreen} /> */}
       {/* <Stack.Screen name="ProfileScreen" component={ProfileScreen} /> */}
-      {/* <Stack.Screen name="ChatScreenOwner" component={ChatScreenOwner} /> */}
-      {/* <Stack.Screen name="CreateEventOwner" component={CreateEventOwner}  /> */}
-      {/* <Stack.Screen name="ScheduleMeetingOwner" component={ScheduleMeetingOwner}  /> */}
-      {/* <Stack.Screen name="OrganizeWorkshopOwner" component={OrganizeWorkshopOwner} /> */}
-      {/* <Stack.Screen name="JoinOrCreate" component={JoinOrCreate} /> */}
+      <Stack.Screen name="BottomNavigator" component={BottomNavigator} />
+      <Stack.Screen name="ChatScreenOwner" component={ChatScreenOwner} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }} />
 
+      <Stack.Screen name="CreateEventOwner" component={CreateEventOwner} />
+      <Stack.Screen name="ScheduleMeetingOwner" component={ScheduleMeetingOwner} />
+      <Stack.Screen name="OrganizeWorkshopOwner" component={OrganizeWorkshopOwner} />
+      <Stack.Screen name="JoinOrCreate" component={JoinOrCreate} />
 
-
-      <Stack.Screen name="ClubFeed" component={ClubFeed} />
+      {/* <Stack.Screen name="ClubFeed" component={ClubFeed} /> */}
       <Stack.Screen name="Login" component={Login} />
-
     </Stack.Navigator>
   );
 }
 
 
-
-
-
-
-// for unauthenticated users
-// function AuthStack() {
-//   return (
-//     <Stack.Navigator defaultScreenOptions={Login} screenOptions={{ headerShown: false }}>
-//       <Stack.Screen name="Login" component={Login} />
-//       <Stack.Screen name="Signup" component={Signup} />
-//       <Stack.Screen name="UserAvatar" component={UserAvatar} />
-//       <Stack.Screen name="JoinOrCreate" component={JoinOrCreate} />
-//       <Stack.Screen name="ClubCreationScreen" component={ClubCreationScreen} />
-//       <Stack.Screen name="ClubCreationSuccess" component={ClubCreationSuccess} />
-//     </Stack.Navigator>
-//   )
-// }
 
 function AuthStack() {
   return (
@@ -167,10 +149,14 @@ function AuthStack() {
       <Stack.Screen name="UserAvatar" component={UserAvatar} />
       <Stack.Screen name="JoinOrCreate" component={JoinOrCreate} />
       <Stack.Screen name="ClubCreationScreen" component={ClubCreationScreen} />
-      {/* <Stack.Screen name="ClubJoiningScreen" component={ClubJoiningScreen} /> */}
       <Stack.Screen name="ClubCreationSuccess" component={ClubCreationSuccess} />
-      <Stack.Screen name="ClubFeed" component={ClubFeed} />
-
+      <Stack.Screen name="BottomNavigator" component={BottomNavigator} />
+      <Stack.Screen name="ChatScreenOwner" component={ChatScreenOwner} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }} />
+      <Stack.Screen name="CreateEventOwner" component={CreateEventOwner} />
+      <Stack.Screen name="ScheduleMeetingOwner" component={ScheduleMeetingOwner} />
+      <Stack.Screen name="OrganizeWorkshopOwner" component={OrganizeWorkshopOwner} />
     </Stack.Navigator>
   )
 }
@@ -202,7 +188,7 @@ function RootNavigator() {
           const userData = snapshot.data();
           const userHasClubId = userData && userData.hasOwnProperty('clubId');
           setUserClubIdExists(userHasClubId);
-          console.log("user:",user,", userhasclubid::",userHasClubId)
+          console.log("user:", user, ", userhasclubid::", userHasClubId)
         })
         .catch((error) => {
           console.error('Error fetching user data:', error);
@@ -236,14 +222,20 @@ export default function App() {
     'Inter-Medium': require('./assets/fonts/inter/Inter-Medium.ttf'),
     'Inter-SemiBold': require('./assets/fonts/inter/Inter-SemiBold.ttf'),
     'Inter-Bold': require('./assets/fonts/inter/Inter-Bold.ttf'),
+    'DMSans-Regular': require('./assets/fonts/dmsans/DMSans-Regular.ttf'),
+    'DMSans-Medium': require('./assets/fonts/dmsans/DMSans-Medium.ttf'),
+    'DMSans-Bold': require('./assets/fonts/dmsans/DMSans-Bold.ttf'),
+
+
 
   });
 
 
   return (
     <AuthenticatedUserProvider>
-      <StatusBar style="light" backgroundColor='white' />
+      {/* <StatusBar style="light" backgroundColor='white' /> */}
       <RootNavigator />
+
     </AuthenticatedUserProvider>)
 }
 

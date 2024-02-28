@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getDoc, doc } from 'firebase/firestore';
 import { database } from '../config/firebase';
-import BottomNavigation from './BottomNavigation';
+import BottomNavigation from './BottomNavigator';
 
 
 const ProfileScreen = () => {

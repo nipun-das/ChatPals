@@ -60,8 +60,7 @@ export default function Signup({ navigation }) {
     }, []);
 
     return (
-        <ScrollView style={{ flex: 1 }}>
-            <View style={{ flex: 1 }}>
+        
                 <View style={styles.container}>
                     <View style={styles.curvedBg} />
                     <SafeAreaView style={styles.form}>
@@ -141,14 +140,14 @@ export default function Signup({ navigation }) {
                     </SafeAreaView>
                     <StatusBar barStyle="light-content" />
                 </View>
-            </View>
-        </ScrollView>
+          
     );
 }
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: "red",
+        height:'100%'
     },
     title: {
         fontSize: 25,
@@ -157,7 +156,7 @@ const styles = StyleSheet.create({
         color: "#005A89",
         alignSelf: "center",
         paddingBottom: 28,
-        paddingTop: 70
+        paddingTop: 80
     },
     input: {
         backgroundColor: "#F6F7FB",
@@ -204,11 +203,11 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 40,
-        marginTop: 50
+        marginTop: 20
     },
     image: {
-        width: 40, // Set your desired width
-        height: 40, // Set your desired height
+        width: 40, 
+        height: 40, 
         position: 'absolute',
         top: 10,
         right: 0,
@@ -263,6 +262,6 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 40,
+        marginTop: 25,
     },
 });

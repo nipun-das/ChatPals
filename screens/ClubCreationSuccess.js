@@ -11,7 +11,7 @@ function ClubCreationSuccess({ route,navigation }) {
         console.log("recv", clubName)
     }, []);
     const handleProceed = async () => {
-        navigation.navigate('ClubFeed')
+        navigation.navigate('BottomNavigator')
     }
     return (
         <ImageBackground source={require('../assets/success.png')} style={styles.bgImage}>

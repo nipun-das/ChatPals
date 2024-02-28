@@ -5,6 +5,8 @@ import { database, auth } from '../config/firebase';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { Image } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { Ionicons } from '@expo/vector-icons';
+
 
 const Stack = createStackNavigator();
 
@@ -174,19 +176,19 @@ const ChatScreenOwner = ({ navigation }) => {
         if (option === 'ScheduleMeeting') {
             console.log("club id sent to scdhule meet: ", clubId)
             navigation.navigate('ScheduleMeetingOwner', { clubId });
-            setModalVisible(false); 
-        } 
+            setModalVisible(false);
+        }
         if (option === 'OrganizeWorkshopOwner') {
             console.log("club id sent to org workshop: ", clubId)
             navigation.navigate('OrganizeWorkshopOwner', { clubId });
             setModalVisible(false);
         }
         else {
-            setModalVisible(false); 
+            setModalVisible(false);
         }
     };
 
-    const goBack=()=>{
+    const goBack = () => {
         navigation.navigate("ClubFeed")
     }
 
@@ -227,10 +229,10 @@ const ChatScreenOwner = ({ navigation }) => {
         } else if (item.messageType === 'eventMessage') {
 
             const dateComponents = item.eventDate.split('-');
-            console.log("dateevent:",dateComponents)
-            const year = parseInt(dateComponents[0]); 
-            const monthName = dateComponents[1]; 
-            const day = parseInt(dateComponents[2]); 
+            console.log("dateevent:", dateComponents)
+            const year = parseInt(dateComponents[0]);
+            const monthName = dateComponents[1];
+            const day = parseInt(dateComponents[2]);
             const monthIndex = new Date(Date.parse(monthName + ' 1, 2000')).getMonth();
             const eventDateObj = new Date(year, monthIndex, day);
             const formattedDate = `${day} ${monthName}`;
@@ -260,7 +262,7 @@ const ChatScreenOwner = ({ navigation }) => {
         }
         else if (item.messageType === 'meetingMessage') {
             const dateComponents = item.meetingDate.split('-');
-            console.log("datemeet:",dateComponents)
+            console.log("datemeet:", dateComponents)
             const year = parseInt(dateComponents[0]); // Convert to integer
             const monthName = dateComponents[1]; // Month name
             const day = parseInt(dateComponents[2]); // Convert to integer
@@ -269,32 +271,32 @@ const ChatScreenOwner = ({ navigation }) => {
             const formattedDate = `${day} ${monthName}`;
             return (
                 <TouchableHighlight onPress={handleTouch} underlayColor="transparent">
-                <View style={styles.eventMessageContainer}>
-                    <View style={[styles.contentContainer,{backgroundColor:'#211155'}]}>
-                        <View style={styles.leftSection}>
-                            <Image source={require('../assets/meeting.png')} style={styles.icon} />
-                            <View style={styles.eventDetails}>
-                                <Text style={styles.eventName}>{item.meetingTopic}</Text>
-                                <Text style={styles.eventDate}>{formattedDate}</Text>
-                                <Text style={styles.eventLocation}>Google Meet : {item.meetingLink}</Text>
+                    <View style={styles.eventMessageContainer}>
+                        <View style={[styles.contentContainer, { backgroundColor: '#211155' }]}>
+                            <View style={styles.leftSection}>
+                                <Image source={require('../assets/meeting.png')} style={styles.icon} />
+                                <View style={styles.eventDetails}>
+                                    <Text style={styles.eventName}>{item.meetingTopic}</Text>
+                                    <Text style={styles.eventDate}>{formattedDate}</Text>
+                                    <Text style={styles.eventLocation}>Google Meet : {item.meetingLink}</Text>
+                                </View>
+                            </View>
+
+                            <View style={styles.rightSection}>
+                                <View style={[styles.eventTag, { backgroundColor: '#90EE90', }]}>
+                                    <Text style={styles.eventTagText}>Meeting</Text>
+                                </View>
+                                <Image source={require('../assets/right-arrow.png')} style={styles.arrowIconMeeting} />
                             </View>
                         </View>
 
-                        <View style={styles.rightSection}>
-                            <View style={[styles.eventTag, { backgroundColor: '#90EE90', }]}>
-                                <Text style={styles.eventTagText}>Meeting</Text>
-                            </View>
-                            <Image source={require('../assets/right-arrow.png')} style={styles.arrowIconMeeting} />
-                        </View>
                     </View>
-
-                </View>
                 </TouchableHighlight>
             );
         }
         else if (item.messageType === 'workshopMessage') {
             const dateComponents = item.workshopDate.split('-');
-            console.log("dateworkshop:",dateComponents)
+            console.log("dateworkshop:", dateComponents)
             const year = parseInt(dateComponents[0]); // Convert to integer
             const monthName = dateComponents[1]; // Month name
             const day = parseInt(dateComponents[2]); // Convert to integer
@@ -303,32 +305,32 @@ const ChatScreenOwner = ({ navigation }) => {
             const formattedDate = `${day} ${monthName}`;
             return (
                 <TouchableHighlight onPress={handleTouch} underlayColor="transparent">
-                <View style={styles.eventMessageContainer}>
-                    <View style={[styles.contentContainer,{backgroundColor:'#00160A'}]}>
-                        <View style={styles.leftSection}>
-                            <Image source={require('../assets/workshop.png')} style={styles.icon} />
-                            <View style={styles.eventDetails}>
-                                <Text style={styles.eventName}>{item.workshopTopic}</Text>
-                                <Text style={styles.eventDate}>{formattedDate}</Text>
-                                <Text style={styles.eventLocation}>Google Meet : {item.workshopLocation}</Text>
+                    <View style={styles.eventMessageContainer}>
+                        <View style={[styles.contentContainer, { backgroundColor: '#00160A' }]}>
+                            <View style={styles.leftSection}>
+                                <Image source={require('../assets/workshop.png')} style={styles.icon} />
+                                <View style={styles.eventDetails}>
+                                    <Text style={styles.eventName}>{item.workshopTopic}</Text>
+                                    <Text style={styles.eventDate}>{formattedDate}</Text>
+                                    <Text style={styles.eventLocation}>Google Meet : {item.workshopLocation}</Text>
+                                </View>
+                            </View>
+
+                            <View style={styles.rightSection}>
+                                <View style={[styles.eventTag, { backgroundColor: '#90EE90', }]}>
+                                    <Text style={styles.eventTagText}>Workshop</Text>
+                                </View>
+                                <Image source={require('../assets/right-arrow.png')} style={styles.arrowIconMeeting} />
                             </View>
                         </View>
 
-                        <View style={styles.rightSection}>
-                            <View style={[styles.eventTag, { backgroundColor: '#90EE90', }]}>
-                                <Text style={styles.eventTagText}>Workshop</Text>
-                            </View>
-                            <Image source={require('../assets/right-arrow.png')} style={styles.arrowIconMeeting} />
-                        </View>
                     </View>
-
-                </View>
                 </TouchableHighlight>
             );
         }
-        return null; 
+        return null;
     };
-    
+
 
 
 
@@ -337,31 +339,26 @@ const ChatScreenOwner = ({ navigation }) => {
             <StatusBar backgroundColor="black" />
 
             <View style={styles.topBar}>
-            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                <Image source={require('../assets/backIcon.png')} style={styles.backIcon} />
-            </TouchableOpacity>
+                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                    <Ionicons name="arrow-back" size={30} color="black" />
+                </TouchableOpacity>
                 <View style={styles.infoContainer}>
                     <Text style={styles.profileName}>{clubName}</Text>
-                    <Text style={styles.clubChat}>Chat Room</Text>
                 </View>
 
-                <TouchableOpacity onPress={() => handleDummyAction()}>
-                    <Image
-                        source={require('../assets/bell.png')}
-                        style={styles.leaderboardIcon}
-                    />
+                <TouchableOpacity style={styles.leaderboardIcon} onPress={() => handleDummyAction()}>
+                    <Ionicons name="trophy-outline" size={25} color="black" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleAdditionalAction()}>
-                    <Image
-                        source={require('../assets/ham2.png')}
-                        style={styles.hamIcon}
-                    />
+
+
+                <TouchableOpacity onPress={() => handleAdditionalAction()} style={styles.hamIcon}>
+                    <Ionicons name="ellipsis-vertical" size={25} color="black" />
                 </TouchableOpacity>
 
             </View>
             <View style={styles.inContainer}>
-            <View style={styles.topLeftPadding}/>
-            <View style={styles.topRightPadding}/>
+                <View style={styles.topLeftPadding} />
+                <View style={styles.topRightPadding} />
 
                 {/* Chat Messages */}
                 <FlatList
@@ -373,9 +370,10 @@ const ChatScreenOwner = ({ navigation }) => {
                 <View style={styles.inputContainer}>
                     <View style={styles.inputWrapper}>
                         <TextInput
-                            style={styles.input}
+                            style={[styles.input, { height: Math.max(35, newMessage.split('\n').length * 20) }]}
                             placeholder="Type message here..."
                             value={newMessage}
+                            multiline
                             onChangeText={(text) => setNewMessage(text)}
                         />
                         <TouchableOpacity onPress={handleCreateButtonPress} style={styles.createButton}>
@@ -458,13 +456,11 @@ const ChatScreenOwner = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        marginTop: 35,
-        backgroundColor: 'black',
-        fontFamily: 'Poppins-Regular'
+        // backgroundColor: 'black',
     },
     backButton: {
         position: 'absolute',
-        top: 28,
+        top: 16,
         left: 20,
         zIndex: 1,
     },
@@ -485,37 +481,41 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 13,
         left: 9.5,
-        borderTopRightRadius:1050,
-        borderTopLeftRadius:150,
-        
-        width:16,
+        borderTopRightRadius: 1050,
+        borderTopLeftRadius: 150,
+        width: 16,
         height: 5,
         backgroundColor: 'white', // Adjust color as needed
         position: 'absolute',
         transform: [{ rotate: '-45deg' }],
-        zIndex:1000
-      },
-      topRightPadding: {
+        zIndex: 1000
+    },
+    topRightPadding: {
         position: 'absolute',
         top: 13,
         right: 9.5,
-        borderTopLeftRadius:1050,
-        borderTopRightRadius:150,
+        borderTopLeftRadius: 1050,
+        borderTopRightRadius: 150,
         width: 16,
         height: 5,
         backgroundColor: 'white', // Adjust color as needed
         position: 'absolute',
         transform: [{ rotate: '45deg' }],
-        zIndex:1000
-      },
+        zIndex: 1000
+    },
     topBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
         padding: 15,
         marginBottom: 3,
         height: 75,
-        backgroundColor: 'black',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderWidth: 0.17,
+        borderColor: '#CDCDCD',
+        backgroundColor: 'white',
+
+
+
     },
     infoContainer: {
         marginLeft: 45,
@@ -524,32 +524,41 @@ const styles = StyleSheet.create({
     },
     profileName: {
         fontSize: 21,
-        fontFamily: 'Poppins-Medium',
-        marginTop: 6,
-        color: 'white',
+        fontFamily: 'DMSans-Bold',
+        marginTop: -9,
+        color: 'black',
     },
-    clubChat: {
-        fontSize: 15,
-        color: 'white',
-        marginRight: 40,
-        marginTop: -5,
-        fontFamily: 'Poppins-Medium',
 
-    },
     leaderboardIcon: {
-        width: 30,
-        height: 26,
-        resizeMode: 'contain',
-        marginRight: -150,
-        marginLeft: 20
+        position: 'absolute',
+        top: 27,
+        right: 60
     },
     hamIcon: {
-        width: 30,
-        height: 30,
-        // backgroundCol
-        resizeMode: 'contain',
-        marginRight: 10,
+        position: 'absolute',
+        top: 26,
+        right: 19
     },
+
+
+    // notificationIcon: {
+    //     padding: 10,
+    //     marginTop: 13,
+    //     marginRight: 8
+    //   },
+    //   chatIcon: {
+    //     position: 'absolute',
+    //     top: 27,
+    //     right: 60
+    //   },
+
+
+
+
+
+
+
+
     clubName: {
         fontSize: 18,
         color: 'white',
@@ -659,7 +668,7 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         marginTop: 25
     },
-    arrowIconMeeting:{
+    arrowIconMeeting: {
         width: 24,
         height: 24,
         marginRight: 10,
@@ -696,7 +705,7 @@ const styles = StyleSheet.create({
     messageText: {
         fontSize: 15,
         color: 'white',
-        fontFamily: 'Inter-Regular'
+        fontFamily: 'DMSans-Regular'
 
     },
     timestamp: {
@@ -713,7 +722,7 @@ const styles = StyleSheet.create({
     },
     currentUserMessage: {
         alignSelf: 'flex-end',
-        backgroundColor: '#005979',
+        backgroundColor: '#185D76',
         alignSelf: 'flex-end',
         borderTopRightRadius: 30,
         borderBottomRightRadius: 0,
@@ -760,15 +769,10 @@ const styles = StyleSheet.create({
         marginTop: 4,
         height: 58,
         marginBottom: 2,
-        // backgroundColor: 'transaparent',
-        // // position: 'absolute',
-        // bottom: 0,
-        // left: 0,
-        // right: 0,
         borderTopLeftRadius: 30,
         borderTopRightRadius: 30,
         backgroundColor: '#F6F6F6',
-
+        minHeight: 35,
 
     },
     inputWrapper: {
@@ -778,14 +782,16 @@ const styles = StyleSheet.create({
     },
     input: {
         flex: 1,
+        width: 225,
         backgroundColor: 'transaparent',
         borderRadius: 25,
         paddingLeft: 25,
         marginTop: 5,
         marginLeft: 20,
         marginRight: 20,
-        fontFamily: 'Poppins-Regular',
-        backgroundColor: 'white'
+        fontFamily: 'DMSans-Regular',
+        backgroundColor: 'white',
+
     },
     sendButton: {
         position: 'absolute',

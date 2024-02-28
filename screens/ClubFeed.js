@@ -55,15 +55,17 @@ const ClubFeed = ({ navigation }) => {
           const userData = userDoc.data();
           console.log("userdoc fetched: ", userData)
 
-          const { name, avatarId } = userData;
+          const { name, avatarId, role } = userData;
 
-          console.log("name and avatar fetched: ", name, avatarId)
+          console.log("name ,avatar,role fetched: ", name, avatarId, role)
 
           // Add username and avatarId to the post data
           postData.userName = name;
           postData.avatarId = avatarId;
+          postData.role = role;
 
-          console.log("postdata name and avatar fetched: ", postData.userName, postData.avatarId)
+
+          console.log("postdata name, avatar, role fetched: ", postData.userName, postData.avatarId, postData.role)
 
           return { id: postDoc.id, ...postData };
         } else {
@@ -164,12 +166,17 @@ const ClubFeed = ({ navigation }) => {
   const handleSignOut = async () => {
     try {
       await auth.signOut();
+      console.log("Logged out")
       navigation.navigate('Login')
     } catch (error) {
       console.error('Error signing out:', error);
     }
   };
 
+
+  const handleChatNav = () => {
+    navigation.navigate('ChatScreenOwner')
+  }
 
 
   return (
@@ -178,13 +185,16 @@ const ClubFeed = ({ navigation }) => {
         <TouchableOpacity style={styles.miniLogo} onPress={fetchPosts}>
           <Image source={require('../assets/text-logo.png')} style={styles.miniLogo} />
         </TouchableOpacity>
+        <TouchableOpacity style={styles.chatIcon} onPress={handleChatNav}>
+          <Ionicons name="chatbox-outline" size={30} color="black" />
+        </TouchableOpacity>
         <TouchableOpacity style={styles.notificationIcon} onPress={handleSignOut}>
           <Ionicons name="notifications-outline" size={30} color="black" />
         </TouchableOpacity>
       </View>
 
       <TouchableOpacity style={styles.fab} onPress={toggleModal}>
-        <Ionicons name="add" size={50} color="black" />
+        <Ionicons name="add" size={50} color="white" />
       </TouchableOpacity>
 
       <ScrollView>
@@ -193,8 +203,18 @@ const ClubFeed = ({ navigation }) => {
             <View key={post.id} style={styles.post}>
               <View style={styles.nameAvatarContainer}>
                 <Image source={findAvatarSource(post.avatarId)} style={styles.avatar} />
-                <View style={styles.nameDateContainer}>
-                  <Text style={styles.userName}>{post.userName}</Text>
+
+                <View style={[styles.detailsContainer, { display: 'flex' }]}>
+                  <View style={[styles.nameRoleContainer, { flexDirection: 'row' }]}>
+                    <Text style={styles.userName}>{post.userName}</Text>
+                    <View style={[styles.roleContainer, { backgroundColor: '#EDE6FF', width: 50, height: 18, display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: 5, marginLeft: 10, marginTop: 2 }]}>
+                      <Text style={[styles.roleText, { color: '#6E3DF1', fontFamily: 'DMSans-Bold', fontSize: 12 }]}>{post.role === 'owner' ? 'Leader' : 'Member'}</Text>
+                    </View>
+
+                  </View>
+                  <TouchableOpacity >
+                    <Image source={require('../assets/dots-vertical.png')} style={[styles.dotOption, { zIndex: 1000, backgroundColor: 'white', position: 'absolute', top: -18, right: -160, width: 22, height: 17, resizeMode: 'contain' }]} />
+                  </TouchableOpacity>
                   <Text style={styles.postDate}>{formatDate(post.postDate)}</Text>
                 </View>
               </View>
@@ -213,19 +233,21 @@ const ClubFeed = ({ navigation }) => {
       >
         <View style={styles.modalContainer}>
           <StatusBar backgroundColor="black" />
+          {/* <View styles={[{ backgroundColor: 'red' }]}> */}
           <TouchableOpacity style={styles.backButton} onPress={toggleModal}>
-            <Image source={require('../assets/backIcon.png')} style={styles.backIcon} />
+            <Ionicons name="arrow-back" size={30} color="black" />
           </TouchableOpacity>
           <View style={styles.createContainer}>
             <Text style={styles.modalTitle}>Create a Post</Text>
+            {/* </View> */}
           </View>
-
-
-          <View style={[styles.modalContent, { borderTopLeftRadius: 30, borderTopRightRadius: 30 }]}>
+          <View style={[styles.modalContent, {
+            borderTopWidth: 1, borderColor: "#CDCDCD",
+            marginTop: -7
+          }]}>
             <Text style={styles.label}>What's on your mind?</Text>
-
             <TextInput
-              placeholder="..."
+              placeholder=""
               value={postTitle}
               onChangeText={setPostTitle}
               style={styles.textInput}
@@ -233,7 +255,7 @@ const ClubFeed = ({ navigation }) => {
             <Text style={styles.label}>Share the complete story guys!</Text>
 
             <TextInput
-              placeholder="..."
+              placeholder=""
               value={postDesc}
               onChangeText={setPostDesc}
               multiline={true}
@@ -267,20 +289,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: 20,
     borderWidth: 0.17,
+    borderColor: '#CDCDCD',
     backgroundColor: 'white',
+
   },
   backButton: {
     position: 'absolute',
-    top: 24,
+    top: 16,
     left: 20,
     zIndex: 1,
   },
   label: {
-    fontSize: 13,
+    fontSize: 17,
     color: 'black',
-    fontFamily: "Inter-Medium",
+    fontFamily: "DMSans-Medium",
     marginBottom: 5
   },
   backIcon: {
@@ -297,34 +320,34 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   createContainer: {
-    backgroundColor: 'black',
+    backgroundColor: 'white',
     height: 89,
-    marginTop: 30
+    marginTop: 30,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    flex: 1,
-  },
+
   modalTitle: {
-    fontSize: 26,
+    fontSize: 24,
     marginTop: 30,
     textAlign: 'center',
-    color: 'white',
-    fontFamily: "Poppins-Bold",
+    color: 'black',
+    fontFamily: "DMSans-Bold",
 
   },
   notificationIcon: {
-    padding: 10,
-    marginTop: 13,
-    marginRight: 8
+    position: 'absolute',
+    top: 26,
+    right: 19
+  },
+  chatIcon: {
+    position: 'absolute',
+    top: 27,
+    right: 60
   },
   fab: {
     position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: 'yellow',
+    bottom: 22,
+    right: 22,
+    backgroundColor: 'black',
     width: 60,
     height: 60,
     zIndex: 1000,
@@ -334,7 +357,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: 'black',
+    backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -357,19 +380,22 @@ const styles = StyleSheet.create({
   },
   textInput: {
     borderWidth: 0.167,
+    borderRadius: 9,
     borderColor: 'rgba(0,0,0,0.2)',
+    backgroundColor: '#D2D2D2',
     padding: 10,
+    marginTop: 5,
     marginBottom: 20,
   },
   uploadContainer: {
     flex: 0.3,
     flexDirection: 'row',
-    width: 65,
+    width: 70,
     paddingLeft: 5,
     justifyContent: 'space-between'
   },
   uploadButton: {
-
+    // marginLeft
   },
   uploadButtonIcon: {
     width: 25,
@@ -391,68 +417,68 @@ const styles = StyleSheet.create({
   },
 
 
-
-
-
   postsContainer: {
     flex: 1,
-    padding: 10,
+    padding: 13,
+    backgroundColor: '#F6F6F6'
+
   },
   post: {
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#E7E7E7',
     borderRadius: 10,
     padding: 10,
+    backgroundColor: 'white'
   },
   avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 37,
+    height: 37,
+    borderRadius: 40,
     marginRight: 10,
-    borderWidth: 1,
-    borderColor: 'black'
+    backgroundColor: '#E4DDDD'
+    // borderWidth: 1,
+    // borderColor: 'black'
   },
   userName: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 16,
+    fontFamily: 'DMSans-Bold',
+    fontSize: 17,
     // marginBottom: 5,
   },
   postDate: {
-    fontFamily: 'Inter-Medium',
-    fontSize: 15,
+    fontFamily: 'DMSans-Medium',
+    fontSize: 13,
     backgroundColor: 'white',
     // width: 150,
-    marginLeft: 130,
-    marginRight: 50
+    // marginLeft: 100,
+    // marginRight: 50
     // float:'right'
     // justifyContent:'flex-end'
     // marginTop: -3,
   },
   nameAvatarContainer: {
-    // flex:1,
     display: 'flex',
     flexDirection: 'row'
   },
-  nameDateContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-  },
+
   title: {
-    fontSize: 17,
-    // fontWeight: 'bold',
-    fontFamily: 'Poppins-Medium',
-    // marginBottom: 5,
+    marginTop: 14,
+    fontSize: 21,
+    paddingLeft: 2,
+    paddingRight: 1,
+    fontFamily: 'DMSans-Bold',
+    // backgroundColor:'yellow',
+
   },
   description: {
     fontSize: 14,
+    // backgroundColor:'red',
+    paddingLeft: 2,
+    paddingRight: 1,
+    paddingTop: 0,
+    marginTop: 8,
+    fontFamily: 'DMSans-Medium',
   },
-
-
-
-
-
-
 
 
 });

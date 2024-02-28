@@ -1,35 +1,35 @@
-import React, { useState } from 'react';
-import { View } from 'react-native';
-import ClubFeed from './ClubFeed';
-import ChatScreenOwner from './ChatScreenOwner';
-import ProfileScreen from './ProfileScreen';
-import BottomNavigation from './BottomNavigation';
+// import React, { useState } from 'react';
+// import { View } from 'react-native';
+// import ClubFeed from './ClubFeed';
+// import ChatScreenOwner from './ChatScreenOwner';
+// import ProfileScreen from './ProfileScreen';
+// import BottomNavigation from './BottomNavigator';
+// import BottomNavigator from './BottomNavigator';
 
-const MainScreen = () => {
-    const [activeScreen, setActiveScreen] = useState('ClubFeed');
+// const MainScreen = () => {
+//     const [activeScreen, setActiveScreen] = useState('ClubFeed');
 
-    const renderScreen = () => {
-        switch (activeScreen) {
-            case 'ChatScreenOwner':
-                console.log("render-->", activeScreen)
-                return <ChatScreenOwner/>;
-            case 'ProfileScreen':
-                console.log("render-->", activeScreen)
-                return <ProfileScreen />;
-            default:
-                console.log("render-->", activeScreen)
+//     const renderScreen = () => {
+//         switch (activeScreen) {
+//             case 'ChatScreenOwner':
+//                 console.log("render-->", activeScreen)
+//                 return <ChatScreenOwner />;
+//             case 'ProfileScreen':
+//                 console.log("render-->", activeScreen)
+//                 return <ProfileScreen />;
+//             default:
+//                 console.log("render-->", activeScreen)
 
-                return <ClubFeed />;
-        }
+//                 return <ClubFeed />;
+//         }
+//     };
 
-    };
+//     return (
+//         <View style={{ flex: 1 }}>
+//             {renderScreen()}
+//             <BottomNavigator setActiveScreen={setActiveScreen} />
+//         </View>
+//     );
+// };
 
-    return (
-        <View style={{ flex: 1 }}>
-            {renderScreen()}
-            <BottomNavigation setActiveScreen={setActiveScreen} />
-        </View>
-    );
-};
-
-export default MainScreen;
+// export default MainScreen;

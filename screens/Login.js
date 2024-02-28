@@ -1,68 +1,80 @@
 
 
 import { Ionicons } from '@expo/vector-icons';
-
-// LogBox.ignoreLogs(['Require cycle:']);
-
-// export default function Login({ navigation }) {
-//     const [email, setEmail] = useState("");
-//     const [password, setPassword] = useState("");
-
-//     const onHandleLogin = () => {
-//         if (email !== "" && password !== "") {
-//             signInWithEmailAndPassword(auth, email, password)
-//                 .then(() => console.log("Login success"))
-//                 .catch((err) => Alert.alert("Login error", err.message));
-//         }
-//     }
-
-
-
-
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, TextInput, Image, SafeAreaView, TouchableOpacity, StatusBar, Alert } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, firestore } from "../config/firebase";
+import { auth, database, firestore } from "../config/firebase";
 import { useNavigation } from "@react-navigation/native";
+import { doc, getDoc } from 'firebase/firestore';
 
-export default function Login({navigation}) {
+export default function Login({ navigation }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     // const navigation = useNavigation();
     const [showPassword, setShowPassword] = useState(false);
 
-    useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(async (user) => {
-            if (user) {
+    // useEffect(() => {
+    //     const unsubscribe = auth.onAuthStateChanged(async (user) => {
+    //         if (user) {
 
-                const userId = user.uid;
-                const userDoc = await firestore.collection('users').doc(userId).get();
-                const userData = userDoc.data();
+    //             const userId = user.uid;
+    //             const userDoc = await firestore.collection('users').doc(userId).get();
+    //             const userData = userDoc.data();
 
-                if (userData) {
-                    if (userData.role === 'owner') {
-                        navigation.navigate('ClubFeed', { clubId: userData.clubId });
-                    } else if (userData.role === 'member') {
-                        navigation.navigate('ClubFeedMember', { clubId: userData.clubId });
-                    }
-                } else {
-                    console.log("user data not found")
-                }
-            }
-        });
+    //             if (userData) {
+    //                 if (userData.role === 'owner') {
+    //                     navigation.navigate('ClubFeed', { clubId: userData.clubId });
+    //                 } else if (userData.role === 'member') {
+    //                     navigation.navigate('ClubFeedMember', { clubId: userData.clubId });
+    //                 }
+    //             } else {
+    //                 console.log("user data not found")
+    //             }
+    //         }
+    //     });
 
-        return () => unsubscribe();
-    }, []);
+    //     return () => unsubscribe();
+    // }, []);
 
     const onHandleLogin = () => {
         if (email !== "" && password !== "") {
             signInWithEmailAndPassword(auth, email, password)
-                .then(() => {
-                    console.log("Login success user id : ",user.uid," role:",userData.role);
+                .then(async (userCredential) => {
+                    // Signed in
+                    const user = userCredential.user;
+                    console.log("Login success. User ID:", user.uid);
+
+                    // Fetch user data
+                    // const userDoc = await firestore.collection('users').doc(user.uid).get();
+
+                    const userDoc = await getDoc(doc(database, 'users', user.uid));
+
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+
+                        console.log("data: ---------->", userData)
+
+                        if (userData) {
+                            if (userData.role === 'owner') {
+                                navigation.navigate('MainScreen', { clubId: userData.clubId });
+                            } else if (userData.role === 'member') {
+                                navigation.navigate('ClubFeedMember', { clubId: userData.clubId });
+                            } else {
+                                console.log("Invalid user role");
+                            }
+                        } else {
+                            console.log("User data not found");
+                        }
+                    }
                 })
-                .catch((err) => Alert.alert("Login error", err.message));
+                .catch((error) => {
+                    console.log("Login error:", error.message);
+                    // Alert.alert("Login error", error.message);
+                });
         }
     }
+
 
 
 
@@ -132,7 +144,7 @@ export default function Login({navigation}) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: "white",
     },
     form: {
         flex: 1,
@@ -145,7 +157,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 40,
-        marginTop: 50
+        // marginTop: 50
     },
     image: {
         width: 40,
@@ -192,7 +204,7 @@ const styles = StyleSheet.create({
     },
     curvedBg: {
         width: '100%',
-        height: '75%',
+        // height: '75%',
         position: "absolute",
         bottom: 0,
         backgroundColor: '#fff',

@@ -1,8 +1,6 @@
 import { initializeApp } from 'firebase/app';
-// import { initializeAuth } from 'firebase/auth';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-// import {getReactNativePersistence} from 'firebase/auth/react-native';
 import Constants from 'expo-constants';
 import { getDatabase } from 'firebase/database';
 
