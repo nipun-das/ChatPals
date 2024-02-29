@@ -10,8 +10,6 @@ import { useEffect } from 'react';
 LogBox.ignoreLogs(['Require cycle:']);
 
 
-// const bgImage = require("../assets/blue-pattern3.jpg");
-
 export default function Signup({ navigation }) {
 
 

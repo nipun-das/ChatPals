@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { View, Text, TextInput, Button, FlatList, StyleSheet, Alert, TouchableOpacity, Modal, StatusBar, Vibration, TouchableHighlight } from 'react-native';
 import { collection, query, orderBy, onSnapshot, addDoc, doc, getDoc, where, getDocs, deleteDoc, updateDoc } from 'firebase/firestore';
 import { database, auth } from '../config/firebase';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { Image } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,6 +20,22 @@ const ChatScreenOwner = ({ navigation }) => {
     const [clubDataFetched, setClubDataFetched] = useState(false);
     const [roleFetched, setRoleFetched] = useState(false);
     const [isModalVisible, setModalVisible] = useState(false);
+
+    const flatListRef = useRef(null);
+
+
+    useEffect(() => {
+        if (flatListRef.current) {
+            flatListRef.current.scrollToEnd({ animated: true });
+        }
+    }, [messages]);
+
+    // useLayoutEffect(() => {
+    //     if (flatListRef.current) {
+    //         flatListRef.current.scrollToEnd({ animated: true });
+    //     }
+    // }, []);
+
     useEffect(() => {
         const fetchClubData = async () => {
             try {
@@ -125,10 +141,8 @@ const ChatScreenOwner = ({ navigation }) => {
             });
             const messageId = messageRef.id;
 
-            // Update the document with its own ID
             await updateDoc(doc(database, `chatrooms/${clubId}/messages`, messageId), { messageId });
 
-            // Clear the newMessage state
             setNewMessage('');
         } catch (error) {
             console.error('Error sending message: ', error);
@@ -193,7 +207,6 @@ const ChatScreenOwner = ({ navigation }) => {
     }
 
     const handleTouch = () => {
-        // Vibrate for 100 milliseconds
         Vibration.vibrate(110);
     };
 
@@ -201,7 +214,6 @@ const ChatScreenOwner = ({ navigation }) => {
 
     const handleRenderMessage = (item) => {
         if (item.messageType === 'normalMessage') {
-            // Render normal message
             return (
                 <TouchableWithoutFeedback onLongPress={() => handleLongPress(item)}>
                     <View
@@ -263,9 +275,9 @@ const ChatScreenOwner = ({ navigation }) => {
         else if (item.messageType === 'meetingMessage') {
             const dateComponents = item.meetingDate.split('-');
             console.log("datemeet:", dateComponents)
-            const year = parseInt(dateComponents[0]); // Convert to integer
-            const monthName = dateComponents[1]; // Month name
-            const day = parseInt(dateComponents[2]); // Convert to integer
+            const year = parseInt(dateComponents[0]); 
+            const monthName = dateComponents[1];
+            const day = parseInt(dateComponents[2]); 
             const monthIndex = new Date(Date.parse(monthName + ' 1, 2000')).getMonth();
             const eventDateObj = new Date(year, monthIndex, day);
             const formattedDate = `${day} ${monthName}`;
@@ -297,9 +309,9 @@ const ChatScreenOwner = ({ navigation }) => {
         else if (item.messageType === 'workshopMessage') {
             const dateComponents = item.workshopDate.split('-');
             console.log("dateworkshop:", dateComponents)
-            const year = parseInt(dateComponents[0]); // Convert to integer
-            const monthName = dateComponents[1]; // Month name
-            const day = parseInt(dateComponents[2]); // Convert to integer
+            const year = parseInt(dateComponents[0]); 
+            const monthName = dateComponents[1]; 
+            const day = parseInt(dateComponents[2]); 
             const monthIndex = new Date(Date.parse(monthName + ' 1, 2000')).getMonth();
             const eventDateObj = new Date(year, monthIndex, day);
             const formattedDate = `${day} ${monthName}`;
@@ -312,7 +324,7 @@ const ChatScreenOwner = ({ navigation }) => {
                                 <View style={styles.eventDetails}>
                                     <Text style={styles.eventName}>{item.workshopTopic}</Text>
                                     <Text style={styles.eventDate}>{formattedDate}</Text>
-                                    <Text style={styles.eventLocation}>Google Meet : {item.workshopLocation}</Text>
+                                    <Text style={styles.eventLocation}>{item.workshopLocation}</Text>
                                 </View>
                             </View>
 
@@ -336,7 +348,7 @@ const ChatScreenOwner = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <StatusBar backgroundColor="black" />
+            <StatusBar backgroundColor="white" />
 
             <View style={styles.topBar}>
                 <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -344,6 +356,9 @@ const ChatScreenOwner = ({ navigation }) => {
                 </TouchableOpacity>
                 <View style={styles.infoContainer}>
                     <Text style={styles.profileName}>{clubName}</Text>
+                    <View style={[styles.roleContainer, { backgroundColor: '#EDE6FF', width: 68, height: 15, justifyContent: 'center', alignItems: 'center', borderRadius: 5, }]}>
+                        <Text style={[styles.roleText, { color: '#6E3DF1', fontFamily: 'DMSans-Bold', fontSize: 12 }]}>Chatroom</Text>
+                    </View>
                 </View>
 
                 <TouchableOpacity style={styles.leaderboardIcon} onPress={() => handleDummyAction()}>
@@ -360,11 +375,18 @@ const ChatScreenOwner = ({ navigation }) => {
                 <View style={styles.topLeftPadding} />
                 <View style={styles.topRightPadding} />
 
-                {/* Chat Messages */}
                 <FlatList
+                    // inverted
                     data={messages}
+                    ref={flatListRef}
+                    // contentContainerStyle={{flex: 1}}
                     keyExtractor={(item, index) => index.toString()}
                     renderItem={({ item }) => handleRenderMessage(item)}
+                    onLayout={() => {
+                        if (flatListRef.current) {
+                            flatListRef.current.scrollToEnd({ animated: true });
+                        }
+                    }}
                 />
 
                 <View style={styles.inputContainer}>
@@ -473,7 +495,6 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 50,
         borderTopRightRadius: 50,
         paddingTop: 15,
-        // paddingtopra
         backgroundColor: 'white',
 
     },
@@ -485,7 +506,7 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 150,
         width: 16,
         height: 5,
-        backgroundColor: 'white', // Adjust color as needed
+        backgroundColor: 'white',
         position: 'absolute',
         transform: [{ rotate: '-45deg' }],
         zIndex: 1000
@@ -498,7 +519,7 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 150,
         width: 16,
         height: 5,
-        backgroundColor: 'white', // Adjust color as needed
+        backgroundColor: 'white', 
         position: 'absolute',
         transform: [{ rotate: '45deg' }],
         zIndex: 1000
@@ -589,9 +610,9 @@ const styles = StyleSheet.create({
 
 
     eventMessageContainer: {
-        // Add any common styles here
+      
         position: 'relative',
-        marginBottom: 10, // Adjust as needed
+        marginBottom: 10, 
     },
 
 
@@ -624,7 +645,6 @@ const styles = StyleSheet.create({
     },
     eventName: {
         fontFamily: 'Poppins-Bold',
-        // marginBottom: 5,
         marginTop: 10,
         fontSize: 21,
         color: 'white'
@@ -646,7 +666,7 @@ const styles = StyleSheet.create({
     },
     rightSection: {
         position: 'absolute',
-        top: 7, // Position at the top
+        top: 7, 
         right: 8,
         marginBottom: 10
     },
@@ -822,15 +842,14 @@ const styles = StyleSheet.create({
     },
 
 
-    // Styles for the modal
     modalContainer: {
         flex: 1,
-        justifyContent: 'flex-end', // Adjusted to position modal at the bottom
+        justifyContent: 'flex-end',
 
     },
     modalBackground: {
         backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        justifyContent: 'flex-end', // Adjusted to position modal at the bottom
+        justifyContent: 'flex-end', 
         flex: 1,
 
 
@@ -841,7 +860,7 @@ const styles = StyleSheet.create({
         padding: 20,
         borderTopLeftRadius: 35,
         borderTopRightRadius: 35,
-        width: '100%', // Adjusted to take full width
+        width: '100%', 
         paddingTop: 33,
 
     },
@@ -881,7 +900,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-Medium',
         elevation: 2,
 
-        color: 'black', // Adjust the text color
+        color: 'black',
         flex: 1,
         textAlign: 'center'
 

@@ -28,8 +28,6 @@ const JoinOrCreate = ({ navigation }) => {
                     .then((snapshot) => {
                         if (snapshot.exists()) {
                             setUserData(snapshot.data());
-                            // console.log('User Data in JoinOrCreate:--', userData);
-
                         } else {
                             console.error('User data not found.');
                         }
@@ -48,37 +46,26 @@ const JoinOrCreate = ({ navigation }) => {
         console.log('User Data in JoinOrCreate:', userData);
     }, [userData]);
 
-    // const handleSignOut = async () => {
+    const handleSignOut = async () => {
 
-    //     console.log("handle signout pressed")
+        console.log("handle signout pressed")
 
-    //     try {
-    //         if (currentUser && currentUser.uid) {
-    //             await signOut(auth);
-    //             navigation.navigate('Login');
-    //         } else {
-    //             console.error('No authenticated user to sign out');
-    //         }
-    //     } catch (error) {
-    //         console.error('Sign-out error: ', error);
-    //     }
-    // };
+        try {
+            if (currentUser && currentUser.uid) {
+                await signOut(auth);
+                navigation.navigate('Login');
+            } else {
+                console.error('No authenticated user to sign out');
+            }
+        } catch (error) {
+            console.error('Sign-out error: ', error);
+        }
+    };
 
     const handleCreateClub = async () => {
         try {
             console.log("user in joinorcreate", currentUser.uid)
-
             console.log("handle create pressed")
-
-            // if (!currentUser || !currentUser.uid) {
-            //     setTimeout(() => handleCreateClub(), 500);
-            //     return;
-            // }
-
-            // const userDocRef = doc(database, 'users', currentUser.uid);
-
-            // await setDoc(userDocRef, { ...userData, role: 'owner' });
-
             navigation.navigate('ClubCreationScreen');
         } catch (error) {
             console.error('Error updating user role:', error);
@@ -86,36 +73,35 @@ const JoinOrCreate = ({ navigation }) => {
     };
 
 
-    // const handleJoinClub = async () => {
-    //     console.log("handle join pressed")
+    const handleJoinClub = async () => {
+        console.log("handle join pressed")
 
-    //     try {
-    //         if (currentUser && currentUser.uid) {
-    //             const memberDocRef = doc(database, 'members', currentUser.uid);
-    //             await setDoc(memberDocRef, {
-    //                 uid: currentUser.uid,
-    //                 name,
-    //                 branch,
-    //                 regNo,
-    //                 semester,
-    //                 interests,
-    //             });
+        try {
+            if (currentUser && currentUser.uid) {
+                const memberDocRef = doc(database, 'members', currentUser.uid);
+                await setDoc(memberDocRef, {
+                    uid: currentUser.uid,
+                    name,
+                    branch,
+                    regNo,
+                    semester,
+                    interests,
+                });
 
-    //             navigation.navigate('ClubJoiningScreen');
-    //         } else {
-    //             console.error('User not authenticated');
-    //         }
-    //     } catch (error) {
-    //         console.error('Error updating user role:', error);
-    //     }
-    // };
+                navigation.navigate('ClubJoiningScreen');
+            } else {
+                console.error('User not authenticated');
+            }
+        } catch (error) {
+            console.error('Error updating user role:', error);
+        }
+    };
 
     return (
 
         <View style={styles.container}>
-            <View style={styles.curvedBg} />
             <SafeAreaView style={styles.form}>
-                {/* <View style={styles.header}>
+                <View style={styles.header}>
 
                     <Image source={require('../assets/star.png')} style={styles.image} resizeMode="contain" />
                     <View style={styles.titleContainer}>
@@ -127,26 +113,24 @@ const JoinOrCreate = ({ navigation }) => {
                     <Text style={styles.motto1}>Connect.</Text>
                     <Text style={styles.motto2}>Create.</Text>
                     <Text style={styles.motto3}>Collaborate.</Text>
-                </View> */}
+                </View>
 
-                {/* <TouchableOpacity style={styles.button1} onPress={handleJoinClub}>
+                <TouchableOpacity style={styles.button1} onPress={handleJoinClub}>
                     <Text style={{ fontWeight: 'bold', color: '#fff', fontSize: 16, fontFamily: 'Inter-SemiBold' }}>Join a a Club</Text>
-                </TouchableOpacity> */}
+                </TouchableOpacity>
 
-                <Button
-                    title="Create a Club"
-                    onPress={handleCreateClub}
-                    style={styles.button2} // You may need to remove this line if Button component doesn't support style prop
-                    color="black" // You can customize the color if needed
-                />
+                <TouchableOpacity style={styles.button1} onPress={handleCreateClub}>
+                    <Text style={{ fontWeight: 'bold', color: '#fff', fontSize: 16, fontFamily: 'Inter-SemiBold' }}>Create a Club</Text>
+                </TouchableOpacity>
 
-                {/* 
+
+
                 <View style={{ marginTop: 90, flexDirection: 'row', alignItems: 'center', alignSelf: 'center' }}>
                     <Text style={{ color: 'black', fontWeight: '600', fontSize: 14, fontFamily: 'Inter-Regular', opacity: 0.7 }}>Do you want to Sign out? </Text>
                     <TouchableOpacity onPress={handleSignOut}>
                         <Text style={{ color: 'black', fontWeight: '600', fontSize: 14, fontFamily: 'Inter-SemiBold', textDecorationLine: 'underline' }}>Sign out</Text>
                     </TouchableOpacity>
-                </View> */}
+                </View>
 
             </SafeAreaView>
             <StatusBar barStyle="light-content" />
@@ -165,16 +149,14 @@ const styles = StyleSheet.create({
     },
     styleElement: {
         position: 'absolute',
-        top: -190, // Adjust the top position as needed
-        left: 120, // Adjust the left position as needed
-        width: 90, // Adjust the width as needed
-        height: 500, // Adjust the height as needed
-        backgroundColor: '#BF0B0B', // Set the desired background color
-        // borderRadius: 10,groundColor: 'transparent', // Make it transparent so it doesn't block underlying content
+        top: -190,
+        left: 120,
+        width: 90,
+        height: 500,
+        backgroundColor: '#BF0B0B',
         opacity: 0.12,
         transform: [{ rotate: '-55deg' }]
     },
-
     title: {
         fontSize: 25,
         fontWeight: 'bold',
@@ -227,33 +209,28 @@ const styles = StyleSheet.create({
     },
     form: {
         flex: 1,
-        // justifyContent: 'flex-start',
         marginHorizontal: 30,
         fontFamily: 'Poppins-Regular',
-        marginTop: 50
+        marginTop: 30
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 40,
-        // marginTop: 50
     },
     image: {
-        width: 40, // Set your desired width
-        height: 40, // Set your desired height
+        width: 40,
+        height: 40,
         position: 'absolute',
         top: 10,
         right: 0,
     },
     titleContainer: {
         flex: 1,
-        // alignItems: 'center',
-
     },
     title: {
         fontSize: 40,
-        // fontWeight: 'bold',
         color: 'black',
         marginTop: 80,
         marginBottom: 40,
@@ -276,16 +253,12 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontFamily: 'Poppins-Medium',
         color: '#D90505',
-        // fontWeight:'500' 
     },
     motto3: {
         fontSize: 22,
         color: '#293DA6',
         fontFamily: 'Poppins-Medium',
-
-
     },
-
     input: {
         backgroundColor: "white",
         height: 50,
@@ -315,9 +288,9 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 60,
     },
     eyeButton: {
-        position: 'absolute', // Position the button absolutely
-        top: 16, // Adjust the top position as needed
-        right: 15, // Adjust the right position as needed
+        position: 'absolute',
+        top: 16,
+        right: 15,
     },
     button1: {
         backgroundColor: 'black',
@@ -325,7 +298,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 60,
+        marginTop: 30,
     },
     button2: {
         backgroundColor: 'black',

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image, ImageBackground, LogBox, Button } from '
 import { TouchableOpacity } from 'react-native-gesture-handler';
 // import { SafeAreaView } from 'react-native-safe-area-context';
 LogBox.ignoreLogs(['Non-serializable values were found in the navigation state. Check:']);
-function ClubCreationSuccess({ route,navigation }) {
+function ClubCreationSuccess({ route, navigation }) {
     const { clubName, userId } = route.params || {};
     console.log(route.params);
 
@@ -25,13 +25,10 @@ function ClubCreationSuccess({ route,navigation }) {
                             <Text style={styles.title3}>is now alive in the campus.{'\n'}Make it amazing!</Text>
                         </View>
                     </View>
-                    <Button
-  title="Proceed"
-  onPress={handleProceed}
-  style={styles.button} // You may need to remove this line if Button component doesn't support style prop
-  color="black" // You can customize the color if needed
-/>
 
+                    <TouchableOpacity style={styles.button} onPress={handleProceed}>
+                        <Text style={{ fontWeight: 'bold', color: '#fff', fontSize: 16, fontFamily: 'Inter-SemiBold' }}>Create</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
         </ImageBackground>

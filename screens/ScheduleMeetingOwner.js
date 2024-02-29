@@ -109,7 +109,7 @@ const ScheduleMeetingOwner = ({ route, navigation }) => {
                 created_by: currentUser.uid,
                 created_at: new Date(),
             });
-            // Add a message to the chatroom with a reference to the meeting
+
             const meetingMessage = `Meeting Created: ${meetingTopic}`;
             await addDoc(collection(database, `chatrooms/${clubId}/messages`), {
                 senderId: currentUser.uid,
@@ -120,7 +120,7 @@ const ScheduleMeetingOwner = ({ route, navigation }) => {
                 meetingTopic: meetingTopic,
                 meetingTime: formattedTime,
                 meetingDate: formattedDate,
-                meetingLink:meetingLink,
+                meetingLink: meetingLink,
             });
             setSuccessModalVisible(true);
             console.log('Meeting created with ID: ', meetingRef.id);
@@ -135,17 +135,17 @@ const ScheduleMeetingOwner = ({ route, navigation }) => {
         <View style={styles.container}>
             <StatusBar backgroundColor="black" />
             <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                <Image source={require('../assets/backIcon.png')} style={styles.backIcon} />
+                <Ionicons name="arrow-back" size={30} color="black" />
             </TouchableOpacity>
             <View style={styles.createContainer}>
                 <Text style={styles.title}>Schedule Meeting</Text>
             </View>
-            <View style={{ backgroundColor: 'white', paddingHorizontal: 20, flex: 1, paddingTop: 15, borderTopLeftRadius: 30, borderTopRightRadius: 30 }}>
+            <View style={{ backgroundColor: 'white', paddingHorizontal: 25, paddingTop: 15 ,borderTopColor:'black',borderTopWidth:2}}>
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Meeting Topic</Text>
+                    <Text style={styles.label}>Meeting Agenda</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="Enter agenda of the meeting"
+                        // placeholder="Enter agenda of the meeting"
                         value={meetingTopic}
                         onChangeText={(text) => setMeetingTopic(text)}
                     />
@@ -157,7 +157,7 @@ const ScheduleMeetingOwner = ({ route, navigation }) => {
                     <Text style={styles.label}>Meeting Description</Text>
                     <TextInput
                         style={[styles.input, styles.multilineInput]}
-                        placeholder="Write about the meeting"
+                        // placeholder="Write about the meeting"
                         value={meetingDescription}
                         onChangeText={(text) => setMeetingDescription(text)}
                         multiline
@@ -317,7 +317,7 @@ const ScheduleMeetingOwner = ({ route, navigation }) => {
                     <View style={styles.inputWithIcon}>
                         <TextInput
                             style={styles.input}
-                            placeholder="Enter meeting link"
+                            // placeholder="Enter meeting link"
                             value={meetingLink}
                             onChangeText={(text) => setMeetingLink(text)}
                         />
@@ -359,14 +359,14 @@ const ScheduleMeetingOwner = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        justifyContent: 'center',
-        // paddingHorizontal: 20,
-        backgroundColor: 'black',
+        // flex: 1,
+        // justifyContent: 'center',
+        // // paddingHorizontal: 20,
+        // backgroundColor: 'black',
     },
     backButton: {
         position: 'absolute',
-        top: 64,
+        top: 16,
         left: 20,
         zIndex: 1,
     },
@@ -375,22 +375,16 @@ const styles = StyleSheet.create({
         height: 18,
     },
     createContainer: {
-        backgroundColor: 'black',
-        // padding:50,
-        // flex:1,
-        // marginLeft: -20,
-        // marginRight: -20,
-        height: 89,
-        marginTop: 30
-        // marginBottom: 30,
-
+        backgroundColor: '#90EE90',
+        height: 70,
+        // marginTop: 30,
     },
     title: {
-        fontSize: 26,
-        marginTop: 20,
+        fontSize: 24,
+        marginTop: 19,
         textAlign: 'center',
-        color: 'white',
-        fontFamily: "Poppins-Bold",
+        color: 'black',
+        fontFamily: "DMSans-Bold",
 
     },
     inputContainer: {
@@ -398,21 +392,20 @@ const styles = StyleSheet.create({
 
     },
     label: {
-        fontSize: 15,
+        fontSize: 17,
         color: 'black',
-        fontFamily: "Poppins-Medium",
-
+        fontFamily: "DMSans-Medium",
+        marginBottom: 5
     },
     input: {
-        backgroundColor: "white",
-        height: 50,
-        marginBottom: 8,
-        fontSize: 16,
-        borderRadius: 6,
-        padding: 12,
-        borderWidth: 0.2,
-        borderColor: 'black',
-        fontFamily: 'Poppins-Regular'
+        borderWidth: 0.167,
+        borderRadius: 9,
+        borderColor: 'rgba(0,0,0,0.2)',
+        backgroundColor: '#D2D2D2',
+        padding: 10,
+        // marginTop: 5,
+        fontSize: 14,
+        marginBottom: 20,
     },
     multilineInput: {
         height: 80,
@@ -426,20 +419,20 @@ const styles = StyleSheet.create({
     datePicker: {
         flex: 1,
         height: 40,
-        borderColor: 'black',
-        borderWidth: 1,
+        // borderColor: 'black',
+        // borderWidth: 1,
         marginBottom: 15,
         padding: 10,
         marginRight: 10,
-        backgroundColor: "white",
+        backgroundColor: "#D2D2D2",
         height: 50,
         marginBottom: 20,
-        fontSize: 16,
-        borderRadius: 6,
+        fontSize: 18,
+        borderRadius: 9,
         padding: 12,
-        borderWidth: 0.2,
+        // borderWidth: 0.2,
         marginTop: 2,
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'DMSans-Regular'
     },
     timePickerContainer: {
         flexDirection: 'row',
@@ -448,20 +441,22 @@ const styles = StyleSheet.create({
     timePicker: {
         flex: 1,
         height: 40,
-        borderColor: 'black',
-        borderWidth: 1,
+        // borderColor: 'black',
+        // borderColor: 'white',
+
+        // borderWidth: 1,
         marginBottom: 15,
         padding: 10,
         marginRight: 10,
-        backgroundColor: "white",
+        backgroundColor: "#D2D2D2",
         height: 50,
         marginBottom: 20,
-        fontSize: 16,
-        borderRadius: 6,
+        fontSize: 18,
+        borderRadius: 9,
         padding: 12,
-        borderWidth: 0.2,
+        // borderWidth: 0.2,
         marginTop: 2,
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'DMSans-Regular'
     },
     modalContainer: {
         flex: 1,
@@ -482,29 +477,31 @@ const styles = StyleSheet.create({
     },
     days: {
         color: 'white',
-        fontFamily: 'Poppins-Regular',
-        fontSize: 20,
+        fontFamily: 'DMSans-Regular',
+        fontSize: 23,
+        marginTop: -4
     },
     months: {
         color: 'white',
         fontSize: 23,
-        marginBottom: 5,
+        marginBottom: 0,
         height: 30,
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'DMSans-Regular'
     },
     years: {
         color: 'white',
         fontSize: 23,
-        marginBottom: 5,
+        marginBottom: 0,
         height: 30,
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'DMSans-Regular'
     },
     hours: {
         color: 'white',
         fontSize: 23,
         marginBottom: 3,
         height: 30,
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'DMSans-Regular'
+
     },
     modalOptionMinutes: {
         // padding: 20,
@@ -523,7 +520,8 @@ const styles = StyleSheet.create({
         fontSize: 15,
         // marginBottom: 5,
         height: 20,
-        fontFamily: 'Poppins-Regular',
+        fontFamily: 'DMSans-Medium'
+
 
     },
     ampm: {
@@ -531,7 +529,8 @@ const styles = StyleSheet.create({
         fontSize: 23,
         marginBottom: 5,
         height: 30,
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'DMSans-Medium'
+
     }
     ,
     createButton: {
@@ -596,14 +595,16 @@ const styles = StyleSheet.create({
     },
     meetIcon: {
         position: 'absolute',
-        bottom: 15,
-        right: 9,
+        bottom: 20,
+        right: 0,
         width: 28,
         height: 28,
+        borderTopRightRadius:9,
+        borderBottomRightRadius:9,
         resizeMode: 'contain',
         marginLeft: 10,
-        // backgroundColor:'whitesmoke',
-        padding: 19,
+        backgroundColor:'#90EE90',
+        padding: 24,
     },
 });
 

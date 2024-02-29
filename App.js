@@ -123,15 +123,25 @@ function ChatStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {/* <Stack.Screen name="MainScreen" component={MainScreen} /> */}
       {/* <Stack.Screen name="ProfileScreen" component={ProfileScreen} /> */}
-      <Stack.Screen name="BottomNavigator" component={BottomNavigator} />
+      <Stack.Screen name="BottomNavigator" component={BottomNavigator} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }}/>
       <Stack.Screen name="ChatScreenOwner" component={ChatScreenOwner} options={{
         ...TransitionPresets.SlideFromRightIOS
       }} />
 
-      <Stack.Screen name="CreateEventOwner" component={CreateEventOwner} />
-      <Stack.Screen name="ScheduleMeetingOwner" component={ScheduleMeetingOwner} />
-      <Stack.Screen name="OrganizeWorkshopOwner" component={OrganizeWorkshopOwner} />
-      <Stack.Screen name="JoinOrCreate" component={JoinOrCreate} />
+      <Stack.Screen name="CreateEventOwner" component={CreateEventOwner} options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
+      }} />
+      <Stack.Screen name="ScheduleMeetingOwner" component={ScheduleMeetingOwner} options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
+      }} />
+      <Stack.Screen name="OrganizeWorkshopOwner" component={OrganizeWorkshopOwner} options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
+      }} />
+      <Stack.Screen name="JoinOrCreate" component={JoinOrCreate} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }}/>
 
       {/* <Stack.Screen name="ClubFeed" component={ClubFeed} /> */}
       <Stack.Screen name="Login" component={Login} />
@@ -145,18 +155,36 @@ function AuthStack() {
   return (
     <Stack.Navigator defaultScreenOptions={Login} screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={Login} />
-      <Stack.Screen name="Signup" component={Signup} />
-      <Stack.Screen name="UserAvatar" component={UserAvatar} />
-      <Stack.Screen name="JoinOrCreate" component={JoinOrCreate} />
-      <Stack.Screen name="ClubCreationScreen" component={ClubCreationScreen} />
-      <Stack.Screen name="ClubCreationSuccess" component={ClubCreationSuccess} />
-      <Stack.Screen name="BottomNavigator" component={BottomNavigator} />
+      <Stack.Screen name="Signup" component={Signup} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }}/>
+      <Stack.Screen name="UserAvatar" component={UserAvatar} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }}/>
+      <Stack.Screen name="JoinOrCreate" component={JoinOrCreate} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }}/>
+      <Stack.Screen name="ClubCreationScreen" component={ClubCreationScreen} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }}/>
+      <Stack.Screen name="ClubCreationSuccess" component={ClubCreationSuccess} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }}/>
+      <Stack.Screen name="BottomNavigator" component={BottomNavigator} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }}/>
       <Stack.Screen name="ChatScreenOwner" component={ChatScreenOwner} options={{
         ...TransitionPresets.SlideFromRightIOS
       }} />
-      <Stack.Screen name="CreateEventOwner" component={CreateEventOwner} />
-      <Stack.Screen name="ScheduleMeetingOwner" component={ScheduleMeetingOwner} />
-      <Stack.Screen name="OrganizeWorkshopOwner" component={OrganizeWorkshopOwner} />
+      <Stack.Screen name="CreateEventOwner" component={CreateEventOwner} options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
+      }} />
+      <Stack.Screen name="ScheduleMeetingOwner" component={ScheduleMeetingOwner}options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
+      }}  />
+      <Stack.Screen name="OrganizeWorkshopOwner" component={OrganizeWorkshopOwner} options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
+      }} />
     </Stack.Navigator>
   )
 }

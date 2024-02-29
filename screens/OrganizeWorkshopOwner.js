@@ -88,7 +88,7 @@ const OrganizeWorkshopOwner = ({ route, navigation }) => {
         closeAmPmModal();
     };
 
-    const handleOrganizeWorkshop = async () => {            
+    const handleOrganizeWorkshop = async () => {
         console.log("workshop organize");
 
         try {
@@ -109,7 +109,7 @@ const OrganizeWorkshopOwner = ({ route, navigation }) => {
                 created_by: currentUser.uid,
                 created_at: new Date(),
             });
-            // Add a message to the chatroom with a reference to the workshop
+
             const workshopMessage = `workshop Created: ${workshopTopic}`;
             await addDoc(collection(database, `chatrooms/${clubId}/messages`), {
                 senderId: currentUser.uid,
@@ -120,7 +120,7 @@ const OrganizeWorkshopOwner = ({ route, navigation }) => {
                 workshopTopic: workshopTopic,
                 workshopTime: formattedTime,
                 workshopDate: formattedDate,
-                workshopLocation:workshopLocation,
+                workshopLocation: workshopLocation,
             });
             setSuccessModalVisible(true);
             console.log('workshop created with ID: ', workshopRef.id);
@@ -135,17 +135,17 @@ const OrganizeWorkshopOwner = ({ route, navigation }) => {
         <View style={styles.container}>
             <StatusBar backgroundColor="black" />
             <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                <Image source={require('../assets/backIcon.png')} style={styles.backIcon} />
+                <Ionicons name="arrow-back" size={30} color="black" />
             </TouchableOpacity>
             <View style={styles.createContainer}>
                 <Text style={styles.title}>Organize Workshop</Text>
             </View>
-            <View style={{ backgroundColor: 'white', paddingHorizontal: 20, flex: 1, paddingTop: 15, borderTopLeftRadius: 30, borderTopRightRadius: 30 }}>
+            <View style={{ backgroundColor: 'white', paddingHorizontal: 25, paddingTop: 15, borderTopColor: 'black', borderTopWidth: 2 }}>
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Workshop Topic</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="Enter the topic of the workshop"
+                        // placeholder="Enter the topic of the workshop"
                         value={workshopTopic}
                         onChangeText={(text) => setWorkshopTopic(text)}
                     />
@@ -154,10 +154,10 @@ const OrganizeWorkshopOwner = ({ route, navigation }) => {
 
 
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Workshop Description</Text>
+                    <Text style={styles.label}>Description</Text>
                     <TextInput
                         style={[styles.input, styles.multilineInput]}
-                        placeholder="Write about the workshop"
+                        // placeholder="Write about the workshop"
                         value={workshopDescription}
                         onChangeText={(text) => setWorkshopDescription(text)}
                         multiline
@@ -317,7 +317,7 @@ const OrganizeWorkshopOwner = ({ route, navigation }) => {
                     <View style={styles.inputWithIcon}>
                         <TextInput
                             style={styles.input}
-                            placeholder="Enter workshop location"
+                            // placeholder="Enter workshop location"
                             value={workshopLocation}
                             onChangeText={(text) => setWorkshopLocation(text)}
                         />
@@ -359,38 +359,28 @@ const OrganizeWorkshopOwner = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        justifyContent: 'center',
-        // paddingHorizontal: 20,
-        backgroundColor: 'black',
+        // flex: 1,
+        // backgroundColor: '#FFB6C1',
     },
     backButton: {
         position: 'absolute',
-        top: 64,
+        top: 16,
         left: 20,
         zIndex: 1,
     },
-    backIcon: {
-        width: 18,
-        height: 18,
-    },
-    createContainer: {
-        backgroundColor: 'black',
-        // padding:50,
-        // flex:1,
-        // marginLeft: -20,
-        // marginRight: -20,
-        height: 89,
-        marginTop: 30
-        // marginBottom: 30,
 
+    createContainer: {
+        backgroundColor: '#FFDAB9',
+        height: 70,
+        // marginTop: 30,
     },
     title: {
-        fontSize: 23,
-        marginTop: 26,
+        fontSize: 24,
+        marginTop: 19,
         textAlign: 'center',
-        color: 'white',
-        fontFamily: "Poppins-Bold",
+        color: 'black',
+        fontFamily: "DMSans-Bold",
+        // backgroundColor:'red'
 
     },
     inputContainer: {
@@ -398,48 +388,50 @@ const styles = StyleSheet.create({
 
     },
     label: {
-        fontSize: 15,
+        fontSize: 17,
         color: 'black',
-        fontFamily: "Poppins-Medium",
+        fontFamily: "DMSans-Medium",
+        marginBottom: 5
 
     },
     input: {
-        backgroundColor: "white",
-        height: 50,
-        marginBottom: 8,
-        fontSize: 16,
-        borderRadius: 6,
-        padding: 12,
-        borderWidth: 0.2,
-        borderColor: 'black',
-        fontFamily: 'Poppins-Regular'
+        borderWidth: 0.167,
+        borderRadius: 9,
+        borderColor: 'rgba(0,0,0,0.2)',
+        backgroundColor: '#D2D2D2',
+        padding: 10,
+        // marginTop: 5,
+        fontSize: 14,
+        marginBottom: 20,
     },
     multilineInput: {
         height: 80,
         textAlignVertical: 'top',
+
     },
     datePickerContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
 
+
     },
     datePicker: {
         flex: 1,
         height: 40,
-        borderColor: 'black',
-        borderWidth: 1,
+        // borderColor: 'black',
+        // borderWidth: 1,
         marginBottom: 15,
         padding: 10,
         marginRight: 10,
-        backgroundColor: "white",
+        backgroundColor: "#D2D2D2",
         height: 50,
         marginBottom: 20,
-        fontSize: 16,
-        borderRadius: 6,
+        fontSize: 18,
+        borderRadius: 9,
         padding: 12,
-        borderWidth: 0.2,
+        // borderWidth: 0.2,
         marginTop: 2,
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'DMSans-Regular'
     },
     timePickerContainer: {
         flexDirection: 'row',
@@ -448,20 +440,23 @@ const styles = StyleSheet.create({
     timePicker: {
         flex: 1,
         height: 40,
-        borderColor: 'black',
-        borderWidth: 1,
+        // borderColor: 'black',
+        // borderColor: 'white',
+
+        // borderWidth: 1,
         marginBottom: 15,
         padding: 10,
         marginRight: 10,
-        backgroundColor: "white",
+        backgroundColor: "#D2D2D2",
         height: 50,
         marginBottom: 20,
-        fontSize: 16,
-        borderRadius: 6,
+        fontSize: 18,
+        borderRadius: 9,
         padding: 12,
-        borderWidth: 0.2,
+        // borderWidth: 0.2,
         marginTop: 2,
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'DMSans-Regular'
+
     },
     modalContainer: {
         flex: 1,
@@ -472,7 +467,7 @@ const styles = StyleSheet.create({
     },
     modalOption: {
         borderBottomWidth: 2,
-        borderColor: 'black',
+        borderColor: 'white',
         width: '100%',
         fontSize: 25,
         alignItems: 'center',
@@ -482,29 +477,32 @@ const styles = StyleSheet.create({
     },
     days: {
         color: 'white',
-        fontFamily: 'Poppins-Regular',
-        fontSize: 20,
+        fontFamily: 'DMSans-Regular',
+        fontSize: 23,
+        marginTop: -4
     },
     months: {
         color: 'white',
         fontSize: 23,
-        marginBottom: 5,
+        marginBottom: 0,
         height: 30,
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'DMSans-Regular'
+
     },
     years: {
         color: 'white',
         fontSize: 23,
-        marginBottom: 5,
+        marginBottom: 0,
         height: 30,
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'DMSans-Regular'
     },
     hours: {
         color: 'white',
         fontSize: 23,
         marginBottom: 3,
         height: 30,
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'DMSans-Regular'
+
     },
     modalOptionMinutes: {
         // padding: 20,
@@ -515,15 +513,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         height: 12.4,
         justifyContent: 'center'
-        // color:'white',
 
     },
     minutes: {
         color: 'white',
         fontSize: 15,
-        // marginBottom: 5,
         height: 20,
-        fontFamily: 'Poppins-Regular',
+        fontFamily: 'DMSans-Medium'
+
+
 
     },
     ampm: {
@@ -531,9 +529,9 @@ const styles = StyleSheet.create({
         fontSize: 23,
         marginBottom: 5,
         height: 30,
-        fontFamily: 'Poppins-Regular'
-    }
-    ,
+        fontFamily: 'DMSans-Medium'
+
+    },
     createButton: {
         backgroundColor: 'black',
         height: 50,
@@ -541,7 +539,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 20,
-
     },
     createButtonText: {
         color: 'white',
@@ -549,7 +546,6 @@ const styles = StyleSheet.create({
         fontFamily: 'Inter-SemiBold'
     },
     successModalContainer: {
-        // flex: 1,
         height: 250,
         backgroundColor: 'gray',
         borderRadius: 10,
@@ -558,8 +554,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
         borderWidth: 2,
         padding: 10
-        // backgroundColor:'white',
-
     },
     successInner: {
         flex: 1,
@@ -576,10 +570,8 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontFamily: 'Poppins-Medium',
         marginBottom: 10,
-        // marginTop:20,
         marginLeft: 50,
         marginRight: 50
-
     },
     okButton: {
         backgroundColor: '#005D6C',
@@ -587,24 +579,13 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 20,
         alignSelf: 'center',
-        marginBottom: 18
+        marginBottom: 1
     },
     okButtonText: {
         color: '#FFF',
         fontSize: 16,
         fontFamily: "Poppins-Medium",
-    },
-    meetIcon: {
-        position: 'absolute',
-        bottom: 15,
-        right: 9,
-        width: 28,
-        height: 28,
-        resizeMode: 'contain',
-        marginLeft: 10,
-        // backgroundColor:'whitesmoke',
-        padding: 19,
-    },
+    }
 });
 
 export default OrganizeWorkshopOwner;

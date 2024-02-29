@@ -4,48 +4,57 @@ import { Ionicons } from '@expo/vector-icons';
 import ClubFeed from './ClubFeed';
 import ChatScreenOwner from './ChatScreenOwner';
 import ProfileScreen from './ProfileScreen';
+import { View } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 
 const BottomNavigator = () => {
     return (
-        <Tab.Navigator
+        <View style={{
+            flex: 1,  backgroundColor: '#E5F1FF'
+        }}>
+            <Tab.Navigator
 
-            screenOptions={({ route }) => ({
-                headerShown: false,
-                tabBarIcon: ({ focused, color, size }) => {
-                    let iconName;
+                screenOptions={({ route }) => ({
+                    headerShown: false,
+                    tabBarIcon: ({ focused, color, size }) => {
+                        let iconName;
+                        let iconColor;
+                        if (route.name === 'ClubFeed') {
+                            iconName = focused ? 'home' : 'home-outline';
+                            iconColor = focused ? '#206CC6' : '#206CC6';
+                        }
 
-                    if (route.name === 'ClubFeed') {
-                        iconName = focused ? 'home' : 'home-outline';
-                    } 
-                    // else if (route.name === 'ChatScreenOwner') {
-                    //     iconName = focused ? 'chatbubble' : 'chatbubble-outline';
-                    // } 
-                    else if (route.name === 'ProfileScreen') {
-                        iconName = focused ? 'person' : 'person-outline';
-                    }
+                        else if (route.name === 'ProfileScreen') {
+                            iconName = focused ? 'person' : 'person-outline';
+                            iconColor = focused ? '#206CC6' : '#206CC6';
 
-                    return <Ionicons name={iconName} size={size} color={color} />;
-                },
-            })}
-            tabBarOptions={{
-                "tabBarActiveTintColor": "tomato",
-                "tabBarInactiveTintColor": "gray",
-                "headerShown": "false",
-                "tabBarStyle": [
-                    {
-                        "display": "flex"
+                        }
+
+                        return <Ionicons name={iconName} size={size} color={iconColor} />;
                     },
-                    null
-                ]
-            }}
-        >
-            <Tab.Screen name="ClubFeed" component={ClubFeed} />
-            {/* <Tab.Screen name="ChatScreenOwner" component={ChatScreenOwner} /> */}
-            <Tab.Screen name="ProfileScreen" component={ProfileScreen} />
-        </Tab.Navigator>
+                })}
+                tabBarOptions={{
+                    style: {
+                        height: 80,
+                    }
+                    , labelStyle: {
+                        display: 'none',
+                    },
+                }}
+            >
+                <Tab.Screen name="ClubFeed" component={ClubFeed} />
+                <Tab.Screen name="ProfileScreen" component={ProfileScreen} />
+            </Tab.Navigator>
+            <View style={{
+                marginBottom: 5, marginLeft: 50,
+                borderRadius: 15
+            }} />
+        </View>
     );
 };
 
 export default BottomNavigator;
+
+
+
