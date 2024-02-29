@@ -57,7 +57,7 @@ export default function Login({ navigation }) {
 
                         if (userData) {
                             if (userData.role === 'owner') {
-                                navigation.navigate('MainScreen', { clubId: userData.clubId });
+                                navigation.navigate('BottomNavigator', { clubId: userData.clubId });
                             } else if (userData.role === 'member') {
                                 navigation.navigate('ClubFeedMember', { clubId: userData.clubId });
                             } else {

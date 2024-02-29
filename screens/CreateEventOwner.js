@@ -111,7 +111,6 @@ const CreateEventOwner = ({ route, navigation }) => {
                 created_at: new Date(),
             });
 
-            // Add a message to the chatroom with a reference to the event
             const eventMessage = `Event Created: ${eventName}`;
             await addDoc(collection(database, `chatrooms/${clubId}/messages`), {
                 senderId: currentUser.uid,
@@ -126,7 +125,6 @@ const CreateEventOwner = ({ route, navigation }) => {
             });
 
 
-
             setSuccessModalVisible(true);
             console.log('Event created with ID: ', eventRef.id);
 
@@ -139,30 +137,32 @@ const CreateEventOwner = ({ route, navigation }) => {
     return (
         <View style={styles.container}>
             <StatusBar backgroundColor="black" />
+
             <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                <Image source={require('../assets/backIcon.png')} style={styles.backIcon} />
+                <Ionicons name="arrow-back" size={30} color="black" />
             </TouchableOpacity>
+
             <View style={styles.createContainer}>
                 <Text style={styles.title}>Create Event</Text>
             </View>
 
+            <View style={{ backgroundColor: 'white', paddingHorizontal: 25, paddingTop: 15 ,borderTopColor:'black',borderTopWidth:2}}>
 
-            <View style={{ backgroundColor: 'white', paddingHorizontal: 20, flex: 1, paddingTop: 15, borderTopLeftRadius: 30, borderTopRightRadius: 30 }}>
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Event Name</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="Enter name of the event"
+                        // placeholder="Enter name of the event"
                         value={eventName}
                         onChangeText={(text) => setEventName(text)}
                     />
                 </View>
 
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Event Description</Text>
+                    <Text style={styles.label}>Description</Text>
                     <TextInput
                         style={[styles.input, styles.multilineInput]}
-                        placeholder="Write about the event"
+                        // placeholder="Write about the event"
                         value={eventDescription}
                         onChangeText={(text) => setEventDescription(text)}
                         multiline
@@ -174,7 +174,9 @@ const CreateEventOwner = ({ route, navigation }) => {
                     <View style={styles.datePickerContainer}>
                         <TouchableOpacity style={styles.datePicker} onPress={openDayModal}>
 
-                            <Text style={{ fontFamily: 'Poppins-Regular' }}>{selectedDay || 'Day'}</Text>
+                            <Text style={{
+                                fontFamily: 'DMSans-Medium'
+                            }}>{selectedDay || 'Day'}</Text>
                         </TouchableOpacity>
                         <Modal
                             animationType="slide"
@@ -198,7 +200,9 @@ const CreateEventOwner = ({ route, navigation }) => {
                         </Modal>
 
                         <TouchableOpacity style={styles.datePicker} onPress={openMonthModal}>
-                            <Text style={{ fontFamily: 'Poppins-Regular' }}>{selectedMonth || 'Month'}</Text>
+                            <Text style={{
+                                fontFamily: 'DMSans-Medium'
+                            }}>{selectedMonth || 'Month'}</Text>
                         </TouchableOpacity>
                         <Modal
                             animationType="slide"
@@ -220,7 +224,9 @@ const CreateEventOwner = ({ route, navigation }) => {
                         </Modal>
 
                         <TouchableOpacity style={styles.datePicker} onPress={openYearModal}>
-                            <Text style={{ fontFamily: 'Poppins-Regular' }}>{selectedYear || 'Year'}</Text>
+                            <Text style={{
+                                fontFamily: 'DMSans-Medium'
+                            }}>{selectedYear || 'Year'}</Text>
                         </TouchableOpacity>
                         <Modal
                             animationType="slide"
@@ -248,7 +254,9 @@ const CreateEventOwner = ({ route, navigation }) => {
                     <Text style={styles.label}>Time</Text>
                     <View style={styles.timePickerContainer}>
                         <TouchableOpacity style={styles.timePicker} onPress={openHourModal}>
-                            <Text style={{ fontFamily: 'Poppins-Regular' }}>{selectedHour || 'Hour'}</Text>
+                            <Text style={{
+                                fontFamily: 'DMSans-Medium'
+                            }}>{selectedHour || 'Hour'}</Text>
                         </TouchableOpacity>
                         <Modal
                             animationType="slide"
@@ -272,7 +280,9 @@ const CreateEventOwner = ({ route, navigation }) => {
 
 
                         <TouchableOpacity style={styles.timePicker} onPress={openMinuteModal}>
-                            <Text style={{ fontFamily: 'Poppins-Regular' }}>{selectedMinute || 'Minute'}</Text>
+                            <Text style={{
+                                fontFamily: 'DMSans-Medium'
+                            }}>{selectedMinute || 'Minute'}</Text>
                         </TouchableOpacity>
                         <Modal
                             animationType="slide"
@@ -294,7 +304,9 @@ const CreateEventOwner = ({ route, navigation }) => {
                         </Modal>
 
                         <TouchableOpacity style={styles.timePicker} onPress={openAmPmModal}>
-                            <Text style={{ fontFamily: 'Poppins-Regular' }}>{selectedAmPm || 'AM / PM'}</Text>
+                            <Text style={{
+                                fontFamily: 'DMSans-Medium'
+                            }}>{selectedAmPm || 'AM / PM'}</Text>
                         </TouchableOpacity>
                         <Modal
                             animationType="slide"
@@ -322,7 +334,7 @@ const CreateEventOwner = ({ route, navigation }) => {
                     <Text style={styles.label}>Location</Text>
                     <TextInput
                         style={styles.input}
-                        placeholder="Enter event location"
+                        // placeholder="Enter event location"
                         value={eventLocation}
                         onChangeText={(text) => setEventLocation(text)}
                     />
@@ -359,33 +371,28 @@ const CreateEventOwner = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        justifyContent: 'center',
-        // paddingHorizontal: 20,
-        backgroundColor: 'black',
-        // flexDirection: 'column',
+        // flex: 1,
+        // backgroundColor: '#FFB6C1',
     },
     backButton: {
         position: 'absolute',
-        top: 64,
+        top: 16,
         left: 20,
         zIndex: 1,
     },
-    backIcon: {
-        width: 18,
-        height: 18,
-    },
+   
     createContainer: {
-        backgroundColor: 'black',
-        height: 89,
-        marginTop: 30
+        backgroundColor: '#FFB6C1',
+        height: 70,
+        // marginTop: 30,
     },
     title: {
-        fontSize: 26,
-        marginTop: 20,
+        fontSize: 24,
+        marginTop: 19,
         textAlign: 'center',
-        color: 'white',
-        fontFamily: "Poppins-Bold",
+        color: 'black',
+        fontFamily: "DMSans-Bold",
+        // backgroundColor:'red'
 
     },
     inputContainer: {
@@ -393,21 +400,21 @@ const styles = StyleSheet.create({
 
     },
     label: {
-        fontSize: 15,
+        fontSize: 17,
         color: 'black',
-        fontFamily: "Poppins-Medium",
+        fontFamily: "DMSans-Medium",
+        marginBottom: 5
 
     },
     input: {
-        backgroundColor: "white",
-        height: 50,
-        marginBottom: 8,
-        fontSize: 16,
-        borderRadius: 6,
-        padding: 12,
-        borderWidth: 0.2,
-        borderColor: 'black',
-        fontFamily: 'Poppins-Regular'
+        borderWidth: 0.167,
+        borderRadius: 9,
+        borderColor: 'rgba(0,0,0,0.2)',
+        backgroundColor: '#D2D2D2',
+        padding: 10,
+        // marginTop: 5,
+        fontSize: 14,
+        marginBottom: 20,
     },
     multilineInput: {
         height: 80,
@@ -423,20 +430,20 @@ const styles = StyleSheet.create({
     datePicker: {
         flex: 1,
         height: 40,
-        borderColor: 'black',
-        borderWidth: 1,
+        // borderColor: 'black',
+        // borderWidth: 1,
         marginBottom: 15,
         padding: 10,
         marginRight: 10,
-        backgroundColor: "white",
+        backgroundColor: "#D2D2D2",
         height: 50,
         marginBottom: 20,
-        fontSize: 16,
-        borderRadius: 6,
+        fontSize: 18,
+        borderRadius: 9,
         padding: 12,
-        borderWidth: 0.2,
+        // borderWidth: 0.2,
         marginTop: 2,
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'DMSans-Regular'
     },
     timePickerContainer: {
         flexDirection: 'row',
@@ -445,20 +452,23 @@ const styles = StyleSheet.create({
     timePicker: {
         flex: 1,
         height: 40,
-        borderColor: 'black',
-        borderWidth: 1,
+        // borderColor: 'black',
+        // borderColor: 'white',
+
+        // borderWidth: 1,
         marginBottom: 15,
         padding: 10,
         marginRight: 10,
-        backgroundColor: "white",
+        backgroundColor: "#D2D2D2",
         height: 50,
         marginBottom: 20,
-        fontSize: 16,
-        borderRadius: 6,
+        fontSize: 18,
+        borderRadius: 9,
         padding: 12,
-        borderWidth: 0.2,
+        // borderWidth: 0.2,
         marginTop: 2,
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'DMSans-Regular'
+
     },
     modalContainer: {
         flex: 1,
@@ -469,7 +479,7 @@ const styles = StyleSheet.create({
     },
     modalOption: {
         borderBottomWidth: 2,
-        borderColor: 'black',
+        borderColor: 'white',
         width: '100%',
         fontSize: 25,
         alignItems: 'center',
@@ -479,29 +489,32 @@ const styles = StyleSheet.create({
     },
     days: {
         color: 'white',
-        fontFamily: 'Poppins-Regular',
-        fontSize: 20,
+        fontFamily: 'DMSans-Regular',
+        fontSize: 23,
+        marginTop: -4
     },
     months: {
         color: 'white',
         fontSize: 23,
-        marginBottom: 5,
+        marginBottom: 0,
         height: 30,
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'DMSans-Regular'
+
     },
     years: {
         color: 'white',
         fontSize: 23,
-        marginBottom: 5,
+        marginBottom: 0,
         height: 30,
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'DMSans-Regular'
     },
     hours: {
         color: 'white',
         fontSize: 23,
         marginBottom: 3,
         height: 30,
-        fontFamily: 'Poppins-Regular'
+        fontFamily: 'DMSans-Regular'
+
     },
     modalOptionMinutes: {
         // padding: 20,
@@ -512,15 +525,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         height: 12.4,
         justifyContent: 'center'
-        // color:'white',
 
     },
     minutes: {
         color: 'white',
         fontSize: 15,
-        // marginBottom: 5,
         height: 20,
-        fontFamily: 'Poppins-Regular',
+        fontFamily: 'DMSans-Medium'
+
+
 
     },
     ampm: {
@@ -528,9 +541,9 @@ const styles = StyleSheet.create({
         fontSize: 23,
         marginBottom: 5,
         height: 30,
-        fontFamily: 'Poppins-Regular'
-    }
-    ,
+        fontFamily: 'DMSans-Medium'
+
+    },
     createButton: {
         backgroundColor: 'black',
         height: 50,
@@ -538,7 +551,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 20,
-
     },
     createButtonText: {
         color: 'white',
@@ -546,7 +558,6 @@ const styles = StyleSheet.create({
         fontFamily: 'Inter-SemiBold'
     },
     successModalContainer: {
-        // flex: 1,
         height: 250,
         backgroundColor: 'gray',
         borderRadius: 10,
@@ -555,8 +566,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
         borderWidth: 2,
         padding: 10
-        // backgroundColor:'white',
-
     },
     successInner: {
         flex: 1,
@@ -573,10 +582,8 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontFamily: 'Poppins-Medium',
         marginBottom: 10,
-        // marginTop:20,
         marginLeft: 50,
         marginRight: 50
-
     },
     okButton: {
         backgroundColor: '#005D6C',

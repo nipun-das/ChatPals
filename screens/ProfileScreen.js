@@ -66,9 +66,16 @@ const ProfileScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Image source={selectedAvatar ? selectedAvatar.source : null} style={styles.avatar} />
+        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', backgroundColor: '#3E96FF', height: 150 }}>
+          <Image source={selectedAvatar ? selectedAvatar.source : null} style={styles.avatar} />
+        </View>
         <Text style={styles.name}>{user.name}</Text>
-        <Text style={styles.role}>Club Owner</Text>
+        {/* <Text style={styles.role}>{user.role == 'owner' ? 'Club Leader' : 'Member'}</Text> */}
+
+
+        <View style={[styles.roleContainer, { backgroundColor: '#E0EEFF', width: 85, height: 25,marginTop:5, justifyContent: 'center', alignItems: 'center', borderRadius: 5, }]}>
+          <Text style={[styles.roleText, { color: '#206CC6', fontFamily: 'DMSans-Bold', fontSize: 12 }]}>{user.role == 'owner' ? 'Club Leader' : 'Member'}</Text>
+        </View>
 
       </View>
       <View style={styles.detailsContainer}>
@@ -89,7 +96,7 @@ const ProfileScreen = () => {
           <Text style={styles.detailValue}>{user.interests}</Text>
         </View>
       </View>
-      <BottomNavigation style={{ bottom: -5 }} />
+      {/* <BottomNavigation style={{ bottom: -5 }} /> */}
     </View>
   );
 };
@@ -101,23 +108,29 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginTop: 70,
+    // marginTop: 70,
 
   },
   avatar: {
     width: 150,
     height: 150,
+    position: 'absolute',
+    top: 35,
+    // padding:10,
     borderRadius: 75,
     marginBottom: 10,
-    borderWidth: 2, 
-    borderColor:'grey'
+    borderWidth: 10,
+    borderColor: '#206CC6',
+    backgroundColor: 'white',
+
   },
   name: {
+    marginTop: 45,
     fontSize: 24,
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'DMSans-Bold',
   },
   role: {
-    fontFamily: 'Poppins-Medium',
+    fontFamily: 'DMSans-Medium',
     fontSize: 16,
     color: 'grey'
   },
@@ -129,18 +142,20 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     padding: 15,
     borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#3E96FF',
     marginLeft: 20,
     marginRight: 20,
   },
   detailLabel: {
     fontSize: 16,
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'DMSans-Bold',
 
     marginBottom: 5,
   },
   detailValue: {
     fontSize: 16,
-    fontFamily: 'Poppins-Medium',
+    fontFamily: 'DMSans-Medium',
 
   },
 });

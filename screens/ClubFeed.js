@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, Modal, TextInput, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, Modal, TextInput, StatusBar, BackHandler } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { addDoc, collection, doc, getDoc, getDocs, orderBy, query, updateDoc, where } from 'firebase/firestore';
 import { auth, database } from '../config/firebase'; // Import your Firebase configuration
 import { ScrollView } from 'react-native-gesture-handler';
+import { useIsFocused } from '@react-navigation/native';
 
 const ClubFeed = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
@@ -12,10 +13,39 @@ const ClubFeed = ({ navigation }) => {
   const [imageUrl, setImageUrl] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
   const [showModal, setShowModal] = useState(false);
-  // const navigation = useNavigation();
+
+
+  const isFocused = useIsFocused();
+
+  // useEffect(() => {
+  //   if (isFocused) {
+  //     // Page is focused, perform necessary actions
+  //     console.log("Clubfeedpage is focused");
+  //   } else {
+  //     // Page is not focused, perform necessary actions
+  //     console.log("Clubfeedpage is not focused");
+  //   }
+  // }, [isFocused]);
+
+  useEffect(() => {
+    const backAction = () => {
+      if (isFocused) {
+        console.log("back btn pressed")
+        return true;
+      }
+      return false; 
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+    return () => backHandler.remove();
+  }, [isFocused]); 
 
   useEffect(() => {
     fetchPosts();
+
   }, []);
 
   const fetchPosts = async () => {
@@ -27,7 +57,6 @@ const ClubFeed = ({ navigation }) => {
       }
       console.log("current user id: ", currentUser.uid)
 
-      // Fetch the user document to get the club ID
       const userDoc = await getDoc(doc(database, 'users', currentUser.uid));
       if (!userDoc.exists()) {
         console.error('User document not found for currentUser:', currentUser.uid);
@@ -37,10 +66,8 @@ const ClubFeed = ({ navigation }) => {
       const { clubId } = userDoc.data();
       console.log("club id : ", clubId)
 
-      // Reference to the club's posts collection
       const clubPostsCollectionRef = collection(database, 'clubs', clubId, 'posts');
 
-      // Query to get posts in descending order of their time
       const querySnapshot = await getDocs(query(clubPostsCollectionRef, orderBy('postDate', 'desc')));
 
       const promises = querySnapshot.docs.map(async (postDoc) => {
@@ -48,7 +75,6 @@ const ClubFeed = ({ navigation }) => {
         const userId = postData.postSenderId;
         console.log("post sender fetched: ", userId)
 
-        // Fetch user document based on userId
         const userDoc = await getDoc(doc(database, 'users', userId));
 
         if (userDoc.exists()) {
@@ -59,7 +85,6 @@ const ClubFeed = ({ navigation }) => {
 
           console.log("name ,avatar,role fetched: ", name, avatarId, role)
 
-          // Add username and avatarId to the post data
           postData.userName = name;
           postData.avatarId = avatarId;
           postData.role = role;
@@ -74,10 +99,8 @@ const ClubFeed = ({ navigation }) => {
       });
 
       const resolvedPosts = await Promise.all(promises);
-      // Filter out any undefined values (in case user documents were not found)
       const postsData = resolvedPosts.filter(post => post);
 
-      // Set posts state with updated data
       setPosts(postsData);
 
     } catch (error) {
@@ -181,6 +204,7 @@ const ClubFeed = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor="black" />
       <View style={styles.topBar}>
         <TouchableOpacity style={styles.miniLogo} onPress={fetchPosts}>
           <Image source={require('../assets/text-logo.png')} style={styles.miniLogo} />
@@ -189,7 +213,7 @@ const ClubFeed = ({ navigation }) => {
           <Ionicons name="chatbox-outline" size={30} color="black" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.notificationIcon} onPress={handleSignOut}>
-          <Ionicons name="notifications-outline" size={30} color="black" />
+          <Ionicons name="exit-outline" size={30} color="black" />
         </TouchableOpacity>
       </View>
 
@@ -198,31 +222,55 @@ const ClubFeed = ({ navigation }) => {
       </TouchableOpacity>
 
       <ScrollView>
-        <View style={styles.postsContainer}>
-          {posts.map((post) => (
-            <View key={post.id} style={styles.post}>
-              <View style={styles.nameAvatarContainer}>
-                <Image source={findAvatarSource(post.avatarId)} style={styles.avatar} />
 
-                <View style={[styles.detailsContainer, { display: 'flex' }]}>
-                  <View style={[styles.nameRoleContainer, { flexDirection: 'row' }]}>
-                    <Text style={styles.userName}>{post.userName}</Text>
-                    <View style={[styles.roleContainer, { backgroundColor: '#EDE6FF', width: 50, height: 18, display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: 5, marginLeft: 10, marginTop: 2 }]}>
-                      <Text style={[styles.roleText, { color: '#6E3DF1', fontFamily: 'DMSans-Bold', fontSize: 12 }]}>{post.role === 'owner' ? 'Leader' : 'Member'}</Text>
-                    </View>
-
-                  </View>
-                  <TouchableOpacity >
-                    <Image source={require('../assets/dots-vertical.png')} style={[styles.dotOption, { zIndex: 1000, backgroundColor: 'white', position: 'absolute', top: -18, right: -160, width: 22, height: 17, resizeMode: 'contain' }]} />
-                  </TouchableOpacity>
-                  <Text style={styles.postDate}>{formatDate(post.postDate)}</Text>
-                </View>
-              </View>
-              <Text style={styles.title}>{post.postTitle}</Text>
-              <Text style={styles.description}>{post.postDesc}</Text>
+        {posts.length === 0 ? (
+          <View style={[styles.noPostsContainer, {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 13,
+            // width: 250,
+            height: 200,
+            marginTop: 150,
+            // paddingHorizontal:20,
+            backgroundColor: '#E5F1FF'
+          }]}>
+            <View style={styles.post}>
+              <Text style={[styles.noPostsText, {
+                fontSize: 18,
+                fontFamily: 'DMSans-Bold',
+                color: '#333',
+                textAlign: 'center'
+              }]}>Be the first to post something!</Text>
             </View>
-          ))}
-        </View>
+          </View>
+        ) : (
+          <View style={styles.postsContainer}>
+            {posts.map((post) => (
+              <View key={post.id} style={styles.post}>
+                <View style={styles.nameAvatarContainer}>
+                  <Image source={findAvatarSource(post.avatarId)} style={styles.avatar} />
+
+                  <View style={[styles.detailsContainer, { display: 'flex' }]}>
+                    <View style={[styles.nameRoleContainer, { flexDirection: 'row' }]}>
+                      <Text style={styles.userName}>{post.userName}</Text>
+                      <View style={[styles.roleContainer, { backgroundColor: '#EDE6FF', width: 50, height: 18, display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: 5, marginLeft: 10, marginTop: 2 }]}>
+                        <Text style={[styles.roleText, { color: '#6E3DF1', fontFamily: 'DMSans-Bold', fontSize: 12 }]}>{post.role === 'owner' ? 'Leader' : 'Member'}</Text>
+                      </View>
+
+                    </View>
+                    <TouchableOpacity >
+                      <Image source={require('../assets/dots-vertical.png')} style={[styles.dotOption, { zIndex: 1000, backgroundColor: 'white', position: 'absolute', top: -18, right: -160, width: 22, height: 17, resizeMode: 'contain' }]} />
+                    </TouchableOpacity>
+                    <Text style={styles.postDate}>{formatDate(post.postDate)}</Text>
+                  </View>
+                </View>
+                <Text style={styles.title}>{post.postTitle}</Text>
+                <Text style={styles.description}>{post.postDesc}</Text>
+              </View>
+            ))}
+          </View>
+        )}
       </ScrollView>
 
       <Modal
@@ -233,13 +281,11 @@ const ClubFeed = ({ navigation }) => {
       >
         <View style={styles.modalContainer}>
           <StatusBar backgroundColor="black" />
-          {/* <View styles={[{ backgroundColor: 'red' }]}> */}
           <TouchableOpacity style={styles.backButton} onPress={toggleModal}>
             <Ionicons name="arrow-back" size={30} color="black" />
           </TouchableOpacity>
           <View style={styles.createContainer}>
             <Text style={styles.modalTitle}>Create a Post</Text>
-            {/* </View> */}
           </View>
           <View style={[styles.modalContent, {
             borderTopWidth: 1, borderColor: "#CDCDCD",
@@ -283,16 +329,18 @@ const ClubFeed = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: 'white',
   },
   topBar: {
+    marginTop: 0.1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderWidth: 0.17,
-    borderColor: '#CDCDCD',
-    backgroundColor: 'white',
+    borderTopColor: 'white',
+    borderWidth: 5,
+    borderTopColor: '#3E96FF',
 
+    borderBottomColor: '#3E96FF'
   },
   backButton: {
     position: 'absolute',
@@ -319,12 +367,17 @@ const styles = StyleSheet.create({
     paddingLeft: 12,
     justifyContent: 'center',
   },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: '#98C7FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   createContainer: {
-    backgroundColor: 'white',
+    backgroundColor: '#98C7FF',
     height: 89,
     marginTop: 30,
   },
-
   modalTitle: {
     fontSize: 24,
     marginTop: 30,
@@ -354,13 +407,10 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 5,
+    borderColor: '#3E96FF'
   },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: 'white',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+
   modalContent: {
     width: '100%',
     backgroundColor: 'white',
@@ -371,7 +421,7 @@ const styles = StyleSheet.create({
 
   },
   modalHeader: {
-    backgroundColor: 'white',
+    backgroundColor: '#98C7FF',
     width: '100%'
   },
 
@@ -416,17 +466,16 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-SemiBold'
   },
 
-
   postsContainer: {
     flex: 1,
     padding: 13,
-    backgroundColor: '#F6F6F6'
+    backgroundColor: '#E5F1FF'
 
   },
   post: {
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#E7E7E7',
+    borderColor: '#98C7FF',
     borderRadius: 10,
     padding: 10,
     backgroundColor: 'white'
@@ -449,12 +498,6 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans-Medium',
     fontSize: 13,
     backgroundColor: 'white',
-    // width: 150,
-    // marginLeft: 100,
-    // marginRight: 50
-    // float:'right'
-    // justifyContent:'flex-end'
-    // marginTop: -3,
   },
   nameAvatarContainer: {
     display: 'flex',

@@ -103,13 +103,10 @@ const ClubCreationScreen = ({ navigation }) => {
                         />
                     </View>
 
-                    <Button
-                        title="Create"
-                        onPress={handleCreateClub}
-                        disabled={!clubName || !description}
-                        style={styles.button} // You may need to remove this line if Button component doesn't support style prop
-                        color="black" // You can customize the color if needed
-                    />
+
+                    <TouchableOpacity style={styles.button} onPress={handleCreateClub}>
+                        <Text style={{ fontWeight: 'bold', color: '#fff', fontSize: 16, fontFamily: 'Inter-SemiBold' }}>Create</Text>
+                    </TouchableOpacity>
 
 
                 </View>
@@ -163,8 +160,8 @@ const styles = StyleSheet.create({
         // marginTop: 50
     },
     image: {
-        width: 40, // Set your desired width
-        height: 40, // Set your desired height
+        width: 40, 
+        height: 40,
         position: 'absolute',
         top: 0,
         right: 0,
@@ -182,28 +179,19 @@ const styles = StyleSheet.create({
     },
 
     inputContainer: {
-        // marginTop: 3
     },
-    // bgImage: {
-    //     width: "100%",
-    //     height: 340,
-    //     position: "absolute",
-    //     opacity: 0.85,
-    //     top: 0,
-    //     resizeMode: 'cover',
-    // },
+    
     curvedBg: {
         width: '100%',
         height: '75%',
         position: "absolute",
         bottom: 0,
         backgroundColor: '#fff',
-        // borderTopLeftRadius: 60,
     },
     eyeButton: {
-        position: 'absolute', // Position the button absolutely
-        top: 16, // Adjust the top position as needed
-        right: 15, // Adjust the right position as needed
+        position: 'absolute', 
+        top: 16, 
+        right: 15, 
     },
     button: {
         backgroundColor: 'black',
@@ -211,7 +199,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 330,
+        marginTop: 250,
     },
 });
 export default ClubCreationScreen;

@@ -22,12 +22,10 @@ const avatars = [
 ];
 
 const UserAvatar = ({ navigation }) => {
-    // const navigation = useNavigation();
     const route = useRoute();
     const [selectedAvatar, setSelectedAvatar] = useState(null);
 
     const handleAvatarSelection = (avatar) => {
-        // console.log("Avatar:", avatar);
         console.log("handleAvatarSelection : ", avatar.id)
         setSelectedAvatar(avatar.id);
     };
