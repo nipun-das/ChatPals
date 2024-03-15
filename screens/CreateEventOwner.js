@@ -13,7 +13,7 @@ import {
 import { Gif } from 'react-native-gif';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { auth, database } from '../config/firebase';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
 
 const CreateEventOwner = ({ route, navigation }) => {
     const [eventName, setEventName] = useState('');
@@ -101,14 +101,23 @@ const CreateEventOwner = ({ route, navigation }) => {
             const eventRef = await addDoc(collection(database, `clubs/${clubId}/events`), {
                 event_name: eventName,
                 club_id: clubId,
-                event_status: 'active',
+                event_status: 'open',
+                event_reg_status: 'open',
                 event_description: eventDescription,
                 event_date: formattedDate,
                 event_time: formattedTime,
                 event_location: eventLocation,
-                registered_members: [],
+                event_registered_members: [],
+                event_price: 'free',
+                event_reg_count: 0,
                 created_by: currentUser.uid,
                 created_at: new Date(),
+            });
+
+            const eventId = eventRef.id;
+
+            await updateDoc(doc(database, `clubs/${clubId}/events`, eventId), {
+                event_id: eventId
             });
 
             const eventMessage = `Event Created: ${eventName}`;
@@ -119,12 +128,13 @@ const CreateEventOwner = ({ route, navigation }) => {
                 messageType: 'eventMessage',
                 eventId: eventRef.id,
                 eventName: eventName,
+                clubId: clubId,
                 eventDate: formattedDate,
                 eventTime: formattedTime,
                 eventLocation: eventLocation,
             });
 
-
+            console.log("Event id added : ", eventId)
             setSuccessModalVisible(true);
             console.log('Event created with ID: ', eventRef.id);
 
@@ -146,7 +156,7 @@ const CreateEventOwner = ({ route, navigation }) => {
                 <Text style={styles.title}>Create Event</Text>
             </View>
 
-            <View style={{ backgroundColor: 'white', paddingHorizontal: 25, paddingTop: 15 ,borderTopColor:'black',borderTopWidth:2}}>
+            <View style={{ backgroundColor: 'white', paddingHorizontal: 25, paddingTop: 15, borderTopColor: 'black', borderTopWidth: 2 }}>
 
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Event Name</Text>
@@ -380,7 +390,7 @@ const styles = StyleSheet.create({
         left: 20,
         zIndex: 1,
     },
-   
+
     createContainer: {
         backgroundColor: '#FFB6C1',
         height: 70,

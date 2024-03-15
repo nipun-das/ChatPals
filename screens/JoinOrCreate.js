@@ -76,25 +76,26 @@ const JoinOrCreate = ({ navigation }) => {
     const handleJoinClub = async () => {
         console.log("handle join pressed")
 
-        try {
-            if (currentUser && currentUser.uid) {
-                const memberDocRef = doc(database, 'members', currentUser.uid);
-                await setDoc(memberDocRef, {
-                    uid: currentUser.uid,
-                    name,
-                    branch,
-                    regNo,
-                    semester,
-                    interests,
-                });
+        // try {
+            // if (currentUser && currentUser.uid) {
+            //     const memberDocRef = doc(database, 'members', currentUser.uid);
+            //     await setDoc(memberDocRef, {
+            //         uid: currentUser.uid,
+            //         name,
+            //         branch,
+            //         regNo,
+            //         semester,
+            //         interests,
+            //     });
 
-                navigation.navigate('ClubJoiningScreen');
-            } else {
-                console.error('User not authenticated');
-            }
-        } catch (error) {
-            console.error('Error updating user role:', error);
-        }
+                navigation.navigate('JoinClubScreen');
+                console.log("navigated to join club")
+            // } else {
+            //     console.error('User not authenticated');
+            // }
+        // } catch (error) {
+            // console.error('Error updating user role:', error);
+        // }
     };
 
     return (
