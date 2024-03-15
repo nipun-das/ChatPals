@@ -127,6 +127,7 @@ const ChatScreenOwner = ({ navigation }) => {
             fetchClubName();
         }
     }, [clubId]);
+
     const handleSendMessage = async () => {
         if (newMessage.trim() === '') {
             return;
@@ -239,7 +240,12 @@ const ChatScreenOwner = ({ navigation }) => {
                 </TouchableWithoutFeedback>
             );
         } else if (item.messageType === 'eventMessage') {
+            const handleEventPress = () => {
+                Vibration.vibrate(110);
+                console.log(item.eventId, "-------------", clubId);
 
+                navigation.navigate('RegisterEvent', { eventId: item.eventId, clubId: item.clubId });
+            }
             const dateComponents = item.eventDate.split('-');
             console.log("dateevent:", dateComponents)
             const year = parseInt(dateComponents[0]);
@@ -248,8 +254,10 @@ const ChatScreenOwner = ({ navigation }) => {
             const monthIndex = new Date(Date.parse(monthName + ' 1, 2000')).getMonth();
             const eventDateObj = new Date(year, monthIndex, day);
             const formattedDate = `${day} ${monthName}`;
+
+
             return (
-                <TouchableHighlight onPress={handleTouch} underlayColor="transparent">
+                <TouchableHighlight onPress={handleEventPress} underlayColor="transparent">
                     <View style={styles.eventMessageContainer}>
                         <View style={styles.contentContainer}>
                             <View style={styles.leftSection}>
@@ -275,9 +283,9 @@ const ChatScreenOwner = ({ navigation }) => {
         else if (item.messageType === 'meetingMessage') {
             const dateComponents = item.meetingDate.split('-');
             console.log("datemeet:", dateComponents)
-            const year = parseInt(dateComponents[0]); 
+            const year = parseInt(dateComponents[0]);
             const monthName = dateComponents[1];
-            const day = parseInt(dateComponents[2]); 
+            const day = parseInt(dateComponents[2]);
             const monthIndex = new Date(Date.parse(monthName + ' 1, 2000')).getMonth();
             const eventDateObj = new Date(year, monthIndex, day);
             const formattedDate = `${day} ${monthName}`;
@@ -309,9 +317,9 @@ const ChatScreenOwner = ({ navigation }) => {
         else if (item.messageType === 'workshopMessage') {
             const dateComponents = item.workshopDate.split('-');
             console.log("dateworkshop:", dateComponents)
-            const year = parseInt(dateComponents[0]); 
-            const monthName = dateComponents[1]; 
-            const day = parseInt(dateComponents[2]); 
+            const year = parseInt(dateComponents[0]);
+            const monthName = dateComponents[1];
+            const day = parseInt(dateComponents[2]);
             const monthIndex = new Date(Date.parse(monthName + ' 1, 2000')).getMonth();
             const eventDateObj = new Date(year, monthIndex, day);
             const formattedDate = `${day} ${monthName}`;
@@ -379,7 +387,6 @@ const ChatScreenOwner = ({ navigation }) => {
                     // inverted
                     data={messages}
                     ref={flatListRef}
-                    // contentContainerStyle={{flex: 1}}
                     keyExtractor={(item, index) => index.toString()}
                     renderItem={({ item }) => handleRenderMessage(item)}
                     onLayout={() => {
@@ -519,7 +526,7 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 150,
         width: 16,
         height: 5,
-        backgroundColor: 'white', 
+        backgroundColor: 'white',
         position: 'absolute',
         transform: [{ rotate: '45deg' }],
         zIndex: 1000
@@ -610,9 +617,9 @@ const styles = StyleSheet.create({
 
 
     eventMessageContainer: {
-      
+
         position: 'relative',
-        marginBottom: 10, 
+        marginBottom: 10,
     },
 
 
@@ -666,7 +673,7 @@ const styles = StyleSheet.create({
     },
     rightSection: {
         position: 'absolute',
-        top: 7, 
+        top: 7,
         right: 8,
         marginBottom: 10
     },
@@ -849,7 +856,7 @@ const styles = StyleSheet.create({
     },
     modalBackground: {
         backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        justifyContent: 'flex-end', 
+        justifyContent: 'flex-end',
         flex: 1,
 
 
@@ -860,7 +867,7 @@ const styles = StyleSheet.create({
         padding: 20,
         borderTopLeftRadius: 35,
         borderTopRightRadius: 35,
-        width: '100%', 
+        width: '100%',
         paddingTop: 33,
 
     },

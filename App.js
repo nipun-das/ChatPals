@@ -2,12 +2,10 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useState, createContext, useContext } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator,TransitionPresets } from '@react-navigation/stack';
+import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import * as SplashScreen from 'expo-splash-screen';
-import Chat from './screens/Chat';
 import Login from './screens/Login';
 import Signup from './screens/Signup';
-import Home from './screens/Home';
 import { auth, database } from './config/firebase';
 import { ActivityIndicator } from 'react-native';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -19,8 +17,6 @@ import ClubCreationScreen from './screens/ClubCreationScreen';
 import ClubCreationSuccess from './screens/ClubCreationSuccess';
 import ClubFeed from './screens/ClubFeed';
 import { useFonts } from '@expo-google-fonts/poppins';
-import TestPage from './screens/TestPage';
-import HomeScreen from './screens/HomeScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import ChatScreenOwner from './screens/ChatScreenOwner';
 import MainScreen from './screens/MainScreen';
@@ -30,6 +26,8 @@ import OrganizeWorkshopOwner from './screens/OrganizeWorkshopOwner';
 import { doc, getDoc } from 'firebase/firestore';
 import BottomNavigator from './screens/BottomNavigator';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import RegisterEvent from './screens/RegisterEvent';
+import JoinClubScreen from './screens/JoinClubScreen';
 
 LogBox.ignoreLogs(['AsyncStorage has been extracted']);
 
@@ -123,10 +121,25 @@ function ChatStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {/* <Stack.Screen name="MainScreen" component={MainScreen} /> */}
       {/* <Stack.Screen name="ProfileScreen" component={ProfileScreen} /> */}
+      <Stack.Screen name="UserAvatar" component={UserAvatar} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }} />
+      <Stack.Screen name="JoinOrCreate" component={JoinOrCreate} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }} />
+
+      <Stack.Screen name="JoinClubScreen" component={JoinClubScreen} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }} />
+
       <Stack.Screen name="BottomNavigator" component={BottomNavigator} options={{
         ...TransitionPresets.SlideFromRightIOS
-      }}/>
+      }} />
       <Stack.Screen name="ChatScreenOwner" component={ChatScreenOwner} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }} />
+
+      <Stack.Screen name="RegisterEvent" component={RegisterEvent} options={{
         ...TransitionPresets.SlideFromRightIOS
       }} />
 
@@ -141,10 +154,16 @@ function ChatStack() {
       }} />
       <Stack.Screen name="JoinOrCreate" component={JoinOrCreate} options={{
         ...TransitionPresets.SlideFromRightIOS
-      }}/>
+      }} />
 
       {/* <Stack.Screen name="ClubFeed" component={ClubFeed} /> */}
-      <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="Login" component={Login} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }} />
+
+      <Stack.Screen name="Signup" component={Signup} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }} />
     </Stack.Navigator>
   );
 }
@@ -157,31 +176,35 @@ function AuthStack() {
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Signup" component={Signup} options={{
         ...TransitionPresets.SlideFromRightIOS
-      }}/>
+      }} />
       <Stack.Screen name="UserAvatar" component={UserAvatar} options={{
         ...TransitionPresets.SlideFromRightIOS
-      }}/>
+      }} />
       <Stack.Screen name="JoinOrCreate" component={JoinOrCreate} options={{
         ...TransitionPresets.SlideFromRightIOS
-      }}/>
+      }} />
+      <Stack.Screen name="JoinClubScreen" component={JoinClubScreen} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }} />
+
       <Stack.Screen name="ClubCreationScreen" component={ClubCreationScreen} options={{
         ...TransitionPresets.SlideFromRightIOS
-      }}/>
+      }} />
       <Stack.Screen name="ClubCreationSuccess" component={ClubCreationSuccess} options={{
         ...TransitionPresets.SlideFromRightIOS
-      }}/>
+      }} />
       <Stack.Screen name="BottomNavigator" component={BottomNavigator} options={{
         ...TransitionPresets.SlideFromRightIOS
-      }}/>
+      }} />
       <Stack.Screen name="ChatScreenOwner" component={ChatScreenOwner} options={{
         ...TransitionPresets.SlideFromRightIOS
       }} />
       <Stack.Screen name="CreateEventOwner" component={CreateEventOwner} options={{
         ...TransitionPresets.ModalSlideFromBottomIOS
       }} />
-      <Stack.Screen name="ScheduleMeetingOwner" component={ScheduleMeetingOwner}options={{
+      <Stack.Screen name="ScheduleMeetingOwner" component={ScheduleMeetingOwner} options={{
         ...TransitionPresets.ModalSlideFromBottomIOS
-      }}  />
+      }} />
       <Stack.Screen name="OrganizeWorkshopOwner" component={OrganizeWorkshopOwner} options={{
         ...TransitionPresets.ModalSlideFromBottomIOS
       }} />

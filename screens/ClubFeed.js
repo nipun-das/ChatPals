@@ -260,7 +260,7 @@ const ClubFeed = ({ navigation }) => {
 
                     </View>
                     <TouchableOpacity >
-                      <Image source={require('../assets/dots-vertical.png')} style={[styles.dotOption, { zIndex: 1000, backgroundColor: 'white', position: 'absolute', top: -18, right: -160, width: 22, height: 17, resizeMode: 'contain' }]} />
+                      <Image source={require('../assets/dots-vertical.png')} style={[styles.dotOption, { zIndex: 1000, backgroundColor: 'white', position: 'absolute', top: -18, right: -140, width: 22, height: 17, resizeMode: 'contain' }]} />
                     </TouchableOpacity>
                     <Text style={styles.postDate}>{formatDate(post.postDate)}</Text>
                   </View>

@@ -4,7 +4,9 @@ import { Ionicons } from '@expo/vector-icons';
 import ClubFeed from './ClubFeed';
 import ChatScreenOwner from './ChatScreenOwner';
 import ProfileScreen from './ProfileScreen';
-import { View } from 'react-native';
+import { LogBox, View } from 'react-native';
+LogBox.ignoreLogs(['Bottom Tab Navigator: \'tabBarOptions\' is deprecated.']);
+
 
 const Tab = createBottomTabNavigator();
 
