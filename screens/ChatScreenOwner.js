@@ -10,7 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 const Stack = createStackNavigator();
 
-const ChatScreenOwner = ({ navigation }) => {
+const ChatScreenOwner = ({ route, navigation }) => {
     const [clubId, setClubId] = useState('');
     const [clubName, setClubName] = useState('');
     const [ownerId, setOwnerId] = useState('');
@@ -24,41 +24,52 @@ const ChatScreenOwner = ({ navigation }) => {
     const flatListRef = useRef(null);
 
 
+
+
     useEffect(() => {
         if (flatListRef.current) {
             flatListRef.current.scrollToEnd({ animated: true });
         }
     }, [messages]);
 
-    // useLayoutEffect(() => {
-    //     if (flatListRef.current) {
-    //         flatListRef.current.scrollToEnd({ animated: true });
-    //     }
-    // }, []);
 
-    useEffect(() => {
-        const fetchClubData = async () => {
-            try {
-                const currentUser = auth.currentUser;
 
-                const clubsQuery = query(collection(database, 'clubs'), where('ownerId', '==', currentUser.uid));
-                const clubsSnapshot = await getDocs(clubsQuery);
-
-                if (!clubsSnapshot.empty) {
-                    const clubData = clubsSnapshot.docs[0].data();
-                    const fetchedClubId = clubData.cid;
-                    const fetchedOwnerId = currentUser.uid;
-
-                    console.log("club: ", fetchedClubId, " owner: ", fetchedOwnerId)
-
-                    setClubId(fetchedClubId);
-                    setOwnerId(fetchedOwnerId);
-                    setClubDataFetched(true);
-                }
-            } catch (error) {
-                console.error('Error fetching club data:', error);
+    const fetchClubData = async (clubId) => {
+        try {
+            if (!clubId) {
+                console.error('ClubId is undefined.');
+                return;
             }
-        };
+            console.log("clubid : ", clubId)
+            console.log("fetchClubData running!!!")
+            const currentUser = auth.currentUser;
+            console.log("Current User in Chat : ", currentUser.uid);
+
+            const clubsQuery = query(collection(database, 'clubs'), where('cid', '==', clubId));
+            const clubsSnapshot = await getDocs(clubsQuery);
+
+            if (!clubsSnapshot.empty) {
+                console.log("yes!!!!!")
+                const clubData = clubsSnapshot.docs[0].data();
+                console.log("Snapshot----------->", clubsSnapshot.docs[0].data())
+
+                const fetchedClubId = clubData.cid;
+                const fetchedOwnerId = clubData.ownerId;
+
+                console.log("fetchedClubId: ", fetchedClubId, " owner: ", fetchedOwnerId)
+
+                setClubId(fetchedClubId);
+                setOwnerId(fetchedOwnerId);
+                setClubDataFetched(true);
+            }
+            else {
+                console.log("Snapshot is empty")
+            }
+        } catch (error) {
+            console.error('Error fetching club data:', error);
+        }
+    };
+    useEffect(() => {
 
         const fetchRole = async () => {
             try {
@@ -78,26 +89,27 @@ const ChatScreenOwner = ({ navigation }) => {
             } catch (error) {
                 console.error('Error fetching user data:', error);
             }
-        };
 
-        if (!clubDataFetched) {
-            fetchClubData();
-        }
+        };
+        // if (!clubDataFetched) {
+        //     fetchClubData(clubId);
+        // }
 
         if (!roleFetched) {
             fetchRole();
         }
+
     }, [clubDataFetched, roleFetched]);
 
     useEffect(() => {
         if (clubId && ownerId && role) {
-            const messagesQuery = query(
-                collection(database, `chatrooms/${clubId}/messages`),
-                orderBy('timestamp', 'asc')
+            const messagesQuery = query(collection(database, `chatrooms/${clubId}/messages`), orderBy('timestamp', 'asc')
             );
 
             const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
                 const newMessages = snapshot.docs.map((doc) => doc.data());
+                // console.log("messages", newMessages)
+
                 setMessages(newMessages);
             });
 
@@ -122,20 +134,34 @@ const ChatScreenOwner = ({ navigation }) => {
                 console.error('Error fetching club data:', error);
             }
         };
-
         if (clubId) {
             fetchClubName();
         }
     }, [clubId]);
 
+    useEffect(() => {
+        const { clubId } = route.params;
+        console.log("received:", clubId)
+        if (clubId) {
+            setClubId(clubId);
+            fetchClubData(clubId);
+        }
+    }, []);
+
+
+    // --------------------------------------------------------
+
+
     const handleSendMessage = async () => {
         if (newMessage.trim() === '') {
             return;
         }
-
+        console.log("clubid in chat:", clubId)
         try {
+            const currentUser = auth.currentUser;
+
             const messageRef = await addDoc(collection(database, `chatrooms/${clubId}/messages`), {
-                senderId: ownerId,
+                senderId: currentUser.uid,
                 text: newMessage,
                 timestamp: new Date(),
                 messageType: 'normalMessage',
@@ -215,23 +241,26 @@ const ChatScreenOwner = ({ navigation }) => {
 
     const handleRenderMessage = (item) => {
         if (item.messageType === 'normalMessage') {
+            const currentUserId = auth.currentUser.uid;
+            console.log(item.senderId)
+            // console.log("rendermessage currentUser.id : ", currentUserId)
             return (
                 <TouchableWithoutFeedback onLongPress={() => handleLongPress(item)}>
                     <View
                         style={[
                             styles.messageContainer,
-                            item.senderId === ownerId ? styles.currentUserMessage : styles.otherUserMessage,
+                            item.senderId === currentUserId ? styles.currentUserMessage : styles.otherUserMessage,
                         ]}
                     >
                         <View style={styles.messageContent}>
-                            {item.senderId !== ownerId && (
-                                <View style={item.senderId === ownerId ? styles.currentUserSenderInfoContainer : styles.otherUserSenderInfoContainer}>
-                                    <Text style={item.senderId === ownerId ? styles.currentUserSenderInfo : styles.otherUserSenderInfo}>
-                                        {item.senderId === ownerId ? ' ' : 'Sender: ' + item.senderId}
+                            {/* {item.senderId !== currentUserId && (
+                                <View style={item.senderId === currentUserId ? styles.currentUserSenderInfoContainer : styles.otherUserSenderInfoContainer}>
+                                    <Text style={item.senderId === currentUserId ? styles.currentUserSenderInfo : styles.otherUserSenderInfo}>
+                                        {item.senderId === currentUserId ? ' ' : ' '}
                                     </Text>
                                 </View>
-                            )}
-                            <View style={item.senderId === ownerId ? styles.currentUserMessageTextBox : styles.otherUserMessageTextBox}>
+                            )} */}
+                            <View style={item.senderId === currentUserId ? styles.currentUserMessageTextBox : styles.otherUserMessageTextBox}>
                                 <Text style={styles.messageText}>{item.text}</Text>
                             </View>
                             <Text style={styles.timestamp}>{formatTimestamp(item.timestamp)}</Text>
@@ -363,9 +392,11 @@ const ChatScreenOwner = ({ navigation }) => {
                     <Ionicons name="arrow-back" size={30} color="black" />
                 </TouchableOpacity>
                 <View style={styles.infoContainer}>
-                    <Text style={styles.profileName}>{clubName}</Text>
-                    <View style={[styles.roleContainer, { backgroundColor: '#EDE6FF', width: 68, height: 15, justifyContent: 'center', alignItems: 'center', borderRadius: 5, }]}>
-                        <Text style={[styles.roleText, { color: '#6E3DF1', fontFamily: 'DMSans-Bold', fontSize: 12 }]}>Chatroom</Text>
+                    <Text style={[styles.profileName, {
+                        fontSize: 21, fontFamily: 'DMSans-Bold', marginBottom: 5, color: 'black',
+                    }]}>{clubName}</Text>
+                    <View style={[styles.roleContainer, { backgroundColor: '#EDE6FF', marginBottom: 0, width: 68, height: 15, justifyContent: 'center', alignItems: 'center', borderRadius: 5, }]}>
+                        <Text style={[styles.roleText, { color: '#6E3DF1', fontFamily: 'DMSans-Bold', fontSize: 12, }]}>Chatroom</Text>
                     </View>
                 </View>
 
@@ -549,12 +580,6 @@ const styles = StyleSheet.create({
         marginLeft: 45,
         flexDirection: 'column',
         alignItems: 'flex-start',
-    },
-    profileName: {
-        fontSize: 21,
-        fontFamily: 'DMSans-Bold',
-        marginTop: -9,
-        color: 'black',
     },
 
     leaderboardIcon: {
@@ -750,8 +775,7 @@ const styles = StyleSheet.create({
     currentUserMessage: {
         alignSelf: 'flex-end',
         backgroundColor: '#185D76',
-        alignSelf: 'flex-end',
-        borderTopRightRadius: 30,
+        borderTopRightRadius: 20,
         borderBottomRightRadius: 0,
         borderBottomLeftRadius: 20,
         borderTopLeftRadius: 20,
@@ -772,7 +796,14 @@ const styles = StyleSheet.create({
     },
     otherUserMessage: {
         alignSelf: 'flex-start',
-        backgroundColor: '#ECECEC',
+        backgroundColor: 'black',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        borderBottomLeftRadius: 0,
+        borderBottomRightRadius: 20,
+        paddingRight: 10,
+        marginLeft: 7,
+
     },
     otherUserSenderInfoContainer: {
         flexDirection: 'row',
@@ -784,6 +815,8 @@ const styles = StyleSheet.create({
     otherUserMessageTextBox: {
         flex: 1,
         marginLeft: 8,
+        marginRight: 40,
+        alignSelf: 'flex-end',
     },
     eventMessageTitle: {
         color: 'black'

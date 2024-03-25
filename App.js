@@ -28,6 +28,7 @@ import BottomNavigator from './screens/BottomNavigator';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import RegisterEvent from './screens/RegisterEvent';
 import JoinClubScreen from './screens/JoinClubScreen';
+import ClubJoinSuccess from './screens/ClubJoinSuccess';
 
 LogBox.ignoreLogs(['AsyncStorage has been extracted']);
 
@@ -119,8 +120,13 @@ export const AuthenticatedUserProvider = ({ children }) => {
 function ChatStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {/* <Stack.Screen name="MainScreen" component={MainScreen} /> */}
-      {/* <Stack.Screen name="ProfileScreen" component={ProfileScreen} /> */}
+      <Stack.Screen name="Login" component={Login} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }} />
+
+      <Stack.Screen name="Signup" component={Signup} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }} />
       <Stack.Screen name="UserAvatar" component={UserAvatar} options={{
         ...TransitionPresets.SlideFromRightIOS
       }} />
@@ -131,6 +137,12 @@ function ChatStack() {
       <Stack.Screen name="JoinClubScreen" component={JoinClubScreen} options={{
         ...TransitionPresets.SlideFromRightIOS
       }} />
+
+
+      <Stack.Screen name="ClubJoinSuccess" component={ClubJoinSuccess} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }} />
+
 
       <Stack.Screen name="BottomNavigator" component={BottomNavigator} options={{
         ...TransitionPresets.SlideFromRightIOS
@@ -152,18 +164,10 @@ function ChatStack() {
       <Stack.Screen name="OrganizeWorkshopOwner" component={OrganizeWorkshopOwner} options={{
         ...TransitionPresets.ModalSlideFromBottomIOS
       }} />
-      <Stack.Screen name="JoinOrCreate" component={JoinOrCreate} options={{
-        ...TransitionPresets.SlideFromRightIOS
-      }} />
+
 
       {/* <Stack.Screen name="ClubFeed" component={ClubFeed} /> */}
-      <Stack.Screen name="Login" component={Login} options={{
-        ...TransitionPresets.SlideFromRightIOS
-      }} />
 
-      <Stack.Screen name="Signup" component={Signup} options={{
-        ...TransitionPresets.SlideFromRightIOS
-      }} />
     </Stack.Navigator>
   );
 }
@@ -191,6 +195,9 @@ function AuthStack() {
         ...TransitionPresets.SlideFromRightIOS
       }} />
       <Stack.Screen name="ClubCreationSuccess" component={ClubCreationSuccess} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }} />
+      <Stack.Screen name="ClubJoinSuccess" component={ClubJoinSuccess} options={{
         ...TransitionPresets.SlideFromRightIOS
       }} />
       <Stack.Screen name="BottomNavigator" component={BottomNavigator} options={{
