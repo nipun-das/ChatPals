@@ -33,7 +33,7 @@ const ClubFeed = ({ navigation }) => {
         console.log("back btn pressed")
         return true;
       }
-      return false; 
+      return false;
     };
 
     const backHandler = BackHandler.addEventListener(
@@ -41,7 +41,7 @@ const ClubFeed = ({ navigation }) => {
       backAction
     );
     return () => backHandler.remove();
-  }, [isFocused]); 
+  }, [isFocused]);
 
   useEffect(() => {
     fetchPosts();
@@ -128,7 +128,6 @@ const ClubFeed = ({ navigation }) => {
     ];
 
     const avatar = avatars.find((avatar) => avatar.id === avatarId);
-    console.log("../assets/avatar" + avatar.id + ".png")
     return "../assets/avatar" + avatar + ".png" ? avatar.source : null;
   };
 
@@ -197,8 +196,29 @@ const ClubFeed = ({ navigation }) => {
   };
 
 
-  const handleChatNav = () => {
-    navigation.navigate('ChatScreenOwner')
+  const handleChatNav = async () => {
+    try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        console.error('User not logged in.');
+        return;
+      }
+
+      const userDoc = await getDoc(doc(database, 'users', currentUser.uid));
+      if (!userDoc.exists()) {
+        console.error('User document not found for currentUser:', currentUser.uid);
+        return;
+      }
+
+      const { clubId } = userDoc.data();
+      console.log("clubId fetched:", clubId);
+      console.log("sent to chat :", clubId)
+      navigation.navigate('ChatScreenOwner', { clubId });
+
+    } catch (error) {
+      console.error('Error fetching clubId and navigating:', error);
+    }
+
   }
 
 
@@ -260,7 +280,7 @@ const ClubFeed = ({ navigation }) => {
 
                     </View>
                     <TouchableOpacity >
-                      <Image source={require('../assets/dots-vertical.png')} style={[styles.dotOption, { zIndex: 1000, backgroundColor: 'white', position: 'absolute', top: -18, right: -140, width: 22, height: 17, resizeMode: 'contain' }]} />
+                      <Image source={require('../assets/dots-vertical.png')} style={[styles.dotOption, { zIndex: 5000, backgroundColor: 'white', position: 'absolute', top: -18, right: -140, width: 22, height: 17, resizeMode: 'contain' }]} />
                     </TouchableOpacity>
                     <Text style={styles.postDate}>{formatDate(post.postDate)}</Text>
                   </View>

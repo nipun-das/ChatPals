@@ -24,9 +24,9 @@ export default function Login({ navigation }) {
 
     //             if (userData) {
     //                 if (userData.role === 'owner') {
-    //                     navigation.navigate('ClubFeed', { clubId: userData.clubId });
+    //                     navigation.navigate('BottomNavigator', { clubId: userData.clubId });
     //                 } else if (userData.role === 'member') {
-    //                     navigation.navigate('ClubFeedMember', { clubId: userData.clubId });
+    //                     navigation.navigate('BottomNavigatorMember', { clubId: userData.clubId });
     //                 }
     //             } else {
     //                 console.log("user data not found")
@@ -59,7 +59,7 @@ export default function Login({ navigation }) {
                             if (userData.role === 'owner') {
                                 navigation.navigate('BottomNavigator', { clubId: userData.clubId });
                             } else if (userData.role === 'member') {
-                                navigation.navigate('ClubFeedMember', { clubId: userData.clubId });
+                                navigation.navigate('BottomNavigator', { clubId: userData.clubId });
                             } else {
                                 console.log("Invalid user role");
                             }
