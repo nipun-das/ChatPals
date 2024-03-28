@@ -6,6 +6,7 @@ import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handl
 import { Image } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 
 const Stack = createStackNavigator();
@@ -14,10 +15,11 @@ const ChatScreenOwner = ({ route, navigation }) => {
     const [clubId, setClubId] = useState('');
     const [clubName, setClubName] = useState('');
     const [ownerId, setOwnerId] = useState('');
-    const [role, setRole] = useState('');
+    
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const [clubDataFetched, setClubDataFetched] = useState(false);
+    const [role, setRole] = useState('');
     const [roleFetched, setRoleFetched] = useState(false);
     const [isModalVisible, setModalVisible] = useState(false);
 
@@ -160,8 +162,12 @@ const ChatScreenOwner = ({ route, navigation }) => {
         try {
             const currentUser = auth.currentUser;
 
+            const senderDoc = await getDoc(doc(database, 'users', currentUser.uid));
+            const senderName = senderDoc.exists() ? senderDoc.data().name : 'Unknown';
+
             const messageRef = await addDoc(collection(database, `chatrooms/${clubId}/messages`), {
                 senderId: currentUser.uid,
+                senderName: senderName,
                 text: newMessage,
                 timestamp: new Date(),
                 messageType: 'normalMessage',
@@ -237,15 +243,13 @@ const ChatScreenOwner = ({ route, navigation }) => {
         Vibration.vibrate(110);
     };
 
-
-
     const handleRenderMessage = (item) => {
         if (item.messageType === 'normalMessage') {
             const currentUserId = auth.currentUser.uid;
             console.log(item.senderId)
-            // console.log("rendermessage currentUser.id : ", currentUserId)
+
             return (
-                <TouchableWithoutFeedback onLongPress={() => handleLongPress(item)}>
+                <TouchableWithoutFeedback onLongPress={() => { if (role === 'owner') { handleLongPress(item); } }}>
                     <View
                         style={[
                             styles.messageContainer,
@@ -253,13 +257,14 @@ const ChatScreenOwner = ({ route, navigation }) => {
                         ]}
                     >
                         <View style={styles.messageContent}>
-                            {/* {item.senderId !== currentUserId && (
+                            <View>
                                 <View style={item.senderId === currentUserId ? styles.currentUserSenderInfoContainer : styles.otherUserSenderInfoContainer}>
                                     <Text style={item.senderId === currentUserId ? styles.currentUserSenderInfo : styles.otherUserSenderInfo}>
-                                        {item.senderId === currentUserId ? ' ' : ' '}
+                                        {item.senderId === currentUserId ? ' ' : item.senderName}
                                     </Text>
                                 </View>
-                            )} */}
+
+                            </View>
                             <View style={item.senderId === currentUserId ? styles.currentUserMessageTextBox : styles.otherUserMessageTextBox}>
                                 <Text style={styles.messageText}>{item.text}</Text>
                             </View>
@@ -385,8 +390,7 @@ const ChatScreenOwner = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
-            <StatusBar backgroundColor="white" />
-
+            <StatusBar backgroundColor="black" />
             <View style={styles.topBar}>
                 <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={30} color="black" />
@@ -436,12 +440,24 @@ const ChatScreenOwner = ({ route, navigation }) => {
                             multiline
                             onChangeText={(text) => setNewMessage(text)}
                         />
-                        <TouchableOpacity onPress={handleCreateButtonPress} style={styles.createButton}>
+                        {role === 'owner' && (
+                            <TouchableOpacity onPress={handleCreateButtonPress} style={styles.createButton}>
+                                <Image
+                                    source={require('../assets/fraction.png')}
+                                    style={styles.createIcon}
+                                />
+                            </TouchableOpacity>
+                        )}
+
+                        {/* <TouchableOpacity onPress={()=>{if(role=='owner'){handleCreateButtonPress;}}} style={styles.createButton}>
                             <Image
                                 source={require('../assets/fraction.png')}
                                 style={styles.createIcon}
                             />
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
+
+
+
                         <TouchableOpacity onPress={handleSendMessage} style={styles.sendButton}>
                             <Image
                                 source={require('../assets/send2.png')}
@@ -631,6 +647,7 @@ const styles = StyleSheet.create({
         paddingTop: 8,
         paddingBottom: 2,
         marginRight: 13,
+        marginLeft: 13,
         maxWidth: '67%',
     },
     // ---------------------------------------------------------------------------------------------------------------
@@ -728,27 +745,6 @@ const styles = StyleSheet.create({
         marginTop: 25
     },
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     //------------------------------------------------------------------------------------------------------------
 
     messageContent: {
@@ -767,11 +763,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-Regular'
 
     },
-    otherUserMessage: {
-        alignSelf: 'flex-start',
-        backgroundColor: '#ECECEC',
-        fontFamily: 'Poppins-Regular'
-    },
+
     currentUserMessage: {
         alignSelf: 'flex-end',
         backgroundColor: '#185D76',
@@ -783,10 +775,13 @@ const styles = StyleSheet.create({
     currentUserSenderInfoContainer: {
         flexDirection: 'row',
         justifyContent: 'flex-end',
-        alignSelf: 'flex-end'
+
+        // alignSelf: 'flex-end'
     },
     currentUserSenderInfo: {
-        color: 'white',
+        color: 'lightgreen',
+        fontFamily: 'Poppins-Regular',
+        marginTop: -20
     },
     currentUserMessageTextBox: {
         flex: 1,
@@ -802,15 +797,23 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 0,
         borderBottomRightRadius: 20,
         paddingRight: 10,
-        marginLeft: 7,
+        marginLeft: 13
 
     },
     otherUserSenderInfoContainer: {
         flexDirection: 'row',
         justifyContent: 'flex-start',
+        backgroundColor: '#222222',
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+        marginLeft: 0,
+        marginBottom: 5
+
     },
     otherUserSenderInfo: {
-        color: 'black',
+        color: 'lightgreen',
+        fontFamily: 'DMSans-Regular',
+        paddingLeft: 8,
     },
     otherUserMessageTextBox: {
         flex: 1,

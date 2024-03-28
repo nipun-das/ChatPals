@@ -224,7 +224,7 @@ const ClubFeed = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor="black" />
+      <StatusBar backgroundColor="white" />
       <View style={styles.topBar}>
         <TouchableOpacity style={styles.miniLogo} onPress={fetchPosts}>
           <Image source={require('../assets/text-logo.png')} style={styles.miniLogo} />
@@ -279,8 +279,8 @@ const ClubFeed = ({ navigation }) => {
                       </View>
 
                     </View>
-                    <TouchableOpacity >
-                      <Image source={require('../assets/dots-vertical.png')} style={[styles.dotOption, { zIndex: 5000, backgroundColor: 'white', position: 'absolute', top: -18, right: -140, width: 22, height: 17, resizeMode: 'contain' }]} />
+                    <TouchableOpacity style={{}}>
+                      <Image source={require('../assets/dots-vertical.png')} style={[styles.dotOption, { zIndex: 5000, backgroundColor: 'white', position: 'absolute', top: -18, right: -120, width: 22, height: 17, resizeMode: 'contain' }]} />
                     </TouchableOpacity>
                     <Text style={styles.postDate}>{formatDate(post.postDate)}</Text>
                   </View>
@@ -357,8 +357,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopColor: 'white',
-    borderWidth: 5,
-    borderTopColor: '#3E96FF',
+    borderWidth: 3,
+    // borderTopColor: '#3E96FF',
 
     borderBottomColor: '#3E96FF'
   },
