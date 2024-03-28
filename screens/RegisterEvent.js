@@ -1,18 +1,86 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, StatusBar, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, StatusBar, TouchableOpacity, Modal } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { doc, getDoc } from 'firebase/firestore';
-import { database } from '../config/firebase';
+import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { auth, database } from '../config/firebase';
 import { Image } from 'react-native';
 const RegisterEvent = ({ route, navigation }) => {
-    // const navigation = useNavigation();
     const { eventId, clubId } = route.params;
 
-    console.log("eventId : ", eventId)
-    console.log("clubId : ", clubId)
+    // console.log("eventId : ", eventId)
+    // console.log("clubId : ", clubId)
 
+
+    const [role, setRole] = useState('');
+    const [roleFetched, setRoleFetched] = useState(false);
     const [event, setEvent] = useState(null);
+    const [modalVisible, setModalVisible] = useState(false);
+
+
+
+    const [isRegistered, setIsRegistered] = useState(false);
+
+    useEffect(() => {
+        const checkRegistrationStatus = async () => {
+            try {
+                const currentUserUID = auth.currentUser.uid;
+                const eventDocRef = doc(database, `clubs/${clubId}/events/${eventId}`);
+                const eventDocSnapshot = await getDoc(eventDocRef);
+                if (eventDocSnapshot.exists()) {
+                    const eventData = eventDocSnapshot.data();
+                    if (eventData.event_registered_members.includes(currentUserUID)) {
+                        setIsRegistered(true);
+                        console.log("already registered")
+                    } else {
+                        setIsRegistered(false);
+                        console.log("not registered")
+
+                    }
+                } else {
+                    console.error('Event document not found.');
+                }
+            } catch (error) {
+                console.error('Error checking registration status:', error);
+            }
+        };
+
+        checkRegistrationStatus();
+    }, [clubId, eventId]);
+
+
+
+    useEffect(() => {
+
+        const fetchRole = async () => {
+            try {
+                const currentUser = auth.currentUser;
+
+                const userDocRef = doc(database, 'users', currentUser.uid);
+                const userDocSnapshot = await getDoc(userDocRef);
+
+                if (userDocSnapshot.exists()) {
+                    const userData = userDocSnapshot.data();
+                    const fetchedRole = userData.role;
+                    setRole(fetchedRole);
+                    console.log("role fetched : ",fetchedRole)
+                    setRoleFetched(true);
+                } else {
+                    console.error('User data not found.');
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+
+        };
+
+        if (!roleFetched) {
+            fetchRole();
+        }
+
+    }, [roleFetched]);
+
+
 
     useEffect(() => {
         const fetchEventDetails = async () => {
@@ -37,8 +105,19 @@ const RegisterEvent = ({ route, navigation }) => {
     if (!event) {
         return null;
     }
+    const registerForEvent = async () => {
+        try {
+            const currentUserUID = auth.currentUser.uid;
+            const eventDocRef = doc(database, `clubs/${clubId}/events/${eventId}`);
+            await updateDoc(eventDocRef, {
+                event_registered_members: arrayUnion(currentUserUID),
+            });
+        } catch (error) {
+            console.error('Error registering for event:', error);
+        }
+    };
 
-    const { event_name, event_date, event_time, event_price, event_description, event_location, event_reg_count } = event;
+    const { event_name, event_date, event_time, event_price, event_description, event_location, event_reg_count, event_reg_status, event_status } = event;
     const [year, month, day] = event_date.split('-');
     const shortMonth = month.slice(0, 3).toUpperCase();
 
@@ -93,19 +172,104 @@ const RegisterEvent = ({ route, navigation }) => {
                     <Text style={{ fontSize: 30, fontFamily: 'DMSans-Bold', textAlign: 'center', width: 50 }}>{event_reg_count}</Text>
                 </View>
             </View>
-            <TouchableOpacity style={styles.createButton} >
-                <Text style={styles.createButtonText}>View Registered Members</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.closeButton} >
-                <Text style={styles.closeButtonText}>Close Registration</Text>
-            </TouchableOpacity>
+
+            {role === 'owner' && (
+                <>
+                    <View style={styles.ownerButtons}>
+                        <TouchableOpacity style={styles.viewButton}>
+                            <Text style={styles.viewButtonText}>View Registered Members</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.closeButton}>
+                            <Text style={styles.closeButtonText}>Close Registration</Text>
+                        </TouchableOpacity>
+                    </View>
+                </>
+
+            )}
+
+            {role === 'member' && event_reg_status === 'open' && event_status === 'open' && (
+                <>
+                    <View style={styles.ownerButtons}>
+                        <TouchableOpacity style={styles.regButton} onPress={() => setModalVisible(true)}>
+                            <Text style={styles.regButtonText}>Register Now</Text>
+                        </TouchableOpacity>
+                    </View>
+                </>
+            )}
+
+            <Modal
+                visible={modalVisible}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.modalContainer}>
+                    <StatusBar backgroundColor="black" />
+                    <View style={[styles.createContainerModal, {
+                        backgroundColor: '#A6D3E3', height: 70, width: '89%', flexDirection: 'row', borderBottomWidth: 2, borderBottomColor: 'black', borderTopLeftRadius: 10, borderTopRightRadius: 10,
+                    }]}>
+                        <TouchableOpacity style={[styles.backButton, { marginLeft: 20, marginTop: 17, height: 40 }]} onPress={() => setModalVisible(false)}>
+                            <Ionicons name="arrow-back" size={30} color="black" />
+                        </TouchableOpacity>
+                        <Text style={[styles.modalTitle, { fontSize: 23, textAlign: 'center', width: '71%', justifyContent: 'center', alignContent: 'center', marginTop: 20, color: 'black', fontFamily: "DMSans-Medium", }]}></Text>
+
+                    </View>
+                    <View style={[styles.modalContent, {
+                        width: '89%',
+                        backgroundColor: 'white',
+                        borderBottomLeftRadius: 10,
+                        borderBottomRightRadius: 10,
+                        overflow: 'hidden',
+                        padding: 20,
+                        paddingTop: 50,
+
+
+                    }]}>
+                        <View style={[styles.contentContainer, { backgroundColor: 'white', }]}>
+                            <Text style={[styles.clubDescription, { fontFamily: "DMSans-Regular", marginTop: 3, fontSize: 20.7, marginLeft: 0.5, marginRight: 0.5, textAlign: 'center' }]}>Do you want to register for this event?</Text>
+                            <Image source={require('../assets/loading.gif')} style={{
+                                backgroundColor: 'white', width: "100%", height: 60, resizeMode: 'contain',
+                            }} />
+
+                            <TouchableOpacity style={[styles.joinButton, { marginLeft: 0, marginRight: 0, backgroundColor: 'black', height: 50, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginTop: 20, }]}
+                                onPress={() => {
+                                    registerForEvent();
+                                    setModalVisible(false);
+                                }}>
+                                <Text style={[styles.joinButtonText, { color: 'white', fontSize: 17, fontFamily: 'Inter-SemiBold' }]}>Yes</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+            {isRegistered &&(
+                <>
+                    <View style={styles.ownerButtons}>
+                        <TouchableOpacity style={styles.viewButton}>
+                            <Text style={styles.viewButtonText}>You have already registered ✅</Text>
+                        </TouchableOpacity>
+                    </View>
+                </>
+            )}
 
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    createButton: {
+
+    ownerButtons: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: -500,
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center',
+    },
+    viewButton: {
+        width: '90%',
         marginLeft: 30,
         marginRight: 30,
         backgroundColor: 'black',
@@ -113,15 +277,16 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 20,
+        marginTop: 10,
     },
-    createButtonText: {
+    viewButtonText: {
         fontWeight: 'bold',
         color: '#fff',
         fontSize: 17,
         fontFamily: 'Inter-SemiBold'
     },
     closeButton: {
+        width: '80%',
         marginLeft: 30,
         marginRight: 30,
         backgroundColor: '#D34444',
@@ -132,6 +297,23 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     closeButtonText: {
+        color: 'white',
+        fontSize: 17,
+        fontFamily: 'Inter-SemiBold'
+    },
+    regButton: {
+        width: '80%',
+        marginLeft: 30,
+        marginRight: 30,
+        backgroundColor: '#119D17',
+        height: 50,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 10,
+    },
+
+    regButtonText: {
         color: 'white',
         fontSize: 17,
         fontFamily: 'Inter-SemiBold'

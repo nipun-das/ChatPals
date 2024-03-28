@@ -120,7 +120,7 @@ export const AuthenticatedUserProvider = ({ children }) => {
 function ChatStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Login" component={Login} options={{
+      {/* <Stack.Screen name="Login" component={Login} options={{
         ...TransitionPresets.SlideFromRightIOS
       }} />
 
@@ -141,7 +141,7 @@ function ChatStack() {
 
       <Stack.Screen name="ClubJoinSuccess" component={ClubJoinSuccess} options={{
         ...TransitionPresets.SlideFromRightIOS
-      }} />
+      }} /> */}
 
 
       <Stack.Screen name="BottomNavigator" component={BottomNavigator} options={{

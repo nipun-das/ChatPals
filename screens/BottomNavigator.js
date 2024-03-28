@@ -24,14 +24,24 @@ const BottomNavigator = () => {
                         let iconColor;
                         if (route.name === 'ClubFeed') {
                             iconName = focused ? 'home' : 'home-outline';
-                            iconColor = focused ? '#206CC6' : '#206CC6';
+                            iconColor = focused ? 'black' : 'black';
                         }
 
                         else if (route.name === 'ProfileScreen') {
                             iconName = focused ? 'person' : 'person-outline';
-                            iconColor = focused ? '#206CC6' : '#206CC6';
+                            iconColor = focused ? 'black' : 'black';
 
                         }
+                         else if (route.name === 'ChatScreenOwner') {
+                            iconName = focused ? 'calendar' : 'calendar-outline'; // Use 'calendar' for event icon
+                            iconColor = focused ? 'black' : 'black';
+                        }
+
+                        // else if (route.name === '') {
+                        //     iconName = focused ? 'person' : 'person-outline';
+                        //     iconColor = focused ? '#206CC6' : '#206CC6';
+
+                        // }
 
                         return <Ionicons name={iconName} size={size} color={iconColor} />;
                     },
@@ -45,8 +55,10 @@ const BottomNavigator = () => {
                     },
                 }}
             >
-                <Tab.Screen name="ClubFeed" component={ClubFeed} />
                 <Tab.Screen name="ProfileScreen" component={ProfileScreen} />
+                <Tab.Screen name="ClubFeed" component={ClubFeed} />
+                {/* <Tab.Screen name="ChatScreenOwner" component={ChatScreenOwner} /> */}
+
             </Tab.Navigator>
             <View style={{
                 marginBottom: 5, marginLeft: 50,
