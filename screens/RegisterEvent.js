@@ -6,9 +6,10 @@ import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, database } from '../config/firebase';
 import { Image } from 'react-native';
 const RegisterEvent = ({ route, navigation }) => {
+
     const { eventId, clubId } = route.params;
 
-    // console.log("eventId : ", eventId)
+    console.log("received eventId : ", eventId)
     // console.log("clubId : ", clubId)
 
 
@@ -16,10 +17,13 @@ const RegisterEvent = ({ route, navigation }) => {
     const [roleFetched, setRoleFetched] = useState(false);
     const [event, setEvent] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
-
-
+    const [modalVisibleClose, setModalVisibleClose] = useState(false);
+    const [modalVisibleCompleted, setModalVisibleCompleted] = useState(false);
 
     const [isRegistered, setIsRegistered] = useState(false);
+    const [forceRender, setForceRender] = useState(false);
+    const [menuVisible, setMenuVisible] = useState(false);
+
 
     useEffect(() => {
         const checkRegistrationStatus = async () => {
@@ -31,6 +35,7 @@ const RegisterEvent = ({ route, navigation }) => {
                     const eventData = eventDocSnapshot.data();
                     if (eventData.event_registered_members.includes(currentUserUID)) {
                         setIsRegistered(true);
+                        console.log(currentUserUID, "--", eventData.event_registered_members.includes(currentUserUID))
                         console.log("already registered")
                     } else {
                         setIsRegistered(false);
@@ -48,6 +53,26 @@ const RegisterEvent = ({ route, navigation }) => {
         checkRegistrationStatus();
     }, [clubId, eventId]);
 
+    useEffect(() => {
+        const fetchEventDetails = async () => {
+            try {
+                const eventDocRef = doc(database, `clubs/${clubId}/events/${eventId}`);
+                const eventDocSnapshot = await getDoc(eventDocRef);
+
+                if (eventDocSnapshot.exists()) {
+                    const eventData = eventDocSnapshot.data();
+                    setEvent(eventData);
+                } else {
+                    console.error('Event data not found.');
+                }
+            } catch (error) {
+                console.error('Error fetching event data:', error);
+            }
+        };
+
+        fetchEventDetails();
+    }, [eventId]);
+
 
 
     useEffect(() => {
@@ -63,7 +88,7 @@ const RegisterEvent = ({ route, navigation }) => {
                     const userData = userDocSnapshot.data();
                     const fetchedRole = userData.role;
                     setRole(fetchedRole);
-                    console.log("role fetched : ",fetchedRole)
+                    console.log("role fetched : ", fetchedRole)
                     setRoleFetched(true);
                 } else {
                     console.error('User data not found.');
@@ -100,7 +125,7 @@ const RegisterEvent = ({ route, navigation }) => {
         };
 
         fetchEventDetails();
-    }, [eventId]);
+    }, [eventId, forceRender]);
 
     if (!event) {
         return null;
@@ -111,15 +136,76 @@ const RegisterEvent = ({ route, navigation }) => {
             const eventDocRef = doc(database, `clubs/${clubId}/events/${eventId}`);
             await updateDoc(eventDocRef, {
                 event_registered_members: arrayUnion(currentUserUID),
+                event_reg_count: event.event_registered_members.length + 1,
             });
+
+            const userDocRef = doc(database, 'users', currentUserUID);
+            await updateDoc(userDocRef, {
+                reg_event: arrayUnion(eventId)
+            });
+
+            setIsRegistered(true);
         } catch (error) {
             console.error('Error registering for event:', error);
         }
     };
 
-    const { event_name, event_date, event_time, event_price, event_description, event_location, event_reg_count, event_reg_status, event_status } = event;
+    const closeRegisterEvent = async () => {
+        try {
+            const currentUserUID = auth.currentUser.uid;
+            const eventDocRef = doc(database, `clubs/${clubId}/events/${eventId}`);
+            await updateDoc(eventDocRef, {
+                event_reg_status: 'closed',
+
+            });
+            setForceRender(prev => !prev);
+        } catch (error) {
+            console.error('Error registering for event:', error);
+        }
+    };
+
+    const goToRegisteredPage = () => {
+        console.log("hi")
+        navigation.navigate("RegisteredMembers", { eventId, event_registered_members: event.event_registered_members });
+
+
+    }
+    const toggleMenu = () => {
+        setMenuVisible(!menuVisible);
+    };
+
+
+    const closeEvent = async () => {
+        try {
+            const eventDocRef = doc(database, `clubs/${clubId}/events/${eventId}`);
+            await updateDoc(eventDocRef, {
+                event_status: 'closed',
+                event_reg_status: 'closed'
+            });
+            setForceRender(prev => !prev);
+            closeMenu()
+        } catch (error) {
+            console.error('Error closing/marking event as closed:', error);
+        }
+    }
+    const closeMenu = () => {
+        setMenuVisible(false);
+    };
+
+
+    const cancelEvent = () => {
+        console.log("cancelled")
+    }
+
+    const handleMarkAttendance = () => {
+        console.log("sent clubId", clubId)
+        navigation.navigate("MarkEvent", { eventId, event_registered_members: event.event_registered_members, role: role, clubId: clubId });
+        closeMenu();
+    };
+    const { event_name, event_date, event_time, event_price, event_description, event_location, event_reg_count, event_reg_status, event_status, event_registered_members } = event;
     const [year, month, day] = event_date.split('-');
     const shortMonth = month.slice(0, 3).toUpperCase();
+
 
     return (
         <View style={styles.container}>
@@ -133,6 +219,32 @@ const RegisterEvent = ({ route, navigation }) => {
                 <Text style={styles.title}>Event Details</Text>
             </View>
 
+            {role === 'owner' && (
+                <TouchableOpacity style={{ position: 'absolute', top: 20, right: 20 }} onPress={toggleMenu}>
+                    {menuVisible ? (
+                        <Ionicons name="close" size={30} color="black" />
+                    ) : (
+                        <Ionicons name="menu" size={30} color="black" />
+                    )}
+                </TouchableOpacity>
+            )}
+            {menuVisible && (
+                <View style={{
+                    position: 'absolute', top: 70, left: 0, right: 0, justifyContent: 'center', alignContent: 'center', alignItems: 'center', textAlign: 'center', zIndex: 6000, right: 0, backgroundColor: 'white', shadowColor: '#000', shadowOffset: { width: 10, height: 210 }, shadowOpacity: 0.25, shadowRadius: 3.84, elevation: 500, borderTopLeftRadius: 15, borderBottomLeftRadius: 15
+                }}>
+                    <TouchableOpacity style={{
+                        marginBottom: 0, marginTop: 0, backgroundColor: 'black', padding: 10, borderTopLeftRadius: 0, width: '100%', borderBottomColor: 'white', borderWidth: 1
+                    }} onPress={handleMarkAttendance}>
+                        <Text style={{ fontFamily: "DMSans-Regular", fontSize: 17, color: 'white', }}>Mark Attendance</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ marginBottom: 0, marginTop: 0, padding: 10, backgroundColor: '#D34444', borderBottomLeftRadius: 0, width: '100%', borderBottomColor: 'white', borderWidth: 1 }} onPress={cancelEvent}>
+                        <Text style={{ fontFamily: "DMSans-Regular", fontSize: 17, color: 'white' }}>Cancel Event</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ marginBottom: 0, marginTop: 0, padding: 10, backgroundColor: 'black', borderBottomLeftRadius: 0, width: '100%', borderBottomColor: 'white', borderWidth: 1 }} onPress={() => setModalVisibleCompleted(true)}>
+                        <Text style={{ fontFamily: "DMSans-Regular", fontSize: 17, color: 'white' }} >Mark as Complete</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
             <Text style={styles.eventName}>{event_name}</Text>
 
             <View style={styles.dateTimeContainer}>
@@ -166,26 +278,165 @@ const RegisterEvent = ({ route, navigation }) => {
                 <View style={{ padding: 6, }}>
                     <Text style={{ fontSize: 15, fontFamily: 'DMSans-Medium' }}>Registration</Text>
                     <Text style={{ fontSize: 15, fontFamily: 'DMSans-Medium' }}>Count</Text>
-
                 </View>
                 <View style={{ borderLeftColor: 'white', borderLeftWidth: 2.5, }}>
-                    <Text style={{ fontSize: 30, fontFamily: 'DMSans-Bold', textAlign: 'center', width: 50 }}>{event_reg_count}</Text>
+                    <Text style={{ fontSize: 30, fontFamily: 'DMSans-Bold', textAlign: 'center', width: 50, marginTop: 5 }}>{event_reg_count}</Text>
                 </View>
             </View>
 
             {role === 'owner' && (
                 <>
                     <View style={styles.ownerButtons}>
-                        <TouchableOpacity style={styles.viewButton}>
+                        <TouchableOpacity style={styles.viewButton} onPress={goToRegisteredPage}>
                             <Text style={styles.viewButtonText}>View Registered Members</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.closeButton}>
+                        <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisibleClose(true)}>
                             <Text style={styles.closeButtonText}>Close Registration</Text>
                         </TouchableOpacity>
                     </View>
                 </>
 
             )}
+
+            {role === 'owner' && event_reg_status === 'closed' && (
+                <>
+                    <View style={styles.ownerButtons}>
+                        <TouchableOpacity style={styles.viewButton} onPress={goToRegisteredPage}>
+                            <Text style={styles.viewButtonText}>View Registered Members</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.closeButton}>
+                            <Text style={styles.closeButtonText}>Registration Closed</Text>
+                        </TouchableOpacity>
+                    </View>
+                </>
+
+            )}
+            {role === 'member' && event_reg_status === 'closed' && (
+                <>
+                    <View style={styles.ownerButtons}>
+
+                        <TouchableOpacity style={styles.closeButton}>
+                            <Text style={styles.closeButtonText}>Registration Closed</Text>
+                        </TouchableOpacity>
+                    </View>
+                </>
+
+            )}
+            {role === 'owner' && event_status === 'closed' && (
+                <>
+                    <View style={styles.ownerButtons}>
+                        <TouchableOpacity style={styles.viewButton} onPress={goToRegisteredPage}>
+                            <Text style={styles.viewButtonText}>View Registered Members</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.closeButton, { borderWidth: 0.5, borderColor: 'green', backgroundColor: 'white' }]}>
+                            <Text style={[styles.closeButtonText, { color: 'black', fontFamily: 'DMSans-Bold' }]}>Event Completed ✅</Text>
+                        </TouchableOpacity>
+                    </View>
+                </>
+
+            )}
+
+            {/* Close Event / Mark Event as Completed */}
+            <Modal
+                visible={modalVisibleCompleted}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setModalVisibleCompleted(false)}
+            >
+                <View style={styles.modalContainer}>
+                    <StatusBar backgroundColor="black" />
+                    <View style={[styles.createContainerModal, {
+                        backgroundColor: '#A6D3E3', height: 70, width: '89%', flexDirection: 'row', borderBottomWidth: 2, borderBottomColor: 'black', borderTopLeftRadius: 10, borderTopRightRadius: 10,
+                    }]}>
+                        <TouchableOpacity style={[styles.backButton, { marginLeft: 5, marginTop: 5, height: 40 }]} onPress={() => setModalVisibleCompleted(false)}>
+                            <Ionicons name="arrow-back" size={30} color="black" />
+                        </TouchableOpacity>
+                        <Text style={[styles.modalTitle, { fontSize: 23, textAlign: 'center', width: '71%', justifyContent: 'center', alignContent: 'center', marginTop: 20, color: 'black', fontFamily: "DMSans-Medium", }]}></Text>
+
+                    </View>
+
+                    {/* Close Event / Mark Event as Completed */}
+                    <View style={[styles.modalContent, {
+                        width: '89%',
+                        backgroundColor: 'white',
+                        borderBottomLeftRadius: 10,
+                        borderBottomRightRadius: 10,
+                        overflow: 'hidden',
+                        padding: 20,
+                        paddingTop: 50,
+
+
+                    }]}>
+                        <View style={[styles.contentContainer, { backgroundColor: 'white', }]}>
+                            <Text style={[styles.clubDescription, { fontFamily: "DMSans-Regular", marginTop: 3, fontSize: 20.7, marginLeft: 0.5, marginRight: 0.5, textAlign: 'center' }]}>Do you want to mark the event as completed?</Text>
+                            <Image source={require('../assets/loading.gif')} style={{
+                                backgroundColor: 'white', width: "100%", height: 60, resizeMode: 'contain',
+                            }} />
+
+                            <TouchableOpacity style={[styles.joinButton, { marginLeft: 0, marginRight: 0, backgroundColor: 'black', height: 50, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginTop: 20, }]}
+                                onPress={() => {
+                                    closeEvent();
+                                    setModalVisibleCompleted(false);
+                                }}>
+                                <Text style={[styles.joinButtonText, { color: 'white', fontSize: 17, fontFamily: 'Inter-SemiBold' }]}>Yes</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                </View>
+            </Modal>
+
+
+
+
+            <Modal
+                visible={modalVisibleClose}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setModalVisibleClose(false)}
+            >
+                <View style={styles.modalContainer}>
+                    <StatusBar backgroundColor="black" />
+                    <View style={[styles.createContainerModal, {
+                        backgroundColor: '#A6D3E3', height: 70, width: '89%', flexDirection: 'row', borderBottomWidth: 2, borderBottomColor: 'black', borderTopLeftRadius: 10, borderTopRightRadius: 10,
+                    }]}>
+                        <TouchableOpacity style={[styles.backButton, { marginLeft: 5, marginTop: 5, height: 40 }]} onPress={() => setModalVisibleClose(false)}>
+                            <Ionicons name="arrow-back" size={30} color="black" />
+                        </TouchableOpacity>
+                        <Text style={[styles.modalTitle, { fontSize: 23, textAlign: 'center', width: '71%', justifyContent: 'center', alignContent: 'center', marginTop: 20, color: 'black', fontFamily: "DMSans-Medium", }]}></Text>
+
+                    </View>
+
+                    {/* Close Registration */}
+                    <View style={[styles.modalContent, {
+                        width: '89%',
+                        backgroundColor: 'white',
+                        borderBottomLeftRadius: 10,
+                        borderBottomRightRadius: 10,
+                        overflow: 'hidden',
+                        padding: 20,
+                        paddingTop: 50,
+
+
+                    }]}>
+                        <View style={[styles.contentContainer, { backgroundColor: 'white', }]}>
+                            <Text style={[styles.clubDescription, { fontFamily: "DMSans-Regular", marginTop: 3, fontSize: 20.7, marginLeft: 0.5, marginRight: 0.5, textAlign: 'center' }]}>Do you want to close the event registration?</Text>
+                            <Image source={require('../assets/loading.gif')} style={{
+                                backgroundColor: 'white', width: "100%", height: 60, resizeMode: 'contain',
+                            }} />
+
+                            <TouchableOpacity style={[styles.joinButton, { marginLeft: 0, marginRight: 0, backgroundColor: 'black', height: 50, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginTop: 20, }]}
+                                onPress={() => {
+                                    closeRegisterEvent();
+                                    setModalVisibleClose(false);
+                                }}>
+                                <Text style={[styles.joinButtonText, { color: 'white', fontSize: 17, fontFamily: 'Inter-SemiBold' }]}>Yes</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
 
             {role === 'member' && event_reg_status === 'open' && event_status === 'open' && (
                 <>
@@ -196,6 +447,15 @@ const RegisterEvent = ({ route, navigation }) => {
                     </View>
                 </>
             )}
+            {/* {role === 'member' && event_reg_status === 'closed' && event_status === 'closed' && (
+                <>
+                    <View style={styles.ownerButtons}>
+                        <TouchableOpacity style={styles.regButton} >
+                            <Text style={[styles.regButtonText,{backgroundColor:'#'}]}>Registration Closed</Text>
+                        </TouchableOpacity>
+                    </View>
+                </>
+            )} */}
 
             <Modal
                 visible={modalVisible}
@@ -215,13 +475,7 @@ const RegisterEvent = ({ route, navigation }) => {
 
                     </View>
                     <View style={[styles.modalContent, {
-                        width: '89%',
-                        backgroundColor: 'white',
-                        borderBottomLeftRadius: 10,
-                        borderBottomRightRadius: 10,
-                        overflow: 'hidden',
-                        padding: 20,
-                        paddingTop: 50,
+                        width: '89%', backgroundColor: 'white', borderBottomLeftRadius: 10, borderBottomRightRadius: 10, overflow: 'hidden', padding: 20, paddingTop: 50,
 
 
                     }]}>
@@ -242,11 +496,11 @@ const RegisterEvent = ({ route, navigation }) => {
                     </View>
                 </View>
             </Modal>
-            {isRegistered &&(
+            {isRegistered && (
                 <>
                     <View style={styles.ownerButtons}>
                         <TouchableOpacity style={styles.viewButton}>
-                            <Text style={styles.viewButtonText}>You have already registered ✅</Text>
+                            <Text style={styles.viewButtonText}>You have registered ✅</Text>
                         </TouchableOpacity>
                     </View>
                 </>
@@ -257,7 +511,10 @@ const RegisterEvent = ({ route, navigation }) => {
 }
 
 const styles = StyleSheet.create({
-
+    container: {
+        backgroundColor: 'white',
+        flex: 1,
+    },
     ownerButtons: {
         position: 'absolute',
         top: 0,
@@ -268,8 +525,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         alignSelf: 'center',
     },
+    modalContainer: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     viewButton: {
-        width: '90%',
+        width: '82%',
         marginLeft: 30,
         marginRight: 30,
         backgroundColor: 'black',
@@ -280,13 +543,12 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     viewButtonText: {
-        fontWeight: 'bold',
         color: '#fff',
         fontSize: 17,
-        fontFamily: 'Inter-SemiBold'
+        fontFamily: 'DMSans-Medium'
     },
     closeButton: {
-        width: '80%',
+        width: '82%',
         marginLeft: 30,
         marginRight: 30,
         backgroundColor: '#D34444',
@@ -299,32 +561,25 @@ const styles = StyleSheet.create({
     closeButtonText: {
         color: 'white',
         fontSize: 17,
-        fontFamily: 'Inter-SemiBold'
+        fontFamily: 'DMSans-Medium'
+
     },
     regButton: {
-        width: '80%',
+        width: '82%',
         marginLeft: 30,
         marginRight: 30,
-        backgroundColor: '#119D17',
+        backgroundColor: '#0A750E',
         height: 50,
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 10,
     },
-
     regButtonText: {
         color: 'white',
         fontSize: 17,
-        fontFamily: 'Inter-SemiBold'
+        fontFamily: 'DMSans-Medium'
     },
-    container: {
-        backgroundColor: 'white',
-        flex: 1,
-        // justifyContent: 'center',
-        // alignItems: 'center',
-    },
-
     backButton: {
         position: 'absolute',
         top: 16,
@@ -374,7 +629,6 @@ const styles = StyleSheet.create({
         fontFamily: 'DMSans-Medium',
         color: 'white',
         textAlign: 'center'
-
     },
     eventDay: {
         fontSize: 29,
@@ -385,7 +639,6 @@ const styles = StyleSheet.create({
     },
     timePriceContainer: {
         flexDirection: 'column',
-
     },
     priceContainer: {
         // marginTop:2
@@ -399,7 +652,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         padding: 2,
         color: '#143946',
-
     },
 });
 

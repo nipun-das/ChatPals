@@ -29,6 +29,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import RegisterEvent from './screens/RegisterEvent';
 import JoinClubScreen from './screens/JoinClubScreen';
 import ClubJoinSuccess from './screens/ClubJoinSuccess';
+import RegisteredMembers from './screens/RegisteredMembers';
+import DiscoverEvents from './screens/DiscoverEvents';
+import MarkEvent from './screens/MarkEvent';
 
 LogBox.ignoreLogs(['AsyncStorage has been extracted']);
 
@@ -120,7 +123,7 @@ export const AuthenticatedUserProvider = ({ children }) => {
 function ChatStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {/* <Stack.Screen name="Login" component={Login} options={{
+      <Stack.Screen name="Login" component={Login} options={{
         ...TransitionPresets.SlideFromRightIOS
       }} />
 
@@ -141,9 +144,8 @@ function ChatStack() {
 
       <Stack.Screen name="ClubJoinSuccess" component={ClubJoinSuccess} options={{
         ...TransitionPresets.SlideFromRightIOS
-      }} /> */}
-
-
+      }} />
+      
       <Stack.Screen name="BottomNavigator" component={BottomNavigator} options={{
         ...TransitionPresets.SlideFromRightIOS
       }} />
@@ -162,6 +164,16 @@ function ChatStack() {
         ...TransitionPresets.ModalSlideFromBottomIOS
       }} />
       <Stack.Screen name="OrganizeWorkshopOwner" component={OrganizeWorkshopOwner} options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
+      }} />
+      <Stack.Screen name="RegisteredMembers" component={RegisteredMembers} options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
+      }} />
+
+      <Stack.Screen name="DiscoverEvents" component={DiscoverEvents} options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
+      }} />
+      <Stack.Screen name="MarkEvent" component={MarkEvent} options={{
         ...TransitionPresets.ModalSlideFromBottomIOS
       }} />
 
@@ -206,6 +218,9 @@ function AuthStack() {
       <Stack.Screen name="ChatScreenOwner" component={ChatScreenOwner} options={{
         ...TransitionPresets.SlideFromRightIOS
       }} />
+      <Stack.Screen name="RegisterEvent" component={RegisterEvent} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }} />
       <Stack.Screen name="CreateEventOwner" component={CreateEventOwner} options={{
         ...TransitionPresets.ModalSlideFromBottomIOS
       }} />
@@ -215,6 +230,18 @@ function AuthStack() {
       <Stack.Screen name="OrganizeWorkshopOwner" component={OrganizeWorkshopOwner} options={{
         ...TransitionPresets.ModalSlideFromBottomIOS
       }} />
+      <Stack.Screen name="RegisteredMembers" component={RegisteredMembers} options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
+      }} />
+      <Stack.Screen name="DiscoverEvents" component={DiscoverEvents} options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
+      }} />
+      <Stack.Screen name="MarkEvent" component={MarkEvent} options={{
+        ...TransitionPresets.ModalSlideFromRightIOS
+      }} />
+
+
+
     </Stack.Navigator>
   )
 }
