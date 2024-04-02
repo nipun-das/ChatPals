@@ -13,19 +13,14 @@ const ClubFeed = ({ navigation }) => {
   const [imageUrl, setImageUrl] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
   const [showModal, setShowModal] = useState(false);
-
+  const [clubId, setClubId] = useState('');
+  const [role, setRole] = useState('');
 
   const isFocused = useIsFocused();
 
-  // useEffect(() => {
-  //   if (isFocused) {
-  //     // Page is focused, perform necessary actions
-  //     console.log("Clubfeedpage is focused");
-  //   } else {
-  //     // Page is not focused, perform necessary actions
-  //     console.log("Clubfeedpage is not focused");
-  //   }
-  // }, [isFocused]);
+  useEffect(() => {
+
+  })
 
   useEffect(() => {
     const backAction = () => {
@@ -63,8 +58,10 @@ const ClubFeed = ({ navigation }) => {
         return;
       }
 
-      const { clubId } = userDoc.data();
+      const { clubId,role } = userDoc.data();
+      setRole(role)
       console.log("club id : ", clubId)
+      setClubId(clubId)
 
       const clubPostsCollectionRef = collection(database, 'clubs', clubId, 'posts');
 
@@ -73,24 +70,19 @@ const ClubFeed = ({ navigation }) => {
       const promises = querySnapshot.docs.map(async (postDoc) => {
         const postData = postDoc.data();
         const userId = postData.postSenderId;
-        console.log("post sender fetched: ", userId)
+        // console.log("Post sender fetched-> ", )
 
         const userDoc = await getDoc(doc(database, 'users', userId));
 
         if (userDoc.exists()) {
           const userData = userDoc.data();
-          console.log("userdoc fetched: ", userData)
 
           const { name, avatarId, role } = userData;
-
-          console.log("name ,avatar,role fetched: ", name, avatarId, role)
+          console.log("Post sender id,name ,avatar,role fetched->", userId,name, avatarId, role)
 
           postData.userName = name;
           postData.avatarId = avatarId;
           postData.role = role;
-
-
-          console.log("postdata name, avatar, role fetched: ", postData.userName, postData.avatarId, postData.role)
 
           return { id: postDoc.id, ...postData };
         } else {
@@ -220,7 +212,10 @@ const ClubFeed = ({ navigation }) => {
     }
 
   }
-
+  const goToDiscoverEvents = () => {
+    console.log("role fetched sent", role)
+    navigation.navigate("DiscoverEvents", { clubId: clubId, role: role })
+  }
 
   return (
     <View style={styles.container}>
@@ -242,6 +237,35 @@ const ClubFeed = ({ navigation }) => {
       </TouchableOpacity>
 
       <ScrollView>
+        <View style={{ width: '100%' }}>
+          <Text style={{
+            fontFamily: 'DMSans-Bold', fontSize: 21
+            , paddingLeft: 16, paddingTop: 7
+          }}>Discover</Text>
+        </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', padding: 16, paddingTop: 7 }}>
+          <TouchableOpacity onPress={goToDiscoverEvents}>
+            <View style={{ width: 119, height: 144, marginRight: 14, backgroundColor: 'lightblue', borderColor: '#3E96FF', borderWidth: 1, borderRadius: 10, justifyContent: 'flex-end', alignItems: 'center', padding: 0 }}>
+              <Image source={require('../assets/e-cover.png')} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
+              <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', width: 119, bottom: 0, position: 'absolute', height: 40, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, }}></View>
+              <Text style={{ color: 'white', fontFamily: 'DMSans-Bold', fontSize: 16, position: 'absolute', bottom: 10, left: 10, zIndex: 1 }}>Events</Text>
+            </View>
+          </TouchableOpacity>
+
+          <View style={{ width: 119, height: 144, marginRight: 14, backgroundColor: 'lightblue', borderRadius: 10, justifyContent: 'flex-end', alignItems: 'center', padding: 0 }}>
+            <Image source={require('../assets/w-cover.png')} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
+            <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', width: 119, bottom: 0, position: 'absolute', height: 40, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, }}></View>
+            <Text style={{ color: 'white', fontFamily: 'DMSans-Bold', fontSize: 16, position: 'absolute', bottom: 10, left: 10, zIndex: 1 }}>Workshops</Text>
+          </View>
+
+          <View style={{ width: 119, height: 144, marginRight: 14, backgroundColor: 'lightblue', borderRadius: 10, justifyContent: 'flex-end', alignItems: 'center', padding: 0 }}>
+            <Image source={require('../assets/m-cover.png')} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
+            <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', width: 119, bottom: 0, position: 'absolute', height: 40, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, }}></View>
+            <Text style={{ color: 'white', fontFamily: 'DMSans-Bold', fontSize: 16, position: 'absolute', bottom: 10, left: 10, zIndex: 1 }}>Meetings</Text>
+          </View>
+        </ScrollView>
+
+
 
         {posts.length === 0 ? (
           <View style={[styles.noPostsContainer, {
@@ -274,13 +298,13 @@ const ClubFeed = ({ navigation }) => {
                   <View style={[styles.detailsContainer, { display: 'flex' }]}>
                     <View style={[styles.nameRoleContainer, { flexDirection: 'row' }]}>
                       <Text style={styles.userName}>{post.userName}</Text>
-                      <View style={[styles.roleContainer, { backgroundColor: '#EDE6FF', width: 50, height: 18, display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: 5, marginLeft: 10, marginTop: 2 }]}>
+                      <View style={[styles.roleContainer, { backgroundColor: '#EDE6FF', width: 60, height: 18, display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: 5, marginLeft: 10, marginTop: 2 }]}>
                         <Text style={[styles.roleText, { color: '#6E3DF1', fontFamily: 'DMSans-Bold', fontSize: 12 }]}>{post.role === 'owner' ? 'Leader' : 'Member'}</Text>
                       </View>
 
                     </View>
                     <TouchableOpacity style={{}}>
-                      <Image source={require('../assets/dots-vertical.png')} style={[styles.dotOption, { zIndex: 5000, backgroundColor: 'white', position: 'absolute', top: -18, right: -120, width: 22, height: 17, resizeMode: 'contain' }]} />
+                      <Image source={require('../assets/dots-vertical.png')} style={[styles.dotOption, { zIndex: 5000, backgroundColor: 'white', position: 'absolute', top: -18, right: -100, width: 22, height: 17, resizeMode: 'contain' }]} />
                     </TouchableOpacity>
                     <Text style={styles.postDate}>{formatDate(post.postDate)}</Text>
                   </View>
@@ -352,14 +376,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   topBar: {
-    marginTop: 0.1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopColor: 'white',
-    borderWidth: 3,
-    // borderTopColor: '#3E96FF',
-
+    borderWidth: 2,
     borderBottomColor: '#3E96FF'
   },
   backButton: {

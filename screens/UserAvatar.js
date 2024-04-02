@@ -51,6 +51,7 @@ const UserAvatar = ({ navigation }) => {
                 regNo,
                 semester,
                 interests,
+                points:'0',
                 avatarId: selectedAvatar,
                 uid: user.uid,
             });
