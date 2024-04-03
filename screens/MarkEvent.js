@@ -1,6 +1,6 @@
 import { Firestore, arrayUnion, doc, getDoc, increment, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, ToastAndroid, TouchableOpacity } from 'react-native';
+import { ScrollView, StyleSheet, Text, ToastAndroid, TouchableOpacity } from 'react-native';
 import { View } from 'react-native'
 import { auth, database } from '../config/firebase';
 import { Image } from 'react-native';
@@ -132,36 +132,39 @@ const MarkEvent = ({ route, navigation }) => {
             <View style={styles.createContainer}>
                 <Text style={styles.title}>Mark Attendance</Text>
             </View>
-            {membersDetails.length === 0 ? (
-                <View style={[styles.noPostsContainer, { flex: 1, justifyContent: 'center', padding: 0, alignItems: 'center', backgroundColor: '#E5F1FF' }]}>
-                    <View style={[styles.post, { height: 10 }]}>
-                        <Text style={[styles.noPostsText, { fontSize: 18, fontFamily: 'DMSans-Bold', color: '#333', padding: 10, textAlign: 'center' }]}>Seems like no one has{'\n'} registered yet!!</Text>
+            <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
+                {membersDetails.length === 0 ? (
+                    <View style={[styles.noPostsContainer, { flex: 1, justifyContent: 'center', padding: 0, alignItems: 'center', backgroundColor: '#E5F1FF' }]}>
+                        <View style={[styles.post, { height: 10 }]}>
+                            <Text style={[styles.noPostsText, { fontSize: 18, fontFamily: 'DMSans-Bold', color: '#333', padding: 10, textAlign: 'center' }]}>Seems like no one has{'\n'} registered yet!!</Text>
+                        </View>
                     </View>
-                </View>
-            ) : (
-                <View style={[styles.postsContainer, { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }]}>
-                    {membersDetails.map((member, index) => (
-                        <View key={member.id} style={styles.postBox}>
-                            <View style={styles.nameAvatarContainer}>
-                                <Image source={findAvatarSource(member.avatarId)} style={styles.avatar} />
-                                <View style={[styles.detailsContainer, { display: 'flex', justifyContent: 'center', alignItems: 'center', alignContent: 'center' }]}>
-                                    <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', alignContent: 'center' }}>
-                                        <Text style={styles.userName}>{member.name}</Text>
-                                        <View style={{ backgroundColor: '#EDE6FF', width: 60, height: 18, display: 'flex', justifyContent: 'center', alignItems: 'center', alignContent: 'center', borderRadius: 5, marginLeft: 0, marginTop: 2 }}>
-                                            <Text style={[styles.roleText, { color: '#6E3DF1', fontFamily: 'DMSans-Bold', fontSize: 12 }]}>{member.role === 'owner' ? 'Leader' : 'Member'}</Text>
+                ) : (
+                    <View style={[styles.postsContainer, { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }]}>
+                        {membersDetails.map((member, index) => (
+                            <View key={member.id} style={styles.postBox}>
+                                <View style={styles.nameAvatarContainer}>
+                                    <Image source={findAvatarSource(member.avatarId)} style={styles.avatar} />
+                                    <View style={[styles.detailsContainer, { display: 'flex', justifyContent: 'center', alignItems: 'center', alignContent: 'center' }]}>
+                                        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', alignContent: 'center' }}>
+                                            <Text style={styles.userName}>{member.name}</Text>
+                                            <View style={{ backgroundColor: '#EDE6FF', width: 60, height: 18, display: 'flex', justifyContent: 'center', alignItems: 'center', alignContent: 'center', borderRadius: 5, marginLeft: 0, marginTop: 2 }}>
+                                                <Text style={[styles.roleText, { color: '#6E3DF1', fontFamily: 'DMSans-Bold', fontSize: 12 }]}>{member.role === 'owner' ? 'Leader' : 'Member'}</Text>
+                                            </View>
                                         </View>
+                                        <Text style={{ fontFamily: 'DMSans-Medium', fontSize: 14, marginTop: 6, backgroundColor: 'white', }}>{member.regNo}</Text>
+                                        <TouchableOpacity onPress={() => handleAttendance(member.id, index)} style={styles.iconContainer}>
+                                            <Image source={member.attendanceMarked ? require('../assets/accept.png') : require('../assets/accept-no.png')} style={member.attendanceMarked ? styles.acceptIcon : styles.acceptNoIcon} />
+                                        </TouchableOpacity>
                                     </View>
-                                    <Text style={{ fontFamily: 'DMSans-Medium', fontSize: 14, marginTop: 6, backgroundColor: 'white', }}>{member.regNo}</Text>
-                                    <TouchableOpacity onPress={() => handleAttendance(member.id, index)} style={styles.iconContainer}>
-                                        <Image source={member.attendanceMarked ? require('../assets/accept.png') : require('../assets/accept-no.png')} style={member.attendanceMarked ? styles.acceptIcon : styles.acceptNoIcon} />
-                                    </TouchableOpacity>
                                 </View>
                             </View>
-                        </View>
-                    ))}
-                </View>
-            )}
+                        ))}
+                    </View>
+                )}
+            </ScrollView>
         </View>
+
 
     );
 };

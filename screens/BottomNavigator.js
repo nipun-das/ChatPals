@@ -5,6 +5,7 @@ import ClubFeed from './ClubFeed';
 import ChatScreenOwner from './ChatScreenOwner';
 import ProfileScreen from './ProfileScreen';
 import { LogBox, View } from 'react-native';
+import LeaderBoard from './LeaderBoard';
 LogBox.ignoreLogs(['Bottom Tab Navigator: \'tabBarOptions\' is deprecated.']);
 
 
@@ -32,15 +33,9 @@ const BottomNavigator = () => {
                             iconColor = focused ? 'black' : 'black';
 
                         }
-                         else if (route.name === 'ChatScreenOwner') {
-                            iconName = focused ? 'calendar' : 'calendar-outline'; // Use 'calendar' for event icon
-                            iconColor = focused ? 'black' : 'black';
-                        }
-
-                        // else if (route.name === '') {
-                        //     iconName = focused ? 'person' : 'person-outline';
-                        //     iconColor = focused ? '#206CC6' : '#206CC6';
-
+                        //  else if (route.name === 'LeaderBoard') {
+                        //     iconName = focused ? 'trophy' : 'trophy-outline'; 
+                        //     iconColor = focused ? 'black' : 'black';
                         // }
 
                         return <Ionicons name={iconName} size={size} color={iconColor} />;
@@ -55,9 +50,9 @@ const BottomNavigator = () => {
                     },
                 }}
             >
-                <Tab.Screen name="ProfileScreen" component={ProfileScreen} />
                 <Tab.Screen name="ClubFeed" component={ClubFeed} />
-                {/* <Tab.Screen name="ChatScreenOwner" component={ChatScreenOwner} /> */}
+                <Tab.Screen name="ProfileScreen" component={ProfileScreen} />
+                {/* <Tab.Screen name="LeaderBoard" component={LeaderBoard} /> */}
 
             </Tab.Navigator>
             <View style={{
