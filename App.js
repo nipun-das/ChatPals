@@ -19,7 +19,6 @@ import ClubFeed from './screens/ClubFeed';
 import { useFonts } from '@expo-google-fonts/poppins';
 import ProfileScreen from './screens/ProfileScreen';
 import ChatScreenOwner from './screens/ChatScreenOwner';
-import MainScreen from './screens/MainScreen';
 import CreateEventOwner from './screens/CreateEventOwner';
 import ScheduleMeetingOwner from './screens/ScheduleMeetingOwner';
 import OrganizeWorkshopOwner from './screens/OrganizeWorkshopOwner';
@@ -32,6 +31,7 @@ import ClubJoinSuccess from './screens/ClubJoinSuccess';
 import RegisteredMembers from './screens/RegisteredMembers';
 import DiscoverEvents from './screens/DiscoverEvents';
 import MarkEvent from './screens/MarkEvent';
+import LeaderBoard from './screens/LeaderBoard';
 
 LogBox.ignoreLogs(['AsyncStorage has been extracted']);
 
@@ -123,7 +123,7 @@ export const AuthenticatedUserProvider = ({ children }) => {
 function ChatStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Login" component={Login} options={{
+      {/* <Stack.Screen name="Login" component={Login} options={{
         ...TransitionPresets.SlideFromRightIOS
       }} />
 
@@ -144,8 +144,8 @@ function ChatStack() {
 
       <Stack.Screen name="ClubJoinSuccess" component={ClubJoinSuccess} options={{
         ...TransitionPresets.SlideFromRightIOS
-      }} />
-      
+      }} /> */}
+
       <Stack.Screen name="BottomNavigator" component={BottomNavigator} options={{
         ...TransitionPresets.SlideFromRightIOS
       }} />
@@ -176,6 +176,11 @@ function ChatStack() {
       <Stack.Screen name="MarkEvent" component={MarkEvent} options={{
         ...TransitionPresets.ModalSlideFromBottomIOS
       }} />
+      <Stack.Screen name="LeaderBoard" component={LeaderBoard} options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
+      }} />
+
+
 
 
       {/* <Stack.Screen name="ClubFeed" component={ClubFeed} /> */}
@@ -189,7 +194,7 @@ function ChatStack() {
 function AuthStack() {
   return (
     <Stack.Navigator defaultScreenOptions={Login} screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Login" component={Login} />
+      {/* <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Signup" component={Signup} options={{
         ...TransitionPresets.SlideFromRightIOS
       }} />
@@ -211,7 +216,7 @@ function AuthStack() {
       }} />
       <Stack.Screen name="ClubJoinSuccess" component={ClubJoinSuccess} options={{
         ...TransitionPresets.SlideFromRightIOS
-      }} />
+      }} /> */}
       <Stack.Screen name="BottomNavigator" component={BottomNavigator} options={{
         ...TransitionPresets.SlideFromRightIOS
       }} />
@@ -238,6 +243,9 @@ function AuthStack() {
       }} />
       <Stack.Screen name="MarkEvent" component={MarkEvent} options={{
         ...TransitionPresets.ModalSlideFromRightIOS
+      }} />
+      <Stack.Screen name="LeaderBoard" component={LeaderBoard} options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
       }} />
 
 

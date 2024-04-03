@@ -58,7 +58,7 @@ const ClubFeed = ({ navigation }) => {
         return;
       }
 
-      const { clubId,role } = userDoc.data();
+      const { clubId, role } = userDoc.data();
       setRole(role)
       console.log("club id : ", clubId)
       setClubId(clubId)
@@ -78,7 +78,7 @@ const ClubFeed = ({ navigation }) => {
           const userData = userDoc.data();
 
           const { name, avatarId, role } = userData;
-          console.log("Post sender id,name ,avatar,role fetched->", userId,name, avatarId, role)
+          console.log("Post sender id,name ,avatar,role fetched->", userId, name, avatarId, role)
 
           postData.userName = name;
           postData.avatarId = avatarId;
@@ -186,7 +186,9 @@ const ClubFeed = ({ navigation }) => {
       console.error('Error signing out:', error);
     }
   };
-
+  const handleLeaderNav = () => {
+    navigation.navigate("LeaderBoard", { clubId: clubId, role: role })
+  }
 
   const handleChatNav = async () => {
     try {
@@ -223,6 +225,9 @@ const ClubFeed = ({ navigation }) => {
       <View style={styles.topBar}>
         <TouchableOpacity style={styles.miniLogo} onPress={fetchPosts}>
           <Image source={require('../assets/text-logo.png')} style={styles.miniLogo} />
+        </TouchableOpacity>
+        <TouchableOpacity style={{ position: 'absolute', top: 27, right: 100 }} onPress={handleLeaderNav}>
+          <Ionicons name="trophy-outline" size={30} color="black" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.chatIcon} onPress={handleChatNav}>
           <Ionicons name="chatbox-outline" size={30} color="black" />
