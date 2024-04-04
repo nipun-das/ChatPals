@@ -67,6 +67,10 @@ export default function Login({ navigation }) {
                             console.log("User data not found");
                         }
                     }
+                    if (email === "vjecofficialstore@gmail.com") {
+                        console.log("navigated to")
+                        navigation.navigate('BottomNavigatorStore');
+                    }
                 })
                 .catch((error) => {
                     console.log("Login error:", error.message);

@@ -1,15 +1,47 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, Image, StyleSheet, StatusBar, TouchableOpacity, ImageBackground } from 'react-native';
-import { collection, query, getDocs, orderBy, limit, where } from 'firebase/firestore';
-import { database } from '../config/firebase';
+import { collection, query, getDocs, orderBy, limit, where, onSnapshot, doc } from 'firebase/firestore';
+import { auth, database } from '../config/firebase';
 import { Ionicons } from '@expo/vector-icons';
 
 
 const LeaderBoard = ({ route, navigation }) => {
     const [topThreeUsers, setTopThreeUsers] = useState([]);
     const [otherUsers, setOtherUsers] = useState([]);
+    const [userPoints, setUserPoints] = useState(0)
+    const [userDetails, setUserDetails] = useState(null);
+
 
     const { clubId, role } = route.params;
+    useEffect(() => {
+        const fetchUserDetails = async () => {
+            try {
+                const currentUser = auth.currentUser;
+                const userQuerySnapshot = await getDocs(query(collection(database, 'users'), where('uid', '==', currentUser.uid)));
+                const userData = userQuerySnapshot.docs.map(doc => doc.data())[0];
+                setUserDetails(userData);
+                setUserPoints(userData.points);
+
+                const unsubscribe = onSnapshot(doc(collection(database, 'users'), currentUser.uid), (doc) => {
+                    if (doc.exists()) {
+                        const userData = doc.data();
+                        setUserDetails(userData);
+                        setUserPoints(userData.points);
+                    } else {
+                        console.log("No such document!");
+                    }
+                });
+
+                // Return unsubscribe function to clean up listener on component unmount
+                return () => unsubscribe();
+
+            } catch (error) {
+                console.error('Error fetching user details:', error);
+            }
+        };
+
+        fetchUserDetails();
+    }, []);
 
     useEffect(() => {
         const fetchLeaderboardData = async () => {
@@ -70,7 +102,7 @@ const LeaderBoard = ({ route, navigation }) => {
     );
 
     return (
-        <View style={{ flex: 1, backgroundColor: 'red' }}>
+        <View style={{ flex: 1, backgroundColor: 'white' }}>
 
             <StatusBar backgroundColor="black" />
 
@@ -111,7 +143,7 @@ const LeaderBoard = ({ route, navigation }) => {
                             } else if (index === 2) {
                                 avatarStyle = { width: 55, height: 55, borderRadius: 30 };
                                 nameStyle = { fontSize: 11, fontFamily: 'DMSans-Bold' };
-                                pointsStyle = { fontSize: 11, fontFamily: 'DMSans-Bold' };
+                                pointsStyle = { fontSize: 11, fontFamily: 'DMSans-Bold', zIndex };
                             }
 
                             return (
@@ -143,11 +175,13 @@ const LeaderBoard = ({ route, navigation }) => {
                         style={{ flex: 1, resizeMode: 'cover' }}
 
                     >
-
+                        <Text style={{ fontSize: 16, fontFamily: 'DMSans-Bold', position: 'absolute', right: 20, top: 11, zIndex: 6000 }}>
+                            {userPoints}
+                        </Text>
                         <Image source={require('../assets/crown.gif')} style={{
                             width: 47, height: 47,
                             resizeMode: 'contain',
-                            top: 34, left: 209, right: 0, bottom: 0, position: 'absolute',
+                            top: 30, left: 208, right: 0, bottom: 0, position: 'absolute',
                             alignItems: 'center', transform: [{ rotate: '45deg' }],
                         }}></Image>
 
@@ -182,7 +216,7 @@ const LeaderBoard = ({ route, navigation }) => {
                                 </View>
                             );
                         })}
-                        <View style={{ position: 'absolute', width: '72%', left: 15, right: 0, top: 370, bottom: 0, height: '40%', borderBottomLeftRadius: 50, }}>
+                        <View style={{ position: 'absolute', width: '92%', left: 15, right: 0, top: 370, bottom: 0, height: '40%', borderBottomLeftRadius: 50 }}>
                             <FlatList
                                 data={otherUsers}
                                 keyExtractor={user => user.id}
