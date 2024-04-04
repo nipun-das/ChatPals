@@ -15,24 +15,14 @@ const ChatScreenOwner = ({ route, navigation }) => {
     const [clubId, setClubId] = useState('');
     const [clubName, setClubName] = useState('');
     const [ownerId, setOwnerId] = useState('');
-    
+
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const [clubDataFetched, setClubDataFetched] = useState(false);
     const [role, setRole] = useState('');
     const [roleFetched, setRoleFetched] = useState(false);
     const [isModalVisible, setModalVisible] = useState(false);
-
     const flatListRef = useRef(null);
-
-
-
-
-    useEffect(() => {
-        if (flatListRef.current) {
-            flatListRef.current.scrollToEnd({ animated: true });
-        }
-    }, [messages]);
 
 
 
@@ -105,19 +95,17 @@ const ChatScreenOwner = ({ route, navigation }) => {
 
     useEffect(() => {
         if (clubId && ownerId && role) {
-            const messagesQuery = query(collection(database, `chatrooms/${clubId}/messages`), orderBy('timestamp', 'asc')
-            );
+            const messagesQuery = query(collection(database, `chatrooms/${clubId}/messages`), orderBy('timestamp', 'asc'));
 
             const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
                 const newMessages = snapshot.docs.map((doc) => doc.data());
-                // console.log("messages", newMessages)
-
                 setMessages(newMessages);
             });
 
             return () => unsubscribe();
         }
     }, [clubId, ownerId, role]);
+
 
     useEffect(() => {
         const fetchClubName = async () => {
@@ -404,14 +392,14 @@ const ChatScreenOwner = ({ route, navigation }) => {
                     </View>
                 </View>
 
-                <TouchableOpacity style={styles.leaderboardIcon} onPress={() => handleDummyAction()}>
+                {/* <TouchableOpacity style={styles.leaderboardIcon} onPress={() => handleDummyAction()}>
                     <Ionicons name="trophy-outline" size={25} color="black" />
                 </TouchableOpacity>
 
 
                 <TouchableOpacity onPress={() => handleAdditionalAction()} style={styles.hamIcon}>
                     <Ionicons name="ellipsis-vertical" size={25} color="black" />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
             </View>
             <View style={styles.inContainer}>

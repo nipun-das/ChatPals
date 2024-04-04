@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
@@ -6,12 +7,13 @@ import ChatScreenOwner from './ChatScreenOwner';
 import ProfileScreen from './ProfileScreen';
 import { LogBox, View } from 'react-native';
 import Store from './Store';
+import StoreFeed from './StoreFeed';
 LogBox.ignoreLogs(['Bottom Tab Navigator: \'tabBarOptions\' is deprecated.']);
 
 
 const Tab = createBottomTabNavigator();
 
-const BottomNavigator = () => {
+const BottomNavigatorStore = () => {
     return (
         <View style={{
             flex: 1,  backgroundColor: '#E5F1FF'
@@ -23,18 +25,8 @@ const BottomNavigator = () => {
                     tabBarIcon: ({ focused, color, size }) => {
                         let iconName;
                         let iconColor;
-                        if (route.name === 'ClubFeed') {
+                        if (route.name === 'StoreFeed') {
                             iconName = focused ? 'home' : 'home-outline';
-                            iconColor = focused ? 'black' : 'black';
-                        }
-
-                        else if (route.name === 'ProfileScreen') {
-                            iconName = focused ? 'person' : 'person-outline';
-                            iconColor = focused ? 'black' : 'black';
-
-                        }
-                         else if (route.name === 'Store') {
-                            iconName = focused ? 'cart' : 'cart-outline'; 
                             iconColor = focused ? 'black' : 'black';
                         }
 
@@ -50,10 +42,8 @@ const BottomNavigator = () => {
                     },
                 }}
             >
-                <Tab.Screen name="ClubFeed" component={ClubFeed} />
-                <Tab.Screen name="ProfileScreen" component={ProfileScreen} />
-                {/* <Tab.Screen name="LeaderBoard" component={LeaderBoard} /> */}
-                <Tab.Screen name="Store" component={Store} />
+                <Tab.Screen name="StoreFeed" component={StoreFeed} />
+                
 
             </Tab.Navigator>
             <View style={{
@@ -64,7 +54,9 @@ const BottomNavigator = () => {
     );
 };
 
-export default BottomNavigator;
+export default BottomNavigatorStore;
+
+
 
 
 
