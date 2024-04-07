@@ -303,6 +303,13 @@ const ChatScreenOwner = ({ route, navigation }) => {
             );
         }
         else if (item.messageType === 'meetingMessage') {
+            const handleMeetingPress = () => {
+                Vibration.vibrate(110);
+                console.log(item.meetingId, "-------------", clubId);
+
+                navigation.navigate('RegisterMeeting', { meetingId: item.meetingId, clubId: item.clubId });
+            }
+
             const dateComponents = item.meetingDate.split('-');
             console.log("datemeet:", dateComponents)
             const year = parseInt(dateComponents[0]);
@@ -312,7 +319,7 @@ const ChatScreenOwner = ({ route, navigation }) => {
             const eventDateObj = new Date(year, monthIndex, day);
             const formattedDate = `${day} ${monthName}`;
             return (
-                <TouchableHighlight onPress={handleTouch} underlayColor="transparent">
+                <TouchableHighlight onPress={handleMeetingPress} underlayColor="transparent">
                     <View style={styles.eventMessageContainer}>
                         <View style={[styles.contentContainer, { backgroundColor: '#211155' }]}>
                             <View style={styles.leftSection}>
@@ -337,6 +344,14 @@ const ChatScreenOwner = ({ route, navigation }) => {
             );
         }
         else if (item.messageType === 'workshopMessage') {
+            const handleWorkshopPress = () => {
+                Vibration.vibrate(110);
+                console.log(item.workshopId, "-------------", clubId);
+
+                navigation.navigate('RegisterWorkshop', { workshopId: item.workshopId, clubId: item.clubId });
+            }
+
+
             const dateComponents = item.workshopDate.split('-');
             console.log("dateworkshop:", dateComponents)
             const year = parseInt(dateComponents[0]);
@@ -346,7 +361,7 @@ const ChatScreenOwner = ({ route, navigation }) => {
             const eventDateObj = new Date(year, monthIndex, day);
             const formattedDate = `${day} ${monthName}`;
             return (
-                <TouchableHighlight onPress={handleTouch} underlayColor="transparent">
+                <TouchableHighlight onPress={handleWorkshopPress} underlayColor="transparent">
                     <View style={styles.eventMessageContainer}>
                         <View style={[styles.contentContainer, { backgroundColor: '#00160A' }]}>
                             <View style={styles.leftSection}>
@@ -498,7 +513,7 @@ const ChatScreenOwner = ({ route, navigation }) => {
                                     </View>
                                 </TouchableHighlight>
 
-                                <TouchableHighlight onPress={() => { handleTouch(); handleOptionSelect('BrainstormSession'); }} underlayColor="transparent" >
+                                {/* <TouchableHighlight onPress={() => { handleTouch(); handleOptionSelect('BrainstormSession'); }} underlayColor="transparent" >
                                     <View style={styles.optionContainer}>
 
                                         <View style={[styles.optionBox, { backgroundColor: '#ADD8E6' }]}>
@@ -506,7 +521,7 @@ const ChatScreenOwner = ({ route, navigation }) => {
                                         </View>
                                         <Text style={[styles.modalOption, { backgroundColor: '#ADD8E6' }]}>Brainstorm Session</Text>
                                     </View>
-                                </TouchableHighlight>
+                                </TouchableHighlight> */}
                             </View>
                         </View>
                     </View>
