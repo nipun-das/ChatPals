@@ -13,7 +13,7 @@ import {
 import { Gif } from 'react-native-gif';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { auth, database } from '../config/firebase';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
 
 const ScheduleMeetingOwner = ({ route, navigation }) => {
     const [meetingTopic, setMeetingTopic] = useState('');
@@ -101,13 +101,22 @@ const ScheduleMeetingOwner = ({ route, navigation }) => {
             const meetingRef = await addDoc(collection(database, `clubs/${clubId}/meetings`), {
                 meeting_topic: meetingTopic,
                 club_id: clubId,
-                meeting_status: 'active',
+                meeting_status: 'open',
+                meeting_reg_status: 'open',
                 meeting_description: meetingDescription,
                 meeting_date: formattedDate,
                 meeting_time: formattedTime,
                 meeting_link: meetingLink,
+                meeting_registered_members: [],
+                meeting_price: 'free',
+                meeting_reg_count: 0,
                 created_by: currentUser.uid,
                 created_at: new Date(),
+            });
+            const meetingId = meetingRef.id;
+
+            await updateDoc(doc(database, `clubs/${clubId}/meetings`, meetingId), {
+                meeting_id: meetingId
             });
 
             const meetingMessage = `Meeting Created: ${meetingTopic}`;
@@ -118,6 +127,7 @@ const ScheduleMeetingOwner = ({ route, navigation }) => {
                 messageType: 'meetingMessage',
                 meetingId: meetingRef.id,
                 meetingTopic: meetingTopic,
+                clubId: clubId,
                 meetingTime: formattedTime,
                 meetingDate: formattedDate,
                 meetingLink: meetingLink,
@@ -140,7 +150,7 @@ const ScheduleMeetingOwner = ({ route, navigation }) => {
             <View style={styles.createContainer}>
                 <Text style={styles.title}>Schedule Meeting</Text>
             </View>
-            <View style={{ backgroundColor: 'white', paddingHorizontal: 25, paddingTop: 15 ,borderTopColor:'black',borderTopWidth:2}}>
+            <View style={{ backgroundColor: 'white', paddingHorizontal: 25, paddingTop: 15, borderTopColor: 'black', borderTopWidth: 2 }}>
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Meeting Agenda</Text>
                     <TextInput
@@ -599,11 +609,11 @@ const styles = StyleSheet.create({
         right: 0,
         width: 28,
         height: 28,
-        borderTopRightRadius:9,
-        borderBottomRightRadius:9,
+        borderTopRightRadius: 9,
+        borderBottomRightRadius: 9,
         resizeMode: 'contain',
         marginLeft: 10,
-        backgroundColor:'#90EE90',
+        backgroundColor: '#90EE90',
         padding: 24,
     },
 });

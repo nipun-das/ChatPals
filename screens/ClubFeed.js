@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, Modal, TextInput, StatusBar, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, Modal, TextInput, StatusBar, BackHandler, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { addDoc, collection, doc, getDoc, getDocs, orderBy, query, updateDoc, where } from 'firebase/firestore';
 import { auth, database } from '../config/firebase'; // Import your Firebase configuration
@@ -15,12 +15,23 @@ const ClubFeed = ({ navigation }) => {
   const [showModal, setShowModal] = useState(false);
   const [clubId, setClubId] = useState('');
   const [role, setRole] = useState('');
-
+  const [refreshing, setRefreshing] = useState(false);
   const isFocused = useIsFocused();
 
-  useEffect(() => {
 
-  })
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+
+    setTimeout(() => {
+      fetchPosts();
+      setRefreshing(false);
+    }, 1000);
+
+  };
 
   useEffect(() => {
     const backAction = () => {
@@ -38,10 +49,10 @@ const ClubFeed = ({ navigation }) => {
     return () => backHandler.remove();
   }, [isFocused]);
 
-  useEffect(() => {
-    fetchPosts();
+  // useEffect(() => {
+  //   fetchPosts();
 
-  }, []);
+  // }, []);
 
   const fetchPosts = async () => {
     try {
@@ -218,6 +229,14 @@ const ClubFeed = ({ navigation }) => {
     console.log("role fetched sent", role)
     navigation.navigate("DiscoverEvents", { clubId: clubId, role: role })
   }
+  const goToDiscoverWorkshops = () => {
+    console.log("role fetched sent", role)
+    navigation.navigate("DiscoverWorkshops", { clubId: clubId, role: role })
+  }
+  const goToDiscoverMeetings = () => {
+    console.log("role fetched sent", role)
+    navigation.navigate("DiscoverMeetings", { clubId: clubId, role: role })
+  }
 
   return (
     <View style={styles.container}>
@@ -241,7 +260,11 @@ const ClubFeed = ({ navigation }) => {
         <Ionicons name="add" size={50} color="white" />
       </TouchableOpacity>
 
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#9Bd35A', '#689F38']} />
+        }
+      >
         <View style={{ width: '100%' }}>
           <Text style={{
             fontFamily: 'DMSans-Bold', fontSize: 21
@@ -256,18 +279,24 @@ const ClubFeed = ({ navigation }) => {
               <Text style={{ color: 'white', fontFamily: 'DMSans-Bold', fontSize: 16, position: 'absolute', bottom: 10, left: 10, zIndex: 1 }}>Events</Text>
             </View>
           </TouchableOpacity>
+          <TouchableOpacity onPress={goToDiscoverWorkshops}>
 
-          <View style={{ width: 119, height: 144, marginRight: 14, backgroundColor: 'lightblue', borderRadius: 10, justifyContent: 'flex-end', alignItems: 'center', padding: 0 }}>
-            <Image source={require('../assets/w-cover.png')} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
-            <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', width: 119, bottom: 0, position: 'absolute', height: 40, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, }}></View>
-            <Text style={{ color: 'white', fontFamily: 'DMSans-Bold', fontSize: 16, position: 'absolute', bottom: 10, left: 10, zIndex: 1 }}>Workshops</Text>
-          </View>
+            <View style={{ width: 119, height: 144, marginRight: 14, backgroundColor: 'lightblue', borderRadius: 10, justifyContent: 'flex-end', alignItems: 'center', padding: 0 }}>
+              <Image source={require('../assets/w-cover.png')} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
+              <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', width: 119, bottom: 0, position: 'absolute', height: 40, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, }}></View>
+              <Text style={{ color: 'white', fontFamily: 'DMSans-Bold', fontSize: 16, position: 'absolute', bottom: 10, left: 10, zIndex: 1 }}>Workshops</Text>
+            </View>
+          </TouchableOpacity>
 
-          <View style={{ width: 119, height: 144, marginRight: 14, backgroundColor: 'lightblue', borderRadius: 10, justifyContent: 'flex-end', alignItems: 'center', padding: 0 }}>
-            <Image source={require('../assets/m-cover.png')} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
-            <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', width: 119, bottom: 0, position: 'absolute', height: 40, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, }}></View>
-            <Text style={{ color: 'white', fontFamily: 'DMSans-Bold', fontSize: 16, position: 'absolute', bottom: 10, left: 10, zIndex: 1 }}>Meetings</Text>
-          </View>
+          <TouchableOpacity onPress={goToDiscoverMeetings}>
+
+            <View style={{ width: 119, height: 144, marginRight: 14, backgroundColor: 'lightblue', borderRadius: 10, justifyContent: 'flex-end', alignItems: 'center', padding: 0 }}>
+              <Image source={require('../assets/m-cover.png')} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
+              <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', width: 119, bottom: 0, position: 'absolute', height: 40, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, }}></View>
+              <Text style={{ color: 'white', fontFamily: 'DMSans-Bold', fontSize: 16, position: 'absolute', bottom: 10, left: 10, zIndex: 1 }}>Meetings</Text>
+            </View>
+          </TouchableOpacity>
+
         </ScrollView>
 
 

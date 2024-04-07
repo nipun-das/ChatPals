@@ -7,26 +7,24 @@ import { Image } from 'react-native';
 import { StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const MarkEvent = ({ route, navigation }) => {
+const MarkWorkshop = ({ route, navigation }) => {
 
-    const { eventId, event_registered_members, role, clubId } = route.params;
+    const { workshopId, workshop_registered_members, role, clubId } = route.params;
     console.log("recv clubId", clubId)
 
     const [membersDetails, setMembersDetails] = useState([]);
 
     const handleAttendance = async (memberId, index) => {
         try {
-
             const userDocRef = doc(database, 'users', memberId);
             await updateDoc(userDocRef, {
-                points: increment(25) 
+                points: increment(30) 
             });
 
-            // Update event's event_attended array
-            console.log(clubId, "<->", eventId)
-            const eventDocRef = doc(database, `clubs/${clubId}/events/${eventId}`);
-            await updateDoc(eventDocRef, {
-                event_attended: arrayUnion(memberId)
+            console.log(clubId, "<->", workshopId)
+            const workshopDocRef = doc(database, `clubs/${clubId}/workshops/${workshopId}`);
+            await updateDoc(workshopDocRef, {
+                workshop_attended: arrayUnion(memberId)
             });
 
             // Show toast message
@@ -46,17 +44,17 @@ const MarkEvent = ({ route, navigation }) => {
     useEffect(() => {
         const fetchMembersAttendanceStatus = async () => {
             try {
-                const membersData = await Promise.all(event_registered_members.map(async (memberId) => {
+                const membersData = await Promise.all(workshop_registered_members.map(async (memberId) => {
                     const userDocRef = doc(database, 'users', memberId);
                     const userDocSnapshot = await getDoc(userDocRef);
                     if (userDocSnapshot.exists()) {
                         const userData = userDocSnapshot.data();
                         // Check if memberId exists in the event_attended array
-                        const eventDocRef = doc(database, `clubs/${clubId}/events/${eventId}`);
-                        const eventDocSnapshot = await getDoc(eventDocRef);
-                        if (eventDocSnapshot.exists()) {
-                            const eventAttendees = eventDocSnapshot.data().event_attended || [];
-                            const attendanceMarked = eventAttendees.includes(memberId);
+                        const workshopDocRef = doc(database, `clubs/${clubId}/workshops/${workshopId}`);
+                        const workshopDocSnapshot = await getDoc(workshopDocRef);
+                        if (workshopDocSnapshot.exists()) {
+                            const workshopAttendees = workshopDocSnapshot.data().workshop_attended || [];
+                            const attendanceMarked = workshopAttendees.includes(memberId);
                             return { id: memberId, ...userData, attendanceMarked };
                         }
                     }
@@ -69,7 +67,7 @@ const MarkEvent = ({ route, navigation }) => {
         };
 
         fetchMembersAttendanceStatus();
-    }, [event_registered_members, clubId, eventId]);
+    }, [workshop_registered_members, clubId, workshopId]);
 
 
 
@@ -81,7 +79,7 @@ const MarkEvent = ({ route, navigation }) => {
             try {
                 const currentUserID = auth.currentUser.uid;
 
-                const membersPromises = event_registered_members.map(async (currentUserID) => {
+                const membersPromises = workshop_registered_members.map(async (currentUserID) => {
 
                     const userDocRef = doc(database, 'users', currentUserID);
                     const userDocSnapshot = await getDoc(userDocRef);
@@ -101,7 +99,7 @@ const MarkEvent = ({ route, navigation }) => {
         };
 
         fetchMembersDetails();
-    }, [event_registered_members]);
+    }, [workshop_registered_members]);
 
     const findAvatarSource = (avatarId) => {
         const avatars = [
@@ -288,4 +286,4 @@ const styles = StyleSheet.create({
 
 
 });
-export default MarkEvent
+export default MarkWorkshop;

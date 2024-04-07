@@ -15,6 +15,7 @@ const Store = ({ navigation }) => {
     const [userDetails, setUserDetails] = useState(null);
     const [confirmModalVisible, setConfirmModalVisible] = useState(false);
     const [userPoints, setUserPoints] = useState(0);
+    const [userRole, setUserRole] = useState(0);
 
 
     const handleConfirmOrder = () => {
@@ -80,6 +81,8 @@ const Store = ({ navigation }) => {
                 const userData = userQuerySnapshot.docs.map(doc => doc.data())[0];
                 setUserDetails(userData);
                 setUserPoints(userData.points);
+                setUserRole(userData.role);
+
 
                 // Add listener to user document to get real-time updates
                 const unsubscribe = onSnapshot(doc(collection(database, 'users'), currentUser.uid), (doc) => {
@@ -178,17 +181,18 @@ const Store = ({ navigation }) => {
                 <Text style={{ fontSize: 24, marginTop: 19, textAlign: 'center', color: 'black', fontFamily: "DMSans-Bold", }}>Store</Text>
             </View>
 
-            <Image
-                source={require('../assets/points-box.png')}
-                style={{ width: 100, height: 100, position: 'absolute', right: -20, top: 40, zIndex: 6000 }}
-                resizeMode="contain"
-            />
-            {/* <Text style={{ fontSize: 16, fontFamily: 'DMSans-Bold', position: 'absolute', right: 22, top: 80, zIndex: 6000 }}>{userDetails.points}
-            </Text> */}
+            {userRole === 'member' && (
+                <>
+                    <Image
+                        source={require('../assets/points-box.png')}
+                        style={{ width: 100, height: 100, position: 'absolute', right: -20, top: 40, zIndex: 6000 }}
+                        resizeMode="contain" /><Text style={{ fontSize: 16, fontFamily: 'DMSans-Bold', position: 'absolute', right: 22, top: 80, zIndex: 6000 }}>
+                        {userDetails ? userPoints : ''}
+                    </Text>
+                </>
+            )}
 
-            <Text style={{ fontSize: 16, fontFamily: 'DMSans-Bold', position: 'absolute', right: 22, top: 80, zIndex: 6000 }}>
-                {userDetails ? userPoints : '0.0'}
-            </Text>
+
 
             {/* Slidable banner */}
             <View style={{ backgroundColor: 'white', paddingBottom: 20, paddingTop: 30 }}>
@@ -216,33 +220,62 @@ const Store = ({ navigation }) => {
                         , paddingLeft: 16, paddingTop: 4
                     }}>Explore products</Text>
                 </View>
-                <FlatList
-                    data={storeItemsList}
-                    style={{ marginLeft: 15, marginRight: 15 }}
-                    key={`${columns}`}
-                    keyExtractor={(item) => item.itemId}
-                    numColumns={columns}
-                    renderItem={({ item }) => (
+                {userRole === 'member' && (
+                    <FlatList
+                        data={storeItemsList}
+                        style={{ marginLeft: 15, marginRight: 15 }}
+                        key={`${columns}`}
+                        keyExtractor={(item) => item.itemId}
+                        numColumns={columns}
+                        renderItem={({ item }) => (
 
-                        <TouchableOpacity style={{ flex: 1, width: '50%', margin: 10, borderWidth: 1, padding: 10, borderColor: '#87CEF6', borderRadius: 10, backgroundColor: 'white' }} onPress={() => {
-                            setSelectedItem(item);
-                            setModalVisible(true);
-                        }}>
-                            <Image
-                                source={findAvatarSource(item.itemPhotoId)}
-                                style={{ width: '95%', height: 100 }}
-                                resizeMode="contain"
-                            />
+                            <TouchableOpacity style={{ flex: 1, width: '50%', margin: 10, borderWidth: 1, padding: 10, borderColor: '#87CEF6', borderRadius: 10, backgroundColor: 'white' }} onPress={() => {
+                                setSelectedItem(item);
+                                setModalVisible(true);
+                            }}>
+                                <Image
+                                    source={findAvatarSource(item.itemPhotoId)}
+                                    style={{ width: '95%', height: 100 }}
+                                    resizeMode="contain"
+                                />
 
-                            <Text style={{ marginTop: 10, fontSize: 15, textAlign: 'center', fontFamily: 'DMSans-Bold' }}>{item.itemName}</Text>
+                                <Text style={{ marginTop: 10, fontSize: 15, textAlign: 'center', fontFamily: 'DMSans-Bold' }}>{item.itemName}</Text>
 
-                            <View style={{ backgroundColor: '#E5F1FF', width: '60%', alignContent: 'center', alignSelf: 'center', height: 18, display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: 5, marginTop: 2 }}>
-                                <Text style={{ color: 'black', fontFamily: 'DMSans-Bold', fontSize: 12, textAlign: 'center' }}>{item.itemPoints} Points</Text>
-                            </View>
+                                <View style={{ backgroundColor: '#E5F1FF', width: '60%', alignContent: 'center', alignSelf: 'center', height: 18, display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: 5, marginTop: 2 }}>
+                                    <Text style={{ color: 'black', fontFamily: 'DMSans-Bold', fontSize: 12, textAlign: 'center' }}>{item.itemPoints} Points</Text>
+                                </View>
 
-                        </TouchableOpacity>
-                    )}
-                />
+                            </TouchableOpacity>
+                        )}
+                    />
+                )}
+                {userRole === 'owner' && (
+                    <FlatList
+                        data={storeItemsList}
+                        style={{ marginLeft: 15, marginRight: 15 }}
+                        key={`${columns}`}
+                        keyExtractor={(item) => item.itemId}
+                        numColumns={columns}
+                        renderItem={({ item }) => (
+
+                            <TouchableOpacity style={{ flex: 1, width: '50%', margin: 10, borderWidth: 1, padding: 10, borderColor: '#87CEF6', borderRadius: 10, backgroundColor: 'white' }}>
+                                <Image
+                                    source={findAvatarSource(item.itemPhotoId)}
+                                    style={{ width: '95%', height: 100 }}
+                                    resizeMode="contain"
+                                />
+
+                                <Text style={{ marginTop: 10, fontSize: 15, textAlign: 'center', fontFamily: 'DMSans-Bold' }}>{item.itemName}</Text>
+
+                                <View style={{ backgroundColor: '#E5F1FF', width: '60%', alignContent: 'center', alignSelf: 'center', height: 18, display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: 5, marginTop: 2 }}>
+                                    <Text style={{ color: 'black', fontFamily: 'DMSans-Bold', fontSize: 12, textAlign: 'center' }}>{item.itemPoints} Points</Text>
+                                </View>
+
+                            </TouchableOpacity>
+                        )}
+                    />
+                )}
+
                 <Modal
                     animationType="slide"
                     transparent={true}
