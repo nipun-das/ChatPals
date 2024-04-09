@@ -3,6 +3,7 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import Constants from 'expo-constants';
 import { getDatabase } from 'firebase/database';
+import { getStorage } from 'firebase/storage';
 
 // Firebase config
 const firebaseConfig = {
@@ -16,6 +17,8 @@ const firebaseConfig = {
 };
 // initialize firebase
 initializeApp(firebaseConfig);
+
 export const auth = getAuth();
 export const database = getFirestore();
 export const realtimeDatabase = getDatabase();
+export const storage = getStorage();

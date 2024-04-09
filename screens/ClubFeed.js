@@ -1,16 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, Modal, TextInput, StatusBar, BackHandler, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { addDoc, collection, doc, getDoc, getDocs, orderBy, query, updateDoc, where } from 'firebase/firestore';
-import { auth, database } from '../config/firebase'; // Import your Firebase configuration
+import { auth, database, storage } from '../config/firebase'; // Import your Firebase configuration
 import { ScrollView } from 'react-native-gesture-handler';
 import { useIsFocused } from '@react-navigation/native';
+import { ref } from 'firebase/storage';
+import { getDownloadURL, uploadBytes } from 'firebase/storage';
+// import { v4 as uuidv4 } from 'uuid';
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from 'uuid'
+
+// const storage = getStorage()
 
 const ClubFeed = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
+  const [postId, setPostId] = useState('');
   const [postTitle, setPostTitle] = useState('');
   const [postDesc, setPostDesc] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageFiles, setImageFiles] = useState([]);
   const [videoUrl, setVideoUrl] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [clubId, setClubId] = useState('');
@@ -80,7 +89,9 @@ const ClubFeed = ({ navigation }) => {
 
       const promises = querySnapshot.docs.map(async (postDoc) => {
         const postData = postDoc.data();
+        console.log("postId : ", postData.postId, " postImg : ", postData.imageUrls)
         const userId = postData.postSenderId;
+
         // console.log("Post sender fetched-> ", )
 
         const userDoc = await getDoc(doc(database, 'users', userId));
@@ -89,7 +100,7 @@ const ClubFeed = ({ navigation }) => {
           const userData = userDoc.data();
 
           const { name, avatarId, role } = userData;
-          console.log("Post sender id,name ,avatar,role fetched->", userId, name, avatarId, role)
+          // console.log("Post sender id,name ,avatar,role fetched->", userId, name, avatarId, role)
 
           postData.userName = name;
           postData.avatarId = avatarId;
@@ -103,8 +114,10 @@ const ClubFeed = ({ navigation }) => {
 
       const resolvedPosts = await Promise.all(promises);
       const postsData = resolvedPosts.filter(post => post);
-
+      // console.log(postsData)
       setPosts(postsData);
+      // console.log(posts.imageUrls)
+
 
     } catch (error) {
       console.error('Error fetching posts:', error);
@@ -134,29 +147,122 @@ const ClubFeed = ({ navigation }) => {
     return "../assets/avatar" + avatar + ".png" ? avatar.source : null;
   };
 
+
+
+  const openImagePicker = async () => {
+    console.log("picker clicked");
+    const options = {
+      title: 'Select Image',
+      mediaType: 'photo',
+      maxWidth: 300,
+      maxHeight: 300,
+      quality: 0.5, // Adjust quality as needed
+    };
+
+    const result = await ImagePicker.launchImageLibraryAsync(options);
+
+    if (!result.canceled) {
+      // The selected image is stored in the result.uri property
+      const selectedImage = result.assets[0];
+      // Add the selected image to your imageFiles array
+      setImageFiles(prevImageFiles => [...prevImageFiles, selectedImage]);
+      console.log(imageFiles);
+      console.log('Image selected------>>:', selectedImage);
+    } else {
+      if (result.error) {
+        console.log('ImagePicker Error: ', result.error);
+      } else if (result.customButton) {
+        console.log('User tapped custom button: ', result.customButton);
+      } else {
+        console.log('User cancelled image picker');
+      }
+    }
+  };
+
+
+  const generatePostId = () => {
+    return uuidv4();
+  };
   const handleCreatePost = async () => {
     try {
       const currentUser = auth.currentUser;
       const userDoc = await getDoc(doc(database, 'users', currentUser.uid));
       if (userDoc.exists()) {
         const { clubId } = userDoc.data();
-
         const clubRef = doc(database, 'clubs', clubId);
         const clubPostsCollection = collection(clubRef, 'posts');
 
-        await addDoc(clubPostsCollection, {
+        const downloadUrls = [];
+
+        for (const imageFile of imageFiles) {
+
+          const pid = generatePostId();
+          setPostId(pid);
+
+          const randomInt = Math.floor(Math.random() * 10000);
+
+          const fileName = `${randomInt}-post`;
+          console.log("------------------------------------------")
+          console.log("postid : ", pid, "filename : ", fileName)
+
+          console.log("------------------------------------------")
+          console.log("------------------------------------------")
+          console.log("------------------------------------------")
+
+
+
+          const storageRef = ref(storage, `images/${clubId}/${pid}/${fileName}`);
+
+          const response = await fetch(imageFile.uri);
+          const blob = await response.blob();
+
+          const snapshot = await uploadBytes(storageRef, blob, { contentType: 'image/jpeg' });
+
+          const downloadUrl = await getDownloadURL(storageRef);
+          console.log(downloadUrl)
+          downloadUrls.push(downloadUrl);
+        }
+        // for (const imageFile of imageFiles) {
+        //   const pid = generatePostId();
+        //   setPostId(pid);
+        //   const randomInt = Math.floor(Math.random() * 10000);
+        //   const fileName = `${randomInt}_post`;
+        //   console.log("------------------------------------------")
+        //   console.log("postid : ",pid,"filename : ", fileName)
+        //   console.log("------------------------------------------")
+        //   console.log("------------------------------------------")
+        //   console.log("------------------------------------------")
+
+
+        //   // Convert image file to Blob object
+        //   const blob = new Blob([imageFile], { type: imageFile.type });
+
+        //   const storageRef = ref(storage, `images/${clubId}/${pid}/${fileName}`);
+        //   const metadata = {
+        //     contentType: blob.type,
+        //   };
+
+        //   const snapshot = await uploadBytes(storageRef, blob, metadata);
+        //   const downloadUrl = await getDownloadURL(snapshot.ref);
+        //   downloadUrls.push(downloadUrl);
+        // }
+
+        const postObject = {
+          postId: postId,
           clubId: clubId,
           postSenderId: currentUser.uid,
           postDate: new Date(),
           postTitle: postTitle,
           postDesc: postDesc,
-          imageUrl: imageUrl,
+          imageUrls: downloadUrls,
           videoUrl: videoUrl
-        });
+        };
+
+        await addDoc(clubPostsCollection, postObject);
 
         setPostTitle('');
         setPostDesc('');
-        setImageUrl('');
+        setImageFiles([]);
         setVideoUrl('');
 
         console.log('Post created successfully');
@@ -168,6 +274,7 @@ const ClubFeed = ({ navigation }) => {
       console.error('Error creating post: ', error);
     }
   };
+
 
   const toggleModal = () => {
     setShowModal(!showModal);
@@ -293,6 +400,7 @@ const ClubFeed = ({ navigation }) => {
             <View style={{ width: 119, height: 144, marginRight: 14, backgroundColor: 'lightblue', borderRadius: 10, justifyContent: 'flex-end', alignItems: 'center', padding: 0 }}>
               <Image source={require('../assets/m-cover.png')} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
               <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', width: 119, bottom: 0, position: 'absolute', height: 40, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, }}></View>
+
               <Text style={{ color: 'white', fontFamily: 'DMSans-Bold', fontSize: 16, position: 'absolute', bottom: 10, left: 10, zIndex: 1 }}>Meetings</Text>
             </View>
           </TouchableOpacity>
@@ -345,6 +453,14 @@ const ClubFeed = ({ navigation }) => {
                 </View>
                 <Text style={styles.title}>{post.postTitle}</Text>
                 <Text style={styles.description}>{post.postDesc}</Text>
+                <View style={{ width: '100%', backgroundColor: 'red', height: 250 }}>
+                  {post.imageUrls.map((imageUrl, index) => {
+                    console.log('Image URL:', imageUrl);
+                    return (
+                      <Image key={index} source={{ uri: imageUrl }} style={{ flex: 1, width: undefined, height: undefined, resizeMode: 'contain', marginTop: 0, height: 100 }} />
+                    );
+                  })}
+                </View>
               </View>
             ))}
           </View>
@@ -386,7 +502,7 @@ const ClubFeed = ({ navigation }) => {
               style={[styles.textInput, { height: 279 }]}
             />
             <View style={styles.uploadContainer}>
-              <TouchableOpacity style={styles.uploadButton} onPress={() => { }}>
+              <TouchableOpacity style={styles.uploadButton} onPress={openImagePicker}>
                 <Image source={require('../assets/upload.png')} style={styles.uploadButtonIcon} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.uploadButton} onPress={() => { }}>
