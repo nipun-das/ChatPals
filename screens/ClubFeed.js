@@ -3,16 +3,15 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, Modal, TextI
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { addDoc, collection, doc, getDoc, getDocs, orderBy, query, updateDoc, where } from 'firebase/firestore';
-import { auth, database, storage } from '../config/firebase'; // Import your Firebase configuration
+import { auth, database, storage } from '../config/firebase';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useIsFocused } from '@react-navigation/native';
 import { ref } from 'firebase/storage';
 import { getDownloadURL, uploadBytes } from 'firebase/storage';
-// import { v4 as uuidv4 } from 'uuid';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid'
-
-// const storage = getStorage()
+import Swiper from 'react-native-swiper';
+import Notification from './Notification';
 
 const ClubFeed = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
@@ -20,14 +19,20 @@ const ClubFeed = ({ navigation }) => {
   const [postTitle, setPostTitle] = useState('');
   const [postDesc, setPostDesc] = useState('');
   const [imageFiles, setImageFiles] = useState([]);
-  const [videoUrl, setVideoUrl] = useState('');
+  const [videoFiles, setVideoFiles] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [clubId, setClubId] = useState('');
   const [role, setRole] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const isFocused = useIsFocused();
+  const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
-
+  const notifications = [
+    { id: 1, message: 'Info notification', notificationType: 'info' },
+    { id: 2, message: 'Warning notification', notificationType: 'warning' },
+    { id: 3, message: 'Error notification', notificationType: 'error' }
+  ];
   useEffect(() => {
     fetchPosts();
   }, []);
@@ -148,7 +153,6 @@ const ClubFeed = ({ navigation }) => {
   };
 
 
-
   const openImagePicker = async () => {
     console.log("picker clicked");
     const options = {
@@ -255,7 +259,7 @@ const ClubFeed = ({ navigation }) => {
           postTitle: postTitle,
           postDesc: postDesc,
           imageUrls: downloadUrls,
-          videoUrl: videoUrl
+          // videoUrl: videoUrl
         };
 
         await addDoc(clubPostsCollection, postObject);
@@ -263,7 +267,7 @@ const ClubFeed = ({ navigation }) => {
         setPostTitle('');
         setPostDesc('');
         setImageFiles([]);
-        setVideoUrl('');
+        // setVideoUrl('');
 
         console.log('Post created successfully');
         toggleModal();
@@ -295,17 +299,22 @@ const ClubFeed = ({ navigation }) => {
     return `${parseInt(day)} ${monthName}`;
   };
 
-  const handleSignOut = async () => {
-    try {
-      await auth.signOut();
-      console.log("Logged out")
-      navigation.navigate('Login')
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
+  // const handleSignOut = async () => {
+  //   try {
+  //     await auth.signOut();
+  //     console.log("Logged out")
+  //     navigation.navigate('Login')
+  //   } catch (error) {
+  //     console.error('Error signing out:', error);
+  //   }
+  // };
   const handleLeaderNav = () => {
     navigation.navigate("LeaderBoard", { clubId: clubId, role: role })
+  }
+
+  const NotificationNav = () => {
+    const currentUser = auth.currentUser;
+    navigation.navigate("Notification", { currentUserUid: currentUser.uid })
   }
 
   const handleChatNav = async () => {
@@ -336,6 +345,7 @@ const ClubFeed = ({ navigation }) => {
     console.log("role fetched sent", role)
     navigation.navigate("DiscoverEvents", { clubId: clubId, role: role })
   }
+
   const goToDiscoverWorkshops = () => {
     console.log("role fetched sent", role)
     navigation.navigate("DiscoverWorkshops", { clubId: clubId, role: role })
@@ -344,7 +354,10 @@ const ClubFeed = ({ navigation }) => {
     console.log("role fetched sent", role)
     navigation.navigate("DiscoverMeetings", { clubId: clubId, role: role })
   }
-
+  const openFullSizeImage = (index) => {
+    setSelectedImageIndex(index);
+    setModalVisible(true);
+  };
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="white" />
@@ -358,9 +371,28 @@ const ClubFeed = ({ navigation }) => {
         <TouchableOpacity style={styles.chatIcon} onPress={handleChatNav}>
           <Ionicons name="chatbox-outline" size={30} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.notificationIcon} onPress={handleSignOut}>
-          <Ionicons name="exit-outline" size={30} color="black" />
+        <TouchableOpacity style={{ position: 'absolute', top: 27, right: 20, }} onPress={NotificationNav}>
+          <Ionicons name="notifications-outline" size={30} color="black" />
         </TouchableOpacity>
+        <View
+          style={{
+            position: 'absolute',
+            top: 30,
+            width: 10,
+            height: 10,
+            zIndex: 6000,
+            right: 23,
+            backgroundColor: 'red',
+            borderRadius: 1000,
+          }}
+        >
+          <Text></Text>
+        </View>
+
+
+        {/* <TouchableOpacity style={styles.notificationIcon} onPress={handleSignOut}>
+          <Ionicons name="exit-outline" size={30} color="black" />
+        </TouchableOpacity> */}
       </View>
 
       <TouchableOpacity style={styles.fab} onPress={toggleModal}>
@@ -453,14 +485,20 @@ const ClubFeed = ({ navigation }) => {
                 </View>
                 <Text style={styles.title}>{post.postTitle}</Text>
                 <Text style={styles.description}>{post.postDesc}</Text>
-                <View style={{ width: '100%', backgroundColor: 'red', height: 250 }}>
-                  {post.imageUrls.map((imageUrl, index) => {
-                    console.log('Image URL:', imageUrl);
-                    return (
-                      <Image key={index} source={{ uri: imageUrl }} style={{ flex: 1, width: undefined, height: undefined, resizeMode: 'contain', marginTop: 0, height: 100 }} />
-                    );
-                  })}
-                </View>
+                {post.imageUrls.length > 0 && (
+                  <Swiper
+                    style={{ height: 470 }}
+                    dotStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.2)', width: 10, height: 10, borderRadius: 5 }}
+                    activeDotStyle={{ backgroundColor: '#000', width: 10, height: 10, borderRadius: 5 }}
+                    paginationStyle={{ bottom: 10 }}
+                  >
+                    {post.imageUrls.map((imageUrl, index) => (
+                      <View key={index}>
+                        <Image source={{ uri: imageUrl }} style={{ width: '100%', height: '100%', resizeMode: 'contain', backgroundColor: '#E5F1FF' }} />
+                      </View>
+                    ))}
+                  </Swiper>
+                )}
               </View>
             ))}
           </View>
@@ -505,10 +543,10 @@ const ClubFeed = ({ navigation }) => {
               <TouchableOpacity style={styles.uploadButton} onPress={openImagePicker}>
                 <Image source={require('../assets/upload.png')} style={styles.uploadButtonIcon} />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.uploadButton} onPress={() => { }}>
+              {/* <TouchableOpacity style={styles.uploadButton} onPress={() => { }}>
                 <Image source={require('../assets/play.png')} style={styles.uploadButtonIcon} />
 
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
             <TouchableOpacity style={styles.postButton} onPress={handleCreatePost}>
               <Text style={styles.postButtonText}>Post</Text>
@@ -711,6 +749,7 @@ const styles = StyleSheet.create({
     paddingRight: 1,
     paddingTop: 0,
     marginTop: 8,
+    marginBottom: 12,
     fontFamily: 'DMSans-Medium',
   },
 

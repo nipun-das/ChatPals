@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -9,11 +9,12 @@ import {
     TouchableHighlight,
     Image,
     StatusBar,
+    Alert,
 } from 'react-native';
 import { Gif } from 'react-native-gif';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { auth, database } from '../config/firebase';
-import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, getDoc, updateDoc } from 'firebase/firestore';
 
 const ScheduleMeetingOwner = ({ route, navigation }) => {
     const [meetingTopic, setMeetingTopic] = useState('');
@@ -33,6 +34,26 @@ const ScheduleMeetingOwner = ({ route, navigation }) => {
     const [isAmPmModalVisible, setAmPmModalVisible] = useState(false);
     const [isSuccessModalVisible, setSuccessModalVisible] = useState(false);
 
+    useEffect(() => {
+        const handleDateSelection = () => {
+            if (!selectedDay || !selectedMonth || !selectedYear) {
+                Alert.alert('Error', 'Please select a complete date');
+                return;
+            }
+
+            const currentDate = new Date();
+            const selectedDate = new Date(selectedYear, months.indexOf(selectedMonth), selectedDay);
+
+            if (selectedDate < currentDate) {
+                Alert.alert('Error', 'Please select a date after the current date');
+                return;
+            }
+        };
+
+        if (selectedDay && selectedMonth && selectedYear) {
+            handleDateSelection();
+        }
+    }, [selectedDay, selectedMonth, selectedYear]);
 
 
     const days = Array.from({ length: 31 }, (_, i) => (i + 1).toString());
@@ -118,6 +139,24 @@ const ScheduleMeetingOwner = ({ route, navigation }) => {
             await updateDoc(doc(database, `clubs/${clubId}/meetings`, meetingId), {
                 meeting_id: meetingId
             });
+
+            const meetingNotificationMessage = `New Meeting: ${meetingTopic} is created!`;
+            const clubDoc = await getDoc(doc(database, `clubs/${clubId}`));
+            const clubData = clubDoc.data();
+            const members = clubData.members || [];
+            console.log("------------------", members)
+            const notificationPromises = [];
+            for (const memberId of members) {
+                console.log("member ->", memberId)
+                const notificationRef = collection(database, `users/${memberId}/notifications`);
+                const notificationPromise = addDoc(notificationRef, {
+                    message: meetingNotificationMessage,
+                    type:'meetingCreate',
+                    meetingId: meetingId,
+                    timestamp: new Date()
+                });
+                notificationPromises.push(notificationPromise);
+            }
 
             const meetingMessage = `Meeting Created: ${meetingTopic}`;
             await addDoc(collection(database, `chatrooms/${clubId}/messages`), {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, FlatList, StatusBar, Dimensions, Modal, YellowBox, LogBox } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Firestore, addDoc, collection, doc, getDoc, getDocs, onSnapshot, query, setDoc, updateDoc, where } from 'firebase/firestore';
@@ -16,11 +16,125 @@ const Store = ({ navigation }) => {
     const [confirmModalVisible, setConfirmModalVisible] = useState(false);
     const [userPoints, setUserPoints] = useState(0);
     const [userRole, setUserRole] = useState(0);
+    const [columns, setColumns] = useState(2);
+    const [storeItemsList, setStoreItemsList] = useState([]);
 
 
-    const handleConfirmOrder = () => {
-        setConfirmModalVisible(true);
+
+    const bannerImages = [
+        require('../assets/banner-1.png'),
+        require('../assets/banner-3.png'),
+        require('../assets/banner-2.png'),
+    ];
+
+    const flatListRef = useRef(null);
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            const newIndex = (currentImageIndex + 1) % bannerImages.length;
+            setCurrentImageIndex(newIndex);
+            scrollToIndex(newIndex);
+        }, 1500);
+
+        return () => clearInterval(intervalId);
+    }, [currentImageIndex, bannerImages.length]);
+
+    const scrollToIndex = (index) => {
+        flatListRef.current.scrollToIndex({ animated: true, index });
     };
+
+    const handleScroll = (event) => {
+        const contentOffsetX = event.nativeEvent.contentOffset.x;
+        const newIndex = Math.round(contentOffsetX / windowWidth);
+        setCurrentImageIndex(newIndex);
+    };
+    useEffect(() => {
+        const fetchStoreItems = async () => {
+            try {
+                const storeCollectionRef = collection(database, 'items');
+                const storeSnapshot = await getDocs(storeCollectionRef);
+
+                const items = [];
+                storeSnapshot.forEach((doc) => {
+                    const itemData = doc.data();
+                    console.log(items)
+                    items.push({ itemId: doc.id, ...itemData });
+                });
+
+                setStoreItemsList(items);
+            } catch (error) {
+                console.error('Error fetching store items:', error);
+            }
+        };
+        fetchStoreItems();
+    }, []);
+
+
+    useEffect(() => {
+        const fetchUserDetails = async () => {
+            try {
+                const currentUser = auth.currentUser;
+                const userQuerySnapshot = await getDocs(query(collection(database, 'users'), where('uid', '==', currentUser.uid)));
+                const userData = userQuerySnapshot.docs.map(doc => doc.data())[0];
+                setUserDetails(userData);
+                setUserPoints(userData.points);
+                setUserRole(userData.role);
+
+                const unsubscribe = onSnapshot(doc(collection(database, 'users'), currentUser.uid), (doc) => {
+                    if (doc.exists()) {
+                        const userData = doc.data();
+                        setUserDetails(userData);
+                        setUserPoints(userData.points);
+                    } else {
+                        console.log("No such document!");
+                    }
+                });
+
+                return () => unsubscribe();
+
+            } catch (error) {
+                console.error('Error fetching user details:', error);
+            }
+        };
+
+        fetchUserDetails();
+    }, []);
+
+    useEffect(() => {
+        const fetchUserDetails = async () => {
+            try {
+                const currentUser = auth.currentUser;
+                const userQuerySnapshot = await getDocs(query(collection(database, 'users'), where('uid', '==', currentUser.uid)));
+                const userData = userQuerySnapshot.docs.map(doc => doc.data())[0];
+                setUserDetails(userData);
+                setUserPoints(userData.points);
+                setUserRole(userData.role);
+
+
+                // Add listener to user document to get real-time updates
+                const unsubscribe = onSnapshot(doc(collection(database, 'users'), currentUser.uid), (doc) => {
+                    if (doc.exists()) {
+                        const userData = doc.data();
+                        setUserDetails(userData);
+                        setUserPoints(userData.points);
+                    } else {
+                        console.log("No such document!");
+                    }
+                });
+
+                // Return unsubscribe function to clean up listener on component unmount
+                return () => unsubscribe();
+
+            } catch (error) {
+                console.error('Error fetching user details:', error);
+            }
+        };
+
+        fetchUserDetails();
+    }, []);
+
+
+
 
     const handlePlaceOrder = async () => {
         try {
@@ -65,53 +179,13 @@ const Store = ({ navigation }) => {
     };
 
     const handleCancelOrder = () => {
-        // setModalVisible(false);
         setConfirmModalVisible(false);
     };
-    const bannerImages = [
-        require('../assets/banner-1.png'),
-        require('../assets/banner-3.png'),
-        require('../assets/banner-2.png'),
-    ];
-    useEffect(() => {
-        const fetchUserDetails = async () => {
-            try {
-                const currentUser = auth.currentUser;
-                const userQuerySnapshot = await getDocs(query(collection(database, 'users'), where('uid', '==', currentUser.uid)));
-                const userData = userQuerySnapshot.docs.map(doc => doc.data())[0];
-                setUserDetails(userData);
-                setUserPoints(userData.points);
-                setUserRole(userData.role);
 
-
-                // Add listener to user document to get real-time updates
-                const unsubscribe = onSnapshot(doc(collection(database, 'users'), currentUser.uid), (doc) => {
-                    if (doc.exists()) {
-                        const userData = doc.data();
-                        setUserDetails(userData);
-                        setUserPoints(userData.points);
-                    } else {
-                        console.log("No such document!");
-                    }
-                });
-
-                // Return unsubscribe function to clean up listener on component unmount
-                return () => unsubscribe();
-
-            } catch (error) {
-                console.error('Error fetching user details:', error);
-            }
-        };
-
-        fetchUserDetails();
-    }, []);
-
-
-    const handleScroll = (event) => {
-        const contentOffsetX = event.nativeEvent.contentOffset.x;
-        const imageIndex = Math.round(contentOffsetX / windowWidth);
-        setCurrentImageIndex(imageIndex);
+    const handleConfirmOrder = () => {
+        setConfirmModalVisible(true);
     };
+
 
     const renderPaginationDots = () => {
         return (
@@ -132,31 +206,6 @@ const Store = ({ navigation }) => {
         );
     };
 
-    const [columns, setColumns] = useState(2);
-    const [storeItemsList, setStoreItemsList] = useState([]);
-
-    useEffect(() => {
-        const fetchStoreItems = async () => {
-            try {
-                const storeCollectionRef = collection(database, 'items');
-                const storeSnapshot = await getDocs(storeCollectionRef);
-
-                const items = [];
-                storeSnapshot.forEach((doc) => {
-                    const itemData = doc.data();
-                    console.log(items)
-                    items.push({ itemId: doc.id, ...itemData });
-                });
-
-                setStoreItemsList(items);
-            } catch (error) {
-                console.error('Error fetching store items:', error);
-            }
-        };
-        fetchStoreItems();
-    }, []);
-
-
     const findAvatarSource = (avatarId) => {
         const avatars = [
             { id: 1, source: require('../assets/pinpoint.jpg') },
@@ -169,15 +218,12 @@ const Store = ({ navigation }) => {
         return "../assets/avatar" + avatar + ".png" ? avatar.source : null;
     };
 
-
     return (
         <View style={{ flex: 1, backgroundColor: '#E5F1FF' }}>
 
             <StatusBar backgroundColor="black" />
 
-
-
-            <View style={{ backgroundColor: '#A6D3E3', height: 70, borderBottomWidth: 2, borderBottomColor: 'black' }}>
+            <View style={{ backgroundColor: 'white', height: 70, borderBottomWidth: 0.19999999, borderBottomColor: 'black' }}>
                 <Text style={{ fontSize: 24, marginTop: 19, textAlign: 'center', color: 'black', fontFamily: "DMSans-Bold", }}>Store</Text>
             </View>
 
@@ -197,6 +243,7 @@ const Store = ({ navigation }) => {
             {/* Slidable banner */}
             <View style={{ backgroundColor: 'white', paddingBottom: 20, paddingTop: 30 }}>
                 <FlatList
+                    ref={flatListRef}
                     data={bannerImages}
                     horizontal
                     pagingEnabled

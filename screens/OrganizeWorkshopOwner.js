@@ -13,7 +13,7 @@ import {
 import { Gif } from 'react-native-gif';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { auth, database } from '../config/firebase';
-import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, updateDoc,getDoc } from 'firebase/firestore';
 
 const OrganizeWorkshopOwner = ({ route, navigation }) => {
     const [workshopTopic, setWorkshopTopic] = useState('');
@@ -118,6 +118,26 @@ const OrganizeWorkshopOwner = ({ route, navigation }) => {
             await updateDoc(doc(database, `clubs/${clubId}/workshops`, workshopId), {
                 workshop_id: workshopId
             });
+
+            const workshopNotificationMessage = `New Meeting: ${workshopTopic} is created!`;
+            const clubDoc = await getDoc(doc(database, `clubs/${clubId}`));
+            const clubData = clubDoc.data();
+            const members = clubData.members || [];
+            console.log("------------------", members)
+            const notificationPromises = [];
+            for (const memberId of members) {
+                console.log("member ->", memberId)
+                const notificationRef = collection(database, `users/${memberId}/notifications`);
+                const notificationPromise = addDoc(notificationRef, {
+                    message: workshopNotificationMessage,
+                    type:'workshopCreate',
+                    workshopId: workshopId,
+                    timestamp: new Date()
+                });
+                notificationPromises.push(notificationPromise);
+            }
+
+
 
             const workshopMessage = `workshop Created: ${workshopTopic}`;
             await addDoc(collection(database, `chatrooms/${clubId}/messages`), {

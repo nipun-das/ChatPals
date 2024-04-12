@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "201398586416",
+    "firebase_url": "https://chatpals-13a8f-default-rtdb.firebaseio.com",
+    "project_id": "chatpals-13a8f",
+    "storage_bucket": "chatpals-13a8f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:201398586416:android:b6f1fccb712a278e3371f5",
+        "android_client_info": {
+          "package_name": "com.company.clubwave"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "201398586416-e1t0rivtml7mq7ka8ciskvprefc26vto.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDV136XMGys90QsnBQG9tMDv3V7DRXovzs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "201398586416-e1t0rivtml7mq7ka8ciskvprefc26vto.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

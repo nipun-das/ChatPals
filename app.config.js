@@ -32,6 +32,9 @@ export default {
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      "@react-native-firebase/app"
+    ],
     "extra": {
       "eas": {
         "projectId": "79f4c245-63b4-4eeb-a262-22ad31cbf6f0"

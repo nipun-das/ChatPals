@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -8,12 +8,13 @@ import {
     Modal,
     TouchableHighlight,
     Image,
-    StatusBar
+    StatusBar,
+    Alert
 } from 'react-native';
 import { Gif } from 'react-native-gif';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { auth, database } from '../config/firebase';
-import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, getDoc, getDocs, setDoc, updateDoc } from 'firebase/firestore';
 
 const CreateEventOwner = ({ route, navigation }) => {
     const [eventName, setEventName] = useState('');
@@ -32,7 +33,7 @@ const CreateEventOwner = ({ route, navigation }) => {
     const [isMinuteModalVisible, setMinuteModalVisible] = useState(false);
     const [isAmPmModalVisible, setAmPmModalVisible] = useState(false);
     const [isSuccessModalVisible, setSuccessModalVisible] = useState(false);
-
+    const [isDateModalVisible, setDateModalVisible] = useState(false);
 
 
     const days = Array.from({ length: 31 }, (_, i) => (i + 1).toString());
@@ -57,6 +58,28 @@ const CreateEventOwner = ({ route, navigation }) => {
     const closeMinuteModal = () => setMinuteModalVisible(false);
     const openAmPmModal = () => setAmPmModalVisible(true);
     const closeAmPmModal = () => setAmPmModalVisible(false);
+
+    useEffect(() => {
+        const handleDateSelection = () => {
+            if (!selectedDay || !selectedMonth || !selectedYear) {
+                Alert.alert('Error', 'Please select a complete date');
+                return;
+            }
+
+            const currentDate = new Date();
+            const selectedDate = new Date(selectedYear, months.indexOf(selectedMonth), selectedDay);
+
+            if (selectedDate < currentDate) {
+                Alert.alert('Error', 'Please select a date after the current date');
+                return;
+            }
+        };
+
+        if (selectedDay && selectedMonth && selectedYear) {
+            handleDateSelection();
+        }
+    }, [selectedDay, selectedMonth, selectedYear]);
+
 
     const handleDaySelection = (day) => {
         setSelectedDay(day);
@@ -119,6 +142,24 @@ const CreateEventOwner = ({ route, navigation }) => {
             await updateDoc(doc(database, `clubs/${clubId}/events`, eventId), {
                 event_id: eventId
             });
+
+            const eventNotificationMessage = `New Event: ${eventName} is created!`;
+            const clubDoc = await getDoc(doc(database, `clubs/${clubId}`));
+            const clubData = clubDoc.data();
+            const members = clubData.members || []; 
+            console.log("------------------", members)
+            const notificationPromises = [];
+            for (const memberId of members) {
+                console.log("member ->", memberId)
+                const notificationRef = collection(database, `users/${memberId}/notifications`);
+                const notificationPromise = addDoc(notificationRef, {
+                    message: eventNotificationMessage,
+                    eventId: eventId,
+                    type:'eventCreate',
+                    timestamp: new Date()
+                });
+                notificationPromises.push(notificationPromise);
+            }
 
             const eventMessage = `Event Created: ${eventName}`;
             await addDoc(collection(database, `chatrooms/${clubId}/messages`), {
@@ -254,6 +295,22 @@ const CreateEventOwner = ({ route, navigation }) => {
                                         <Text style={styles.years}>{year}</Text>
                                     </TouchableHighlight>
                                 ))}
+                            </View>
+                        </Modal>
+                        <Modal
+                            animationType="slide"
+                            transparent={true}
+                            visible={isDateModalVisible}
+                            onRequestClose={() => setDateModalVisible(false)}
+                        >
+                            <View style={styles.modalContainer}>
+                                <Text style={styles.errorMessage}>Please select a date after the current date.</Text>
+                                <TouchableHighlight
+                                    style={styles.okButton}
+                                    onPress={() => setDateModalVisible(false)}
+                                >
+                                    <Text style={styles.okButtonText}>OK</Text>
+                                </TouchableHighlight>
                             </View>
                         </Modal>
                     </View>

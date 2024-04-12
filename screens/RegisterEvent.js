@@ -19,7 +19,7 @@ const RegisterEvent = ({ route, navigation }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [modalVisibleClose, setModalVisibleClose] = useState(false);
     const [modalVisibleCompleted, setModalVisibleCompleted] = useState(false);
-
+const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
     const [isRegistered, setIsRegistered] = useState(false);
     const [forceRender, setForceRender] = useState(false);
     const [menuVisible, setMenuVisible] = useState(false);
@@ -192,8 +192,18 @@ const RegisterEvent = ({ route, navigation }) => {
     };
 
 
-    const cancelEvent = () => {
-        console.log("cancelled")
+    const cancelEvent = async () => {
+        try {
+            const eventDocRef = doc(database, `clubs/${clubId}/events/${eventId}`);
+            await updateDoc(eventDocRef, {
+                event_status: 'cancelled',
+                event_reg_status: 'closed'
+            });
+            setForceRender(prev => !prev);
+            closeMenu()
+        } catch (error) {
+            console.error('Error cancelling event:', error);
+        }
     }
 
     const handleMarkAttendance = () => {
@@ -236,7 +246,8 @@ const RegisterEvent = ({ route, navigation }) => {
                     }} onPress={handleMarkAttendance}>
                         <Text style={{ fontFamily: "DMSans-Regular", fontSize: 17, color: 'white', }}>Mark Attendance</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={{ marginBottom: 0, marginTop: 0, padding: 10, backgroundColor: '#D34444', borderBottomLeftRadius: 0, width: '100%', borderBottomColor: 'white', borderWidth: 1 }} onPress={cancelEvent}>
+                    <TouchableOpacity style={{ marginBottom: 0, marginTop: 0, padding: 10, backgroundColor: '#D34444', borderBottomLeftRadius: 0, width: '100%', borderBottomColor: 'white', borderWidth: 1 }} onPress={() =>
+                    setModalVisibleCancelled(true)}>
                         <Text style={{ fontFamily: "DMSans-Regular", fontSize: 17, color: 'white' }}>Cancel Event</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={{ marginBottom: 0, marginTop: 0, padding: 10, backgroundColor: 'black', borderBottomLeftRadius: 0, width: '100%', borderBottomColor: 'white', borderWidth: 1 }} onPress={() => setModalVisibleCompleted(true)}>
@@ -310,12 +321,36 @@ const RegisterEvent = ({ route, navigation }) => {
                 </>
 
             )}
+            {role === 'owner' && event_reg_status === 'closed' && event_status==='cancelled'&& (
+                <>
+                    <View style={styles.ownerButtons}>
+                        <TouchableOpacity style={styles.viewButton} onPress={goToRegisteredPage}>
+                            <Text style={styles.viewButtonText}>View Registered Members</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.closeButton}>
+                            <Text style={styles.closeButtonText}>Event Cancelled</Text>
+                        </TouchableOpacity>
+                    </View>
+                </>
+
+            )}
             {role === 'member' && event_reg_status === 'closed' && (
                 <>
                     <View style={styles.ownerButtons}>
 
                         <TouchableOpacity style={styles.closeButton}>
                             <Text style={styles.closeButtonText}>Registration Closed</Text>
+                        </TouchableOpacity>
+                    </View>
+                </>
+
+            )}
+            {role === 'member' && event_reg_status === 'closed' && event_status==='cancelled'&& (
+                <>
+                    <View style={styles.ownerButtons}>
+
+                        <TouchableOpacity style={styles.closeButton}>
+                            <Text style={styles.closeButtonText}>Event Cancelled</Text>
                         </TouchableOpacity>
                     </View>
                 </>
@@ -376,6 +411,56 @@ const RegisterEvent = ({ route, navigation }) => {
                                 onPress={() => {
                                     closeEvent();
                                     setModalVisibleCompleted(false);
+                                }}>
+                                <Text style={[styles.joinButtonText, { color: 'white', fontSize: 17, fontFamily: 'Inter-SemiBold' }]}>Yes</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                </View>
+            </Modal>
+
+            {/* Cancel Event */}
+            <Modal
+                visible={modalVisibleCancelled}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setModalVisibleCancelled(false)}
+            >
+                <View style={styles.modalContainer}>
+                    <StatusBar backgroundColor="black" />
+                    <View style={[styles.createContainerModal, {
+                        backgroundColor: '#A6D3E3', height: 70, width: '89%', flexDirection: 'row', borderBottomWidth: 2, borderBottomColor: 'black', borderTopLeftRadius: 10, borderTopRightRadius: 10,
+                    }]}>
+                        <TouchableOpacity style={[styles.backButton, { marginLeft: 5, marginTop: 5, height: 40 }]} onPress={() => setModalVisibleCancelled(false)}>
+                            <Ionicons name="arrow-back" size={30} color="black" />
+                        </TouchableOpacity>
+                        <Text style={[styles.modalTitle, { fontSize: 23, textAlign: 'center', width: '71%', justifyContent: 'center', alignContent: 'center', marginTop: 20, color: 'black', fontFamily: "DMSans-Medium", }]}></Text>
+
+                    </View>
+
+                    {/* Cancel Event */}
+                    <View style={[styles.modalContent, {
+                        width: '89%',
+                        backgroundColor: 'white',
+                        borderBottomLeftRadius: 10,
+                        borderBottomRightRadius: 10,
+                        overflow: 'hidden',
+                        padding: 20,
+                        paddingTop: 50,
+
+
+                    }]}>
+                        <View style={[styles.contentContainer, { backgroundColor: 'white', }]}>
+                            <Text style={[styles.clubDescription, { fontFamily: "DMSans-Regular", marginTop: 3, fontSize: 20.7, marginLeft: 0.5, marginRight: 0.5, textAlign: 'center' }]}>Do you want to cancel the event?</Text>
+                            <Image source={require('../assets/loading.gif')} style={{
+                                backgroundColor: 'white', width: "100%", height: 60, resizeMode: 'contain',
+                            }} />
+
+                            <TouchableOpacity style={[styles.joinButton, { marginLeft: 0, marginRight: 0, backgroundColor: 'black', height: 50, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginTop: 20, }]}
+                                onPress={() => {
+                                    cancelEvent();
+                                    setModalVisibleCancelled(false);
                                 }}>
                                 <Text style={[styles.joinButtonText, { color: 'white', fontSize: 17, fontFamily: 'Inter-SemiBold' }]}>Yes</Text>
                             </TouchableOpacity>
@@ -446,15 +531,7 @@ const RegisterEvent = ({ route, navigation }) => {
                     </View>
                 </>
             )}
-            {/* {role === 'member' && event_reg_status === 'closed' && event_status === 'closed' && (
-                <>
-                    <View style={styles.ownerButtons}>
-                        <TouchableOpacity style={styles.regButton} >
-                            <Text style={[styles.regButtonText,{backgroundColor:'#'}]}>Registration Closed</Text>
-                        </TouchableOpacity>
-                    </View>
-                </>
-            )} */}
+      
 
             <Modal
                 visible={modalVisible}
@@ -500,6 +577,24 @@ const RegisterEvent = ({ route, navigation }) => {
                     <View style={styles.ownerButtons}>
                         <TouchableOpacity style={styles.viewButton}>
                             <Text style={styles.viewButtonText}>You have registered ✅</Text>
+                        </TouchableOpacity>
+                    </View>
+                </>
+            )}
+            {isRegistered && event_status==='cancelled'&&(
+                <>
+                    <View style={styles.ownerButtons}>
+                    <TouchableOpacity style={styles.closeButton}>
+                            <Text style={styles.closeButtonText}>Event Cancelled</Text>
+                        </TouchableOpacity>
+                    </View>
+                </>
+            )}
+            {role==='member'&&!isRegistered && event_status==='cancelled'&&(
+                <>
+                    <View style={styles.ownerButtons}>
+                    <TouchableOpacity style={styles.closeButton}>
+                            <Text style={styles.closeButtonText}>Event Cancelled</Text>
                         </TouchableOpacity>
                     </View>
                 </>
