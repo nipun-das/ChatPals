@@ -32,8 +32,8 @@ const ChatScreenOwner = ({ route, navigation }) => {
                 console.error('ClubId is undefined.');
                 return;
             }
-            console.log("clubid : ", clubId)
-            console.log("fetchClubData running!!!")
+            // console.log("clubid : ", clubId)
+            // console.log("fetchClubData running!!!")
             const currentUser = auth.currentUser;
             console.log("Current User in Chat : ", currentUser.uid);
 
@@ -41,14 +41,14 @@ const ChatScreenOwner = ({ route, navigation }) => {
             const clubsSnapshot = await getDocs(clubsQuery);
 
             if (!clubsSnapshot.empty) {
-                console.log("yes!!!!!")
+                // console.log("yes!!!!!")
                 const clubData = clubsSnapshot.docs[0].data();
-                console.log("Snapshot----------->", clubsSnapshot.docs[0].data())
+                // console.log("Snapshot----------->", clubsSnapshot.docs[0].data())
 
                 const fetchedClubId = clubData.cid;
                 const fetchedOwnerId = clubData.ownerId;
 
-                console.log("fetchedClubId: ", fetchedClubId, " owner: ", fetchedOwnerId)
+                // console.log("fetchedClubId: ", fetchedClubId, " owner: ", fetchedOwnerId)
 
                 setClubId(fetchedClubId);
                 setOwnerId(fetchedOwnerId);
@@ -234,7 +234,7 @@ const ChatScreenOwner = ({ route, navigation }) => {
     const handleRenderMessage = (item) => {
         if (item.messageType === 'normalMessage') {
             const currentUserId = auth.currentUser.uid;
-            console.log(item.senderId)
+            // console.log(item.senderId)
 
             return (
                 <TouchableWithoutFeedback onLongPress={() => { if (role === 'owner') { handleLongPress(item); } }}>
@@ -264,12 +264,12 @@ const ChatScreenOwner = ({ route, navigation }) => {
         } else if (item.messageType === 'eventMessage') {
             const handleEventPress = () => {
                 Vibration.vibrate(110);
-                console.log(item.eventId, "-------------", clubId);
+                // console.log(item.eventId, "-------------", clubId);
 
                 navigation.navigate('RegisterEvent', { eventId: item.eventId, clubId: item.clubId });
             }
             const dateComponents = item.eventDate.split('-');
-            console.log("dateevent:", dateComponents)
+            // console.log("dateevent:", dateComponents)
             const year = parseInt(dateComponents[0]);
             const monthName = dateComponents[1];
             const day = parseInt(dateComponents[2]);
@@ -305,13 +305,13 @@ const ChatScreenOwner = ({ route, navigation }) => {
         else if (item.messageType === 'meetingMessage') {
             const handleMeetingPress = () => {
                 Vibration.vibrate(110);
-                console.log(item.meetingId, "-------------", clubId);
+                // console.log(item.meetingId, "-------------", clubId);
 
                 navigation.navigate('RegisterMeeting', { meetingId: item.meetingId, clubId: item.clubId });
             }
 
             const dateComponents = item.meetingDate.split('-');
-            console.log("datemeet:", dateComponents)
+            // console.log("datemeet:", dateComponents)
             const year = parseInt(dateComponents[0]);
             const monthName = dateComponents[1];
             const day = parseInt(dateComponents[2]);
@@ -346,14 +346,14 @@ const ChatScreenOwner = ({ route, navigation }) => {
         else if (item.messageType === 'workshopMessage') {
             const handleWorkshopPress = () => {
                 Vibration.vibrate(110);
-                console.log(item.workshopId, "-------------", clubId);
+                // console.log(item.workshopId, "-------------", clubId);
 
                 navigation.navigate('RegisterWorkshop', { workshopId: item.workshopId, clubId: item.clubId });
             }
 
 
             const dateComponents = item.workshopDate.split('-');
-            console.log("dateworkshop:", dateComponents)
+            // console.log("dateworkshop:", dateComponents)
             const year = parseInt(dateComponents[0]);
             const monthName = dateComponents[1];
             const day = parseInt(dateComponents[2]);

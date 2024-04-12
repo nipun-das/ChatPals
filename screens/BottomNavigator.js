@@ -51,9 +51,9 @@ const BottomNavigator = () => {
                 }}
             >
                 <Tab.Screen name="ClubFeed" component={ClubFeed} />
-                <Tab.Screen name="ProfileScreen" component={ProfileScreen} />
-                {/* <Tab.Screen name="LeaderBoard" component={LeaderBoard} /> */}
                 <Tab.Screen name="Store" component={Store} />
+                <Tab.Screen name="ProfileScreen" component={ProfileScreen} />
+
 
             </Tab.Navigator>
             <View style={{

@@ -42,6 +42,7 @@ import DiscoverMeetings from './screens/DiscoverMeetings';
 import RegisterWorkshop from './screens/RegisterWorkshop';
 import MarkWorkshop from './screens/MarkWorkshop';
 import DiscoverWorkshops from './screens/DiscoverWorkshops';
+import Notification from './screens/Notification';
 
 
 
@@ -211,6 +212,10 @@ function ChatStack() {
       <Stack.Screen name="LeaderBoard" component={LeaderBoard} options={{
         ...TransitionPresets.ModalSlideFromBottomIOS
       }} />
+      <Stack.Screen name="Notification" component={Notification} options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
+      }} />
+
       <Stack.Screen name="Store" component={Store} options={{
         ...TransitionPresets.ModalSlideFromBottomIOS
       }} />
@@ -308,6 +313,9 @@ function AuthStack() {
 
 
       <Stack.Screen name="LeaderBoard" component={LeaderBoard} options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
+      }} />
+      <Stack.Screen name="Notification" component={Notification} options={{
         ...TransitionPresets.ModalSlideFromBottomIOS
       }} />
       <Stack.Screen name="Store" component={Store} options={{

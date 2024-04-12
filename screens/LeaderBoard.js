@@ -112,7 +112,8 @@ const LeaderBoard = ({ route, navigation }) => {
                 <Ionicons name="arrow-back" size={30} color="black" />
             </TouchableOpacity>
 
-            <View style={{ backgroundColor: '#A6D3E3', height: 70, borderBottomWidth: 2, borderBottomColor: 'black' }}>
+            {/* backgroundColor: '#A6D3E3' */}
+            <View style={{ backgroundColor: 'white', height: 70, borderBottomWidth: 0.19999999, borderBottomColor: 'black' }}>
                 <Text style={{ fontSize: 24, marginTop: 19, textAlign: 'center', color: 'black', fontFamily: "DMSans-Bold", }}>Leaderboard </Text>
             </View>
             <View style={{ flex: 1, }}>
