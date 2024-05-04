@@ -95,7 +95,8 @@ const ChatScreenOwner = ({ route, navigation }) => {
 
     useEffect(() => {
         if (clubId && ownerId && role) {
-            const messagesQuery = query(collection(database, `chatrooms/${clubId}/messages`), orderBy('timestamp', 'asc'));
+            const messagesQuery = query(collection(database, `chatrooms/${clubId}/messages`), 
+            orderBy('timestamp', 'asc'));
 
             const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
                 const newMessages = snapshot.docs.map((doc) => doc.data());

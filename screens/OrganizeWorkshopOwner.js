@@ -119,7 +119,7 @@ const OrganizeWorkshopOwner = ({ route, navigation }) => {
                 workshop_id: workshopId
             });
 
-            const workshopNotificationMessage = `New Meeting: ${workshopTopic} is created!`;
+            const workshopNotificationMessage = `New Workshop: ${workshopTopic} is created!`;
             const clubDoc = await getDoc(doc(database, `clubs/${clubId}`));
             const clubData = clubDoc.data();
             const members = clubData.members || [];
