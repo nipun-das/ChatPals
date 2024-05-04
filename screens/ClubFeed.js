@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, Modal, TextInput, StatusBar, BackHandler, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -12,6 +12,8 @@ import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid'
 import Swiper from 'react-native-swiper';
 import Notification from './Notification';
+import * as DocumentPicker from 'expo-document-picker';
+import { Video } from 'expo-av';
 
 const ClubFeed = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
@@ -27,6 +29,8 @@ const ClubFeed = ({ navigation }) => {
   const isFocused = useIsFocused();
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const videoRef = useRef(null);
+
 
   const notifications = [
     { id: 1, message: 'Info notification', notificationType: 'info' },
@@ -160,15 +164,13 @@ const ClubFeed = ({ navigation }) => {
       mediaType: 'photo',
       maxWidth: 300,
       maxHeight: 300,
-      quality: 0.5, // Adjust quality as needed
+      quality: 1.0,
     };
 
     const result = await ImagePicker.launchImageLibraryAsync(options);
 
     if (!result.canceled) {
-      // The selected image is stored in the result.uri property
       const selectedImage = result.assets[0];
-      // Add the selected image to your imageFiles array
       setImageFiles(prevImageFiles => [...prevImageFiles, selectedImage]);
       console.log(imageFiles);
       console.log('Image selected------>>:', selectedImage);
@@ -182,7 +184,58 @@ const ClubFeed = ({ navigation }) => {
       }
     }
   };
+  const openVideoPicker = async () => {
+    console.log("video picker clicked");
+    const options = {
+      title: 'Select Video',
+      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+      allowsEditing: true,
+      aspect: [3, 4],
+      quality: 1.0,
+    };
 
+    const result = await ImagePicker.launchImageLibraryAsync(options);
+
+    if (!result.canceled) {
+      const selectedVideo = result.assets[0];
+      setVideoFiles(prevVideoFiles => [...prevVideoFiles, selectedVideo]);
+      console.log(videoFiles);
+      console.log('Video selected------>>:', selectedVideo);
+    } else {
+      if (result.error) {
+        console.log('ImagePickerVideo Error: ', result.error);
+      } else if (result.customButton) {
+        console.log('User tapped custom button: ', result.customButton);
+      } else {
+        console.log('User cancelled image video picker');
+      }
+    }
+  };
+  // const openVideoPicker = async () => {
+  //   try {
+  //     const result = await DocumentPicker.getDocumentAsync({ type: 'video/*', copyToCacheDirectory: false });
+
+  //     if (result.type === 'success') {
+  //       const selectedVideo = result;
+  //       // Add the selected video to your videoFiles array
+  //       setVideoFiles(prevVideoFiles => [...prevVideoFiles, selectedVideo]);
+  //       console.log(videoFiles);
+  //       console.log('Video selected:', selectedVideo);
+  //     } else {
+  //       console.log('User cancelled video picker');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error picking video:', error);
+  //   }
+  // };
+
+  const playVideo = async () => {
+    try {
+      await videoRef.current.playAsync();
+    } catch (error) {
+      console.error('Error playing video:', error);
+    }
+  };
 
   const generatePostId = () => {
     return uuidv4();
@@ -197,6 +250,7 @@ const ClubFeed = ({ navigation }) => {
         const clubPostsCollection = collection(clubRef, 'posts');
 
         const downloadUrls = [];
+        const downloadVideoUrls = [];
 
         for (const imageFile of imageFiles) {
 
@@ -216,40 +270,47 @@ const ClubFeed = ({ navigation }) => {
 
 
           const storageRef = ref(storage, `images/${clubId}/${pid}/${fileName}`);
+          console.log("uri img ----------------------->", imageFile.uri)
 
           const response = await fetch(imageFile.uri);
           const blob = await response.blob();
-
           const snapshot = await uploadBytes(storageRef, blob, { contentType: 'image/jpeg' });
-
           const downloadUrl = await getDownloadURL(storageRef);
           console.log(downloadUrl)
           downloadUrls.push(downloadUrl);
         }
-        // for (const imageFile of imageFiles) {
-        //   const pid = generatePostId();
-        //   setPostId(pid);
-        //   const randomInt = Math.floor(Math.random() * 10000);
-        //   const fileName = `${randomInt}_post`;
-        //   console.log("------------------------------------------")
-        //   console.log("postid : ",pid,"filename : ", fileName)
-        //   console.log("------------------------------------------")
-        //   console.log("------------------------------------------")
-        //   console.log("------------------------------------------")
+
+        for (const videoFile of videoFiles) {
+
+          const pid = generatePostId();
+          setPostId(pid);
+
+          const randomInte = Math.floor(Math.random() * 10000);
+
+          const fileNamee = `${randomInte}-post`;
+          console.log("------------------------------------------")
+          console.log("postid : ", pid, " filename : ", fileNamee)
+
+          console.log("------------------------------------------")
+          console.log("------------------------------------------")
+          console.log("------------------------------------------")
 
 
-        //   // Convert image file to Blob object
-        //   const blob = new Blob([imageFile], { type: imageFile.type });
 
-        //   const storageRef = ref(storage, `images/${clubId}/${pid}/${fileName}`);
-        //   const metadata = {
-        //     contentType: blob.type,
-        //   };
+          const storageRef = ref(storage, `videos/${clubId}/${pid}/${fileNamee}`);
 
-        //   const snapshot = await uploadBytes(storageRef, blob, metadata);
-        //   const downloadUrl = await getDownloadURL(snapshot.ref);
-        //   downloadUrls.push(downloadUrl);
-        // }
+          console.log("uri----------------------->", videoFile.uri)
+          const response = await fetch(videoFile.uri);
+          // console.log("response ----->>>>>>>>>>>>>>>>>>", response)
+          const blob = await response.blob();
+
+          const snapshot = await uploadBytes(storageRef, blob, { contentType: 'video/mp4' });
+
+          const downloadUrl = await getDownloadURL(storageRef);
+          console.log(downloadUrl)
+          downloadVideoUrls.push(downloadUrl);
+        }
+
 
         const postObject = {
           postId: postId,
@@ -259,7 +320,7 @@ const ClubFeed = ({ navigation }) => {
           postTitle: postTitle,
           postDesc: postDesc,
           imageUrls: downloadUrls,
-          // videoUrl: videoUrl
+          videoUrls: downloadVideoUrls
         };
 
         await addDoc(clubPostsCollection, postObject);
@@ -267,7 +328,7 @@ const ClubFeed = ({ navigation }) => {
         setPostTitle('');
         setPostDesc('');
         setImageFiles([]);
-        // setVideoUrl('');
+        setVideoFiles([]);
 
         console.log('Post created successfully');
         toggleModal();
@@ -485,20 +546,84 @@ const ClubFeed = ({ navigation }) => {
                 </View>
                 <Text style={styles.title}>{post.postTitle}</Text>
                 <Text style={styles.description}>{post.postDesc}</Text>
-                {post.imageUrls.length > 0 && (
-                  <Swiper
-                    style={{ height: 470 }}
-                    dotStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.2)', width: 10, height: 10, borderRadius: 5 }}
-                    activeDotStyle={{ backgroundColor: '#000', width: 10, height: 10, borderRadius: 5 }}
-                    paginationStyle={{ bottom: 10 }}
-                  >
-                    {post.imageUrls.map((imageUrl, index) => (
-                      <View key={index}>
-                        <Image source={{ uri: imageUrl }} style={{ width: '100%', height: '100%', resizeMode: 'contain', backgroundColor: '#E5F1FF' }} />
-                      </View>
-                    ))}
-                  </Swiper>
-                )}
+
+                <>
+                  {(post.imageUrls.length > 0 && post.videoUrls.length > 0) && (
+                    <Swiper
+                      style={{ height: 470 }}
+                      dotStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.2)', width: 10, height: 10, borderRadius: 5 }}
+                      activeDotStyle={{ backgroundColor: '#000', width: 10, height: 10, borderRadius: 5 }}
+                      paginationStyle={{ bottom: 10 }}
+                    >
+                      {post.imageUrls.map((imageUrl, index) => (
+                        <View key={`image_${index}`}>
+                          <Image
+                            source={{ uri: imageUrl }}
+                            style={{ width: '100%', height: '100%', resizeMode: 'contain', backgroundColor: '#E5F1FF' }}
+                          />
+                        </View>
+                      ))}
+                      {post.videoUrls.map((videoUrl, index) => (
+                        <View key={`video_${index}`}>
+                          <TouchableOpacity onPress={playVideo}>
+                            <Video
+                              source={{ uri: videoUrl }}
+                              style={{ width: '100%', height: '100%' }}
+                              resizeMode="contain"
+                              paused={true} 
+                            />
+                          </TouchableOpacity>
+                        </View>
+                      ))}
+                    </Swiper>
+                  )}
+
+                  {post.imageUrls.length > 0 && post.videoUrls.length === 0 && (
+                    <Swiper
+                      style={{ height: 470 }}
+                      dotStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.2)', width: 10, height: 10, borderRadius: 5 }}
+                      activeDotStyle={{ backgroundColor: '#000', width: 10, height: 10, borderRadius: 5 }}
+                      paginationStyle={{ bottom: 10 }}
+                    >
+                      {post.imageUrls.map((imageUrl, index) => (
+                        <View key={`image_${index}`}>
+                          <Image
+                            source={{ uri: imageUrl }}
+                            style={{ width: '100%', height: '100%', resizeMode: 'contain', backgroundColor: '#E5F1FF' }}
+                          />
+                        </View>
+                      ))}
+                    </Swiper>
+                  )}
+
+                  {post.videoUrls.length > 0 && post.imageUrls.length === 0 && (
+                    <Swiper
+                      style={{ height: 470 }}
+                      dotStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.2)', width: 10, height: 10, borderRadius: 5 }}
+                      activeDotStyle={{ backgroundColor: '#000', width: 10, height: 10, borderRadius: 5 }}
+                      paginationStyle={{ bottom: 10 }}
+                    >
+                      {post.videoUrls.map((videoUrl, index) => (
+                        <View key={`video_${index}`}>
+                          <TouchableOpacity onPress={playVideo}>
+                            <Video
+                              // source={{ uri: videoUrl }}
+                              // style={{ width: '100%', height: 300 }}
+                              // resizeMode="contain"
+                              // paused={true} // Set paused to true to prevent automatic playback
+                              ref={videoRef}
+                              source={{ uri: post.videoUrls[0] }}
+                              style={{ width: '100%', height: '100%' }}
+                              useNativeControls
+                              resizeMode="contain"
+                            />
+                          </TouchableOpacity>
+                        </View>
+                      ))}
+                    </Swiper>
+                  )}
+                </>
+
               </View>
             ))}
           </View>
@@ -543,10 +668,10 @@ const ClubFeed = ({ navigation }) => {
               <TouchableOpacity style={styles.uploadButton} onPress={openImagePicker}>
                 <Image source={require('../assets/upload.png')} style={styles.uploadButtonIcon} />
               </TouchableOpacity>
-              {/* <TouchableOpacity style={styles.uploadButton} onPress={() => { }}>
+              <TouchableOpacity style={styles.uploadButton} onPress={openVideoPicker}>
                 <Image source={require('../assets/play.png')} style={styles.uploadButtonIcon} />
 
-              </TouchableOpacity> */}
+              </TouchableOpacity>
             </View>
             <TouchableOpacity style={styles.postButton} onPress={handleCreatePost}>
               <Text style={styles.postButtonText}>Post</Text>
@@ -653,7 +778,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#98C7FF',
     width: '100%'
   },
-
   modalBody: {
     padding: 20,
   },

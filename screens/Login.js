@@ -14,29 +14,6 @@ export default function Login({ navigation }) {
     // const navigation = useNavigation();
     const [showPassword, setShowPassword] = useState(false);
 
-    // useEffect(() => {
-    //     const unsubscribe = auth.onAuthStateChanged(async (user) => {
-    //         if (user) {
-
-    //             const userId = user.uid;
-    //             const userDoc = await firestore.collection('users').doc(userId).get();
-    //             const userData = userDoc.data();
-
-    //             if (userData) {
-    //                 if (userData.role === 'owner') {
-    //                     navigation.navigate('BottomNavigator', { clubId: userData.clubId });
-    //                 } else if (userData.role === 'member') {
-    //                     navigation.navigate('BottomNavigatorMember', { clubId: userData.clubId });
-    //                 }
-    //             } else {
-    //                 console.log("user data not found")
-    //             }
-    //         }
-    //     });
-
-    //     return () => unsubscribe();
-    // }, []);
-
     const onHandleLogin = () => {
         if (email !== "" && password !== "") {
             signInWithEmailAndPassword(auth, email, password)
@@ -44,9 +21,6 @@ export default function Login({ navigation }) {
                     // Signed in
                     const user = userCredential.user;
                     console.log("Login success. User ID:", user.uid);
-
-                    // Fetch user data
-                    // const userDoc = await firestore.collection('users').doc(user.uid).get();
 
                     const userDoc = await getDoc(doc(database, 'users', user.uid));
 
@@ -78,9 +52,6 @@ export default function Login({ navigation }) {
                 });
         }
     }
-
-
-
 
     return (
         <View style={styles.container}>
