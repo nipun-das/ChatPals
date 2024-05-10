@@ -1,26 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, Modal, TextInput, StatusBar, BackHandler } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, Modal, TextInput, StatusBar, BackHandler, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { addDoc, collection, doc, getDoc, getDocs, orderBy, query, updateDoc, where } from 'firebase/firestore';
-import { auth, database } from '../config/firebase'; // Import your Firebase configuration
+import { auth, database, storage } from '../config/firebase';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useIsFocused } from '@react-navigation/native';
+import { ref } from 'firebase/storage';
+import { getDownloadURL, uploadBytes } from 'firebase/storage';
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from 'uuid'
+import Swiper from 'react-native-swiper';
+import Notification from './Notification';
+import * as DocumentPicker from 'expo-document-picker';
+import { Video } from 'expo-av';
 
 const ClubFeed = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
+  const [postId, setPostId] = useState('');
   const [postTitle, setPostTitle] = useState('');
   const [postDesc, setPostDesc] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
-  const [videoUrl, setVideoUrl] = useState('');
+  const [imageFiles, setImageFiles] = useState([]);
+  const [videoFiles, setVideoFiles] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [clubId, setClubId] = useState('');
   const [role, setRole] = useState('');
-
+  const [refreshing, setRefreshing] = useState(false);
   const isFocused = useIsFocused();
+  const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
+
+  const notifications = [
+    { id: 1, message: 'Info notification', notificationType: 'info' },
+    { id: 2, message: 'Warning notification', notificationType: 'warning' },
+    { id: 3, message: 'Error notification', notificationType: 'error' }
+  ];
   useEffect(() => {
+    fetchPosts();
+  }, []);
 
-  })
+  const onRefresh = () => {
+    setRefreshing(true);
+
+    setTimeout(() => {
+      fetchPosts();
+      setRefreshing(false);
+    }, 1000);
+
+  };
 
   useEffect(() => {
     const backAction = () => {
@@ -38,10 +66,10 @@ const ClubFeed = ({ navigation }) => {
     return () => backHandler.remove();
   }, [isFocused]);
 
-  useEffect(() => {
-    fetchPosts();
+  // useEffect(() => {
+  //   fetchPosts();
 
-  }, []);
+  // }, []);
 
   const fetchPosts = async () => {
     try {
@@ -69,7 +97,9 @@ const ClubFeed = ({ navigation }) => {
 
       const promises = querySnapshot.docs.map(async (postDoc) => {
         const postData = postDoc.data();
+        console.log("postId : ", postData.postId, " postImg : ", postData.imageUrls)
         const userId = postData.postSenderId;
+
         // console.log("Post sender fetched-> ", )
 
         const userDoc = await getDoc(doc(database, 'users', userId));
@@ -78,7 +108,7 @@ const ClubFeed = ({ navigation }) => {
           const userData = userDoc.data();
 
           const { name, avatarId, role } = userData;
-          console.log("Post sender id,name ,avatar,role fetched->", userId, name, avatarId, role)
+          // console.log("Post sender id,name ,avatar,role fetched->", userId, name, avatarId, role)
 
           postData.userName = name;
           postData.avatarId = avatarId;
@@ -92,8 +122,10 @@ const ClubFeed = ({ navigation }) => {
 
       const resolvedPosts = await Promise.all(promises);
       const postsData = resolvedPosts.filter(post => post);
-
+      // console.log(postsData)
       setPosts(postsData);
+      // console.log(posts.imageUrls)
+
 
     } catch (error) {
       console.error('Error fetching posts:', error);
@@ -123,30 +155,169 @@ const ClubFeed = ({ navigation }) => {
     return "../assets/avatar" + avatar + ".png" ? avatar.source : null;
   };
 
+
+  const openImagePicker = async () => {
+    console.log("picker clicked");
+    const options = {
+      title: 'Select Image',
+      mediaType: 'photo',
+      maxWidth: 300,
+      maxHeight: 300,
+      quality: 1.0,
+    };
+
+    const result = await ImagePicker.launchImageLibraryAsync(options);
+
+    if (!result.canceled) {
+      const selectedImage = result.assets[0];
+      setImageFiles(prevImageFiles => [...prevImageFiles, selectedImage]);
+      console.log(imageFiles);
+      console.log('Image selected------>>:', selectedImage);
+    } else {
+      if (result.error) {
+        console.log('ImagePicker Error: ', result.error);
+      } else if (result.customButton) {
+        console.log('User tapped custom button: ', result.customButton);
+      } else {
+        console.log('User cancelled image picker');
+      }
+    }
+  };
+  const openVideoPicker = async () => {
+    console.log("video picker clicked");
+    const options = {
+      title: 'Select Video',
+      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+      allowsEditing: true,
+      aspect: [3, 4],
+      quality: 1.0,
+    };
+
+    const result = await ImagePicker.launchImageLibraryAsync(options);
+
+    if (!result.canceled) {
+      const selectedVideo = result.assets[0];
+      setVideoFiles(prevVideoFiles => [...prevVideoFiles, selectedVideo]);
+      console.log(videoFiles);
+      console.log('Video selected------>>:', selectedVideo);
+    } else {
+      if (result.error) {
+        console.log('ImagePickerVideo Error: ', result.error);
+      } else if (result.customButton) {
+        console.log('User tapped custom button: ', result.customButton);
+      } else {
+        console.log('User cancelled image video picker');
+      }
+    }
+  };
+
+  const videoRefs = useRef([]);
+
+  const playVideo = async (videoUrl, index) => {
+    try {
+      console.log("video playinggggg--- : ", videoUrl);
+
+      await videoRefs.current[index].playAsync();
+      console.log("video playback")
+
+
+    } catch (error) {
+      console.error('Error playing video:', error);
+    }
+  };
+
+  const generatePostId = () => {
+    return uuidv4();
+  };
   const handleCreatePost = async () => {
     try {
       const currentUser = auth.currentUser;
       const userDoc = await getDoc(doc(database, 'users', currentUser.uid));
       if (userDoc.exists()) {
         const { clubId } = userDoc.data();
-
         const clubRef = doc(database, 'clubs', clubId);
         const clubPostsCollection = collection(clubRef, 'posts');
 
-        await addDoc(clubPostsCollection, {
+        const downloadUrls = [];
+        const downloadVideoUrls = [];
+
+        for (const imageFile of imageFiles) {
+
+          const pid = generatePostId();
+          setPostId(pid);
+
+          const randomInt = Math.floor(Math.random() * 10000);
+
+          const fileName = `${randomInt}-post`;
+          console.log("------------------------------------------")
+          console.log("postid : ", pid, "filename : ", fileName)
+
+          console.log("------------------------------------------")
+          console.log("------------------------------------------")
+          console.log("------------------------------------------")
+
+
+
+          const storageRef = ref(storage, `images/${clubId}/${pid}/${fileName}`);
+          console.log("uri img ----------------------->", imageFile.uri)
+
+          const response = await fetch(imageFile.uri);
+          const blob = await response.blob();
+          const snapshot = await uploadBytes(storageRef, blob, { contentType: 'image/jpeg' });
+          const downloadUrl = await getDownloadURL(storageRef);
+          console.log(downloadUrl)
+          downloadUrls.push(downloadUrl);
+        }
+
+        for (const videoFile of videoFiles) {
+
+          const pid = generatePostId();
+          setPostId(pid);
+
+          const randomInte = Math.floor(Math.random() * 10000);
+
+          const fileNamee = `${randomInte}-post`;
+          console.log("------------------------------------------")
+          console.log("postid : ", pid, " filename : ", fileNamee)
+
+          console.log("------------------------------------------")
+          console.log("------------------------------------------")
+          console.log("------------------------------------------")
+
+
+
+          const storageRef = ref(storage, `videos/${clubId}/${pid}/${fileNamee}`);
+
+          console.log("uri----------------------->", videoFile.uri)
+          const response = await fetch(videoFile.uri);
+          // console.log("response ----->>>>>>>>>>>>>>>>>>", response)
+          const blob = await response.blob();
+
+          const snapshot = await uploadBytes(storageRef, blob, { contentType: 'video/mp4' });
+
+          const downloadUrl = await getDownloadURL(storageRef);
+          console.log(downloadUrl)
+          downloadVideoUrls.push(downloadUrl);
+        }
+
+
+        const postObject = {
+          postId: postId,
           clubId: clubId,
           postSenderId: currentUser.uid,
           postDate: new Date(),
           postTitle: postTitle,
           postDesc: postDesc,
-          imageUrl: imageUrl,
-          videoUrl: videoUrl
-        });
+          imageUrls: downloadUrls,
+          videoUrls: downloadVideoUrls
+        };
+
+        await addDoc(clubPostsCollection, postObject);
 
         setPostTitle('');
         setPostDesc('');
-        setImageUrl('');
-        setVideoUrl('');
+        setImageFiles([]);
+        setVideoFiles([]);
 
         console.log('Post created successfully');
         toggleModal();
@@ -157,6 +328,7 @@ const ClubFeed = ({ navigation }) => {
       console.error('Error creating post: ', error);
     }
   };
+
 
   const toggleModal = () => {
     setShowModal(!showModal);
@@ -177,17 +349,22 @@ const ClubFeed = ({ navigation }) => {
     return `${parseInt(day)} ${monthName}`;
   };
 
-  const handleSignOut = async () => {
-    try {
-      await auth.signOut();
-      console.log("Logged out")
-      navigation.navigate('Login')
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
+  // const handleSignOut = async () => {
+  //   try {
+  //     await auth.signOut();
+  //     console.log("Logged out")
+  //     navigation.navigate('Login')
+  //   } catch (error) {
+  //     console.error('Error signing out:', error);
+  //   }
+  // };
   const handleLeaderNav = () => {
     navigation.navigate("LeaderBoard", { clubId: clubId, role: role })
+  }
+
+  const NotificationNav = () => {
+    const currentUser = auth.currentUser;
+    navigation.navigate("Notification", { currentUserUid: currentUser.uid })
   }
 
   const handleChatNav = async () => {
@@ -219,6 +396,18 @@ const ClubFeed = ({ navigation }) => {
     navigation.navigate("DiscoverEvents", { clubId: clubId, role: role })
   }
 
+  const goToDiscoverWorkshops = () => {
+    console.log("role fetched sent", role)
+    navigation.navigate("DiscoverWorkshops", { clubId: clubId, role: role })
+  }
+  const goToDiscoverMeetings = () => {
+    console.log("role fetched sent", role)
+    navigation.navigate("DiscoverMeetings", { clubId: clubId, role: role })
+  }
+  const openFullSizeImage = (index) => {
+    setSelectedImageIndex(index);
+    setModalVisible(true);
+  };
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="white" />
@@ -232,16 +421,39 @@ const ClubFeed = ({ navigation }) => {
         <TouchableOpacity style={styles.chatIcon} onPress={handleChatNav}>
           <Ionicons name="chatbox-outline" size={30} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.notificationIcon} onPress={handleSignOut}>
-          <Ionicons name="exit-outline" size={30} color="black" />
+        <TouchableOpacity style={{ position: 'absolute', top: 27, right: 20, }} onPress={NotificationNav}>
+          <Ionicons name="notifications-outline" size={30} color="black" />
         </TouchableOpacity>
+        <View
+          style={{
+            position: 'absolute',
+            top: 30,
+            width: 10,
+            height: 10,
+            zIndex: 6000,
+            right: 23,
+            backgroundColor: 'red',
+            borderRadius: 1000,
+          }}
+        >
+          <Text></Text>
+        </View>
+
+
+        {/* <TouchableOpacity style={styles.notificationIcon} onPress={handleSignOut}>
+          <Ionicons name="exit-outline" size={30} color="black" />
+        </TouchableOpacity> */}
       </View>
 
       <TouchableOpacity style={styles.fab} onPress={toggleModal}>
         <Ionicons name="add" size={50} color="white" />
       </TouchableOpacity>
 
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#9Bd35A', '#689F38']} />
+        }
+      >
         <View style={{ width: '100%' }}>
           <Text style={{
             fontFamily: 'DMSans-Bold', fontSize: 21
@@ -256,18 +468,25 @@ const ClubFeed = ({ navigation }) => {
               <Text style={{ color: 'white', fontFamily: 'DMSans-Bold', fontSize: 16, position: 'absolute', bottom: 10, left: 10, zIndex: 1 }}>Events</Text>
             </View>
           </TouchableOpacity>
+          <TouchableOpacity onPress={goToDiscoverWorkshops}>
 
-          <View style={{ width: 119, height: 144, marginRight: 14, backgroundColor: 'lightblue', borderRadius: 10, justifyContent: 'flex-end', alignItems: 'center', padding: 0 }}>
-            <Image source={require('../assets/w-cover.png')} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
-            <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', width: 119, bottom: 0, position: 'absolute', height: 40, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, }}></View>
-            <Text style={{ color: 'white', fontFamily: 'DMSans-Bold', fontSize: 16, position: 'absolute', bottom: 10, left: 10, zIndex: 1 }}>Workshops</Text>
-          </View>
+            <View style={{ width: 119, height: 144, marginRight: 14, backgroundColor: 'lightblue', borderRadius: 10, justifyContent: 'flex-end', alignItems: 'center', padding: 0 }}>
+              <Image source={require('../assets/w-cover.png')} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
+              <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', width: 119, bottom: 0, position: 'absolute', height: 40, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, }}></View>
+              <Text style={{ color: 'white', fontFamily: 'DMSans-Bold', fontSize: 16, position: 'absolute', bottom: 10, left: 10, zIndex: 1 }}>Workshops</Text>
+            </View>
+          </TouchableOpacity>
 
-          <View style={{ width: 119, height: 144, marginRight: 14, backgroundColor: 'lightblue', borderRadius: 10, justifyContent: 'flex-end', alignItems: 'center', padding: 0 }}>
-            <Image source={require('../assets/m-cover.png')} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
-            <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', width: 119, bottom: 0, position: 'absolute', height: 40, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, }}></View>
-            <Text style={{ color: 'white', fontFamily: 'DMSans-Bold', fontSize: 16, position: 'absolute', bottom: 10, left: 10, zIndex: 1 }}>Meetings</Text>
-          </View>
+          <TouchableOpacity onPress={goToDiscoverMeetings}>
+
+            <View style={{ width: 119, height: 144, marginRight: 14, backgroundColor: 'lightblue', borderRadius: 10, justifyContent: 'flex-end', alignItems: 'center', padding: 0 }}>
+              <Image source={require('../assets/m-cover.png')} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
+              <View style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', width: 119, bottom: 0, position: 'absolute', height: 40, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, }}></View>
+
+              <Text style={{ color: 'white', fontFamily: 'DMSans-Bold', fontSize: 16, position: 'absolute', bottom: 10, left: 10, zIndex: 1 }}>Meetings</Text>
+            </View>
+          </TouchableOpacity>
+
         </ScrollView>
 
 
@@ -316,6 +535,131 @@ const ClubFeed = ({ navigation }) => {
                 </View>
                 <Text style={styles.title}>{post.postTitle}</Text>
                 <Text style={styles.description}>{post.postDesc}</Text>
+
+
+
+
+
+                <>
+                  {(post.imageUrls.length > 0 && post.videoUrls.length > 0) && (
+
+                    // <Swiper
+                    //   style={{ height: 570 }}
+                    //   dotStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.2)', width: 10, height: 10, borderRadius: 5 }}
+                    //   activeDotStyle={{ backgroundColor: '#000', width: 10, height: 10, borderRadius: 5 }}
+                    //   paginationStyle={{ bottom: 10 }}
+                    // >
+                    //   {/* Render slides */}
+                    //   {post.imageUrls.map((imageUrl, index) => (
+                    //     <View key={`image_${index}`}>
+                    //       <Image
+                    //         source={{ uri: imageUrl }}
+                    //         style={{ width: '100%', height: '100%', resizeMode: 'contain', backgroundColor: '#E5F1FF' }}
+                    //       />
+                    //     </View>
+                    //   ))}
+                    //   {post.videoUrls.map((videoUrl, index) => (
+                    //     <View key={`video_${index}`}>
+                    //       <TouchableOpacity onPress={() => playVideo(videoUrl)}>
+                    //         <Video
+                    //           ref={(ref) => videoRefs.current[index] = ref}
+                    //           source={{ uri: videoUrl }}
+                    //           style={{ width: '100%', height: '100%' }}
+                    //           resizeMode="contain"
+                    //           paused={true}
+                    //           useNativeControls
+                    //         />
+                    //       </TouchableOpacity>
+                    //     </View>
+                    //   ))}
+                    // </Swiper>
+                    <View style={{ height: 570, backgroundColor: 'cyan' }}>
+                      <ScrollView
+                        horizontal
+                        pagingEnabled
+                        showsHorizontalScrollIndicator={true}
+                        style={{ height: 570}}
+                      >
+                        {/* Render slides */}
+                        {post.imageUrls.map((imageUrl, index) => (
+                          <View key={`image_${index}`} style={{ width: '100%', height: 570  }}>
+                            <Image
+                              source={{ uri: imageUrl }}
+                              style={{ width: '100%', height: '100%', resizeMode: 'contain'}}
+                            />
+                          </View>
+                        ))}
+                        {
+                          console.log('-----------post :------- ', post.postTitle)
+                        }
+                        {
+                          console.log('Image URLs length:', post.imageUrls.length)
+                        }
+                        {
+                          console.log('video URLs length:', post.videoUrls.length)
+                        }
+                        {/* {post.videoUrls.map((videoUrl, index) => (
+                          <View key={`video_${index}`} style={{ width: '100%', height: '100%' }}>
+                            <TouchableOpacity onPress={() => playVideo(videoUrl)}>
+                              <Video
+                                ref={(ref) => videoRefs.current[index] = ref}
+                                source={{ uri: videoUrl }}
+                                style={{ width: '100%', height: '100%' }}
+                                resizeMode="contain"
+                                paused={true}
+                                useNativeControls
+                              />
+                            </TouchableOpacity>
+                          </View>
+                        ))} */}
+                      </ScrollView>
+                    </View>
+                  )}
+
+
+                  {post.imageUrls.length > 0 && post.videoUrls.length === 0 && (
+                    <Swiper
+                      style={{ height: 470 }}
+                      dotStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.2)', width: 10, height: 10, borderRadius: 5 }}
+                      activeDotStyle={{ backgroundColor: '#000', width: 10, height: 10, borderRadius: 5 }}
+                      paginationStyle={{ bottom: 10 }}
+                    >
+                      {post.imageUrls.map((imageUrl, index) => (
+                        <View key={`image_${index}`}>
+                          <Image
+                            source={{ uri: imageUrl }}
+                            style={{ width: '100%', height: '100%', resizeMode: 'contain', backgroundColor: '#E5F1FF' }}
+                          />
+                        </View>
+                      ))}
+                    </Swiper>
+                  )}
+
+                  {post.videoUrls.length > 0 && post.imageUrls.length === 0 && (
+                    <Swiper
+                      style={{ height: 470 }}
+                      dotStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.2)', width: 10, height: 10, borderRadius: 5 }}
+                      activeDotStyle={{ backgroundColor: '#000', width: 10, height: 10, borderRadius: 5 }}
+                      paginationStyle={{ bottom: 10 }}
+                    >
+                      {post.videoUrls.map((videoUrl, index) => (
+                        <View key={`video_${index}`}>
+                          <TouchableOpacity onPress={() => playVideo(videoUrl)}>
+                            <Video
+                              ref={videoRefs}
+                              source={{ uri: videoUrl }}
+                              style={{ width: '100%', height: '100%' }}
+                              resizeMode="contain"
+                              paused={true}
+                              useNativeControls
+                            />
+                          </TouchableOpacity>
+                        </View>
+                      ))}
+                    </Swiper>
+                  )}
+                </>
+
               </View>
             ))}
           </View>
@@ -357,10 +701,10 @@ const ClubFeed = ({ navigation }) => {
               style={[styles.textInput, { height: 279 }]}
             />
             <View style={styles.uploadContainer}>
-              <TouchableOpacity style={styles.uploadButton} onPress={() => { }}>
+              <TouchableOpacity style={styles.uploadButton} onPress={openImagePicker}>
                 <Image source={require('../assets/upload.png')} style={styles.uploadButtonIcon} />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.uploadButton} onPress={() => { }}>
+              <TouchableOpacity style={styles.uploadButton} onPress={openVideoPicker}>
                 <Image source={require('../assets/play.png')} style={styles.uploadButtonIcon} />
 
               </TouchableOpacity>
@@ -470,7 +814,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#98C7FF',
     width: '100%'
   },
-
   modalBody: {
     padding: 20,
   },
@@ -566,6 +909,7 @@ const styles = StyleSheet.create({
     paddingRight: 1,
     paddingTop: 0,
     marginTop: 8,
+    marginBottom: 12,
     fontFamily: 'DMSans-Medium',
   },
 

@@ -4,35 +4,35 @@ import { database } from '../config/firebase';
 import { collection, getDocs, query } from 'firebase/firestore';
 import { Ionicons } from '@expo/vector-icons';
 
-const DiscoverEvents = ({ route, navigation }) => {
+const DiscoverMeetings = ({ route, navigation }) => {
 
     const { clubId, role } = route.params;
     console.log("role recv", role)
 
-    const [events, setEvents] = useState([]);
+    const [meetings, setMeetings] = useState([]);
 
     useEffect(() => {
-        const fetchEvents = async () => {
+        const fetchMeetings = async () => {
             try {
-                const clubEventsCollectionRef = collection(database, 'clubs', clubId, 'events');
-                const eventsQuery = query(clubEventsCollectionRef);
-                const querySnapshot = await getDocs(eventsQuery);
+                const clubMeetingsCollectionRef = collection(database, 'clubs', clubId, 'meetings');
+                const meetingsQuery = query(clubMeetingsCollectionRef);
+                const querySnapshot = await getDocs(meetingsQuery);
 
-                const eventsArray = [];
+                const meetingsArray = [];
                 querySnapshot.forEach((doc) => {
-                    eventsArray.push({
+                    meetingsArray.push({
                         id: doc.id,
                         ...doc.data(),
                     });
                 });
 
-                setEvents(eventsArray);
+                setMeetings(meetingsArray);
             } catch (error) {
-                console.error('Error fetching events:', error);
+                console.error('Error fetching meetings:', error);
             }
         };
 
-        fetchEvents();
+        fetchMeetings();
     }, [clubId]);
 
     const formatDate = (dateString) => {
@@ -56,9 +56,9 @@ const DiscoverEvents = ({ route, navigation }) => {
         require('../assets/cover-4.png')
     ];
 
-    const goToRegisterEvent = (id) => {
-        console.log("eventid clicked in discover", id)
-        navigation.navigate('RegisterEvent', { eventId: id, clubId: clubId })
+    const goToRegisterMeeting = (id) => {
+        console.log("meetingid clicked in discover", id)
+        navigation.navigate('RegisterMeeting', { meetingId: id, clubId: clubId })
     }
 
 
@@ -71,18 +71,18 @@ const DiscoverEvents = ({ route, navigation }) => {
             </TouchableOpacity>
 
             <View style={styles.createContainer}>
-                <Text style={styles.title}>Discover Events</Text>
+                <Text style={styles.title}>Discover Meeting</Text>
             </View>
 
             <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
 
-                {events.length === 0 ? (
+                {meetings.length === 0 ? (
                     <View style={[styles.noPostsContainer, {
                         justifyContent: 'center',
                         padding: 0,
                         alignItems: 'center',
                         backgroundColor: '#E5F1FF',
-                        height: '100%'
+                        height:'100%'
                     }]}>
                         <View style={{
                             marginBottom: 10,
@@ -103,62 +103,62 @@ const DiscoverEvents = ({ route, navigation }) => {
                                 alignContent: 'center',
                                 alignItems: 'center',
                                 textAlign: 'center'
-                            }}>Seems like no events are {'\n'}live for registration!!</Text>
+                            }}>Seems like no meetings are {'\n'}live for registration!!</Text>
                         </View>
                     </View>
                 ) : (
-                    events.map((event, index) => (
+                    meetings.map((meeting, index) => (
                         <TouchableOpacity
-                            key={event.id}
+                            key={meeting.id}
                             style={{
                                 width: '90%', backgroundColor: 'white', height: 140, borderRadius: 8, marginTop: 15, marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 2, },
                                 shadowOpacity: 0.25, shadowRadius: 3.84, elevation: 5, alignSelf: 'center', overflow: 'visible', position: 'relative'
                             }}>
-                            {event.event_reg_status === 'open' && (
+                            {meeting.meeting_reg_status === 'open' && (
                                 <View style={{ backgroundColor: 'green', width: 50, position: 'absolute', left: 5, zIndex: 60000, borderRadius: 5, top: -10 }}>
                                     <Text style={{ fontFamily: 'DMSans-Bold', fontSize: 10, padding: 5, color: 'white', textAlign: 'center' }}>Open</Text>
                                 </View>
                             )}
-                            {event.event_reg_status === 'closed' && (
+                            {meeting.meeting_reg_status === 'closed' && (
                                 <View style={{ backgroundColor: '#D34444', width: 50, position: 'absolute', left: 5, zIndex: 60000, borderRadius: 5, top: -10 }}>
                                     <Text style={{ fontFamily: 'DMSans-Bold', fontSize: 10, padding: 5, color: 'white', textAlign: 'center' }}>Closed</Text>
                                 </View>
                             )}
                             <Image
-                                source={images[index % images.length]} // Select one image based on the index
+                                source={images[index % images.length]}
                                 style={{ width: '100%', height: '25%', borderTopLeftRadius: 8, borderTopRightRadius: 8, resizeMode: 'cover' }}
                             />
 
                             <View style={{ padding: 10 }}>
-                                <Text style={{ fontSize: 24, fontFamily: 'DMSans-Bold', marginBottom: 10 }}>{event.event_name}</Text>
+                                <Text style={{ fontSize: 24, fontFamily: 'DMSans-Bold', marginBottom: 10 }}>{meeting.meeting_topic}</Text>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}>
                                     <Image source={require('../assets/calendar.png')} style={{ width: 20, height: 20, marginRight: 5 }} />
-                                    <Text style={{ fontSize: 15, fontFamily: 'DMSans-Medium', color: '#535353' }}>{formatDate(event.event_date)}</Text>
+                                    <Text style={{ fontSize: 15, fontFamily: 'DMSans-Medium', color: '#535353' }}>{formatDate(meeting.meeting_date)}</Text>
                                 </View>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <Image source={require('../assets/time.png')} style={{ width: 20, height: 20, marginRight: 5 }} />
-                                    <Text style={{ fontSize: 15, fontFamily: 'DMSans-Medium', color: '#535353' }}>{event.event_time}</Text>
+                                    <Text style={{ fontSize: 15, fontFamily: 'DMSans-Medium', color: '#535353' }}>{meeting.meeting_time}</Text>
                                 </View>
                             </View>
 
                             {role === 'owner' && (
                                 <TouchableOpacity
-                                    style={{ position: 'absolute', bottom: 15, right: 10, backgroundColor: 'black', paddingHorizontal: 20, paddingVertical: 7, borderRadius: 5, }} onPress={() => goToRegisterEvent(event.event_id)}
+                                    style={{ position: 'absolute', bottom: 15, right: 10, backgroundColor: 'black', paddingHorizontal: 20, paddingVertical: 7, borderRadius: 5, }} onPress={() => goToRegisterMeeting(meeting.meeting_id)}
                                 >
                                     <Text style={{ color: 'white', fontFamily: 'DMSans-Medium', fontSize: 16 }}>View</Text>
                                 </TouchableOpacity>
                             )}
                             {role === 'member' && (
                                 <TouchableOpacity
-                                    style={{ position: 'absolute', bottom: 15, right: 10, backgroundColor: 'black', paddingHorizontal: 20, paddingVertical: 7, borderRadius: 5, }} onPress={() => goToRegisterEvent(event.event_id)}
+                                    style={{ position: 'absolute', bottom: 15, right: 10, backgroundColor: 'black', paddingHorizontal: 20, paddingVertical: 7, borderRadius: 5, }} onPress={() => goToRegisterMeeting(meeting.meeting_id)}
                                 >
                                     <Text style={{ color: 'white', fontFamily: 'DMSans-Medium', fontSize: 16 }}>Join</Text>
                                 </TouchableOpacity>
                             )}
-
-
                         </TouchableOpacity>
-                    )))}
+
+                    ))
+                )}
             </ScrollView>
         </View>
     );
@@ -192,5 +192,5 @@ const styles = StyleSheet.create({
     },
 })
 
-export default DiscoverEvents;
+export default DiscoverMeetings;
 

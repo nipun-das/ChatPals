@@ -6,13 +6,15 @@ import { Ionicons } from '@expo/vector-icons';
 
 
 const LeaderBoard = ({ route, navigation }) => {
+
+    const { clubId, role } = route.params;
+
     const [topThreeUsers, setTopThreeUsers] = useState([]);
     const [otherUsers, setOtherUsers] = useState([]);
     const [userPoints, setUserPoints] = useState(0)
     const [userDetails, setUserDetails] = useState(null);
 
 
-    const { clubId, role } = route.params;
     useEffect(() => {
         const fetchUserDetails = async () => {
             try {
@@ -32,7 +34,7 @@ const LeaderBoard = ({ route, navigation }) => {
                     }
                 });
 
-                // Return unsubscribe function to clean up listener on component unmount
+
                 return () => unsubscribe();
 
             } catch (error) {
@@ -46,12 +48,11 @@ const LeaderBoard = ({ route, navigation }) => {
     useEffect(() => {
         const fetchLeaderboardData = async () => {
             try {
-                // Query for the top 3 users based on points in descending order
-                const topThreeQuerySnapshot = await getDocs(query(collection(database, 'users'), where('points', '>', 0), orderBy('points', 'desc'), limit(3)));
+
+                const topThreeQuerySnapshot = await getDocs(query(collection(database, 'users'), where('points', '>', 0), where('clubId', '==', clubId), orderBy('points', 'desc'), limit(3)));
 
 
-                // Query for other users
-                const otherUsersQuerySnapshot = await getDocs(query(collection(database, 'users'), orderBy('points', 'desc')));
+                const otherUsersQuerySnapshot = await getDocs(query(collection(database, 'users'), where('clubId', '==', clubId), orderBy('points', 'desc')));
 
 
                 const topThreeUsersData = topThreeQuerySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -68,6 +69,7 @@ const LeaderBoard = ({ route, navigation }) => {
 
         fetchLeaderboardData();
     }, []);
+
     const findAvatarSource = (avatarId) => {
         const avatars = [
             { id: 1, source: require('../assets/avatar1.png') },
@@ -110,7 +112,8 @@ const LeaderBoard = ({ route, navigation }) => {
                 <Ionicons name="arrow-back" size={30} color="black" />
             </TouchableOpacity>
 
-            <View style={{ backgroundColor: '#A6D3E3', height: 70, borderBottomWidth: 2, borderBottomColor: 'black' }}>
+            {/* backgroundColor: '#A6D3E3' */}
+            <View style={{ backgroundColor: 'white', height: 70, borderBottomWidth: 0.19999999, borderBottomColor: 'black' }}>
                 <Text style={{ fontSize: 24, marginTop: 19, textAlign: 'center', color: 'black', fontFamily: "DMSans-Bold", }}>Leaderboard </Text>
             </View>
             <View style={{ flex: 1, }}>
@@ -143,7 +146,7 @@ const LeaderBoard = ({ route, navigation }) => {
                             } else if (index === 2) {
                                 avatarStyle = { width: 55, height: 55, borderRadius: 30 };
                                 nameStyle = { fontSize: 11, fontFamily: 'DMSans-Bold' };
-                                pointsStyle = { fontSize: 11, fontFamily: 'DMSans-Bold', zIndex };
+                                pointsStyle = { fontSize: 11, fontFamily: 'DMSans-Bold', zIndex: 600 };
                             }
 
                             return (

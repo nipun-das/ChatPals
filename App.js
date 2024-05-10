@@ -36,6 +36,13 @@ import Store from './screens/Store';
 import StoreFeed from './screens/StoreFeed';
 import BottomNavigatorStore from './screens/BottomNavigatorStore';
 import TrackPreviousOrder from './screens/TrackPreviousOrder';
+import RegisterMeeting from './screens/RegisterMeeting';
+import MarkMeeting from './screens/MarkMeeting';
+import DiscoverMeetings from './screens/DiscoverMeetings';
+import RegisterWorkshop from './screens/RegisterWorkshop';
+import MarkWorkshop from './screens/MarkWorkshop';
+import DiscoverWorkshops from './screens/DiscoverWorkshops';
+import Notification from './screens/Notification';
 
 
 
@@ -162,7 +169,12 @@ function ChatStack() {
       <Stack.Screen name="RegisterEvent" component={RegisterEvent} options={{
         ...TransitionPresets.SlideFromRightIOS
       }} />
-
+      <Stack.Screen name="RegisterMeeting" component={RegisterMeeting} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }} />
+      <Stack.Screen name="RegisterWorkshop" component={RegisterWorkshop} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }} />
       <Stack.Screen name="CreateEventOwner" component={CreateEventOwner} options={{
         ...TransitionPresets.ModalSlideFromBottomIOS
       }} />
@@ -179,17 +191,34 @@ function ChatStack() {
       <Stack.Screen name="DiscoverEvents" component={DiscoverEvents} options={{
         ...TransitionPresets.ModalSlideFromBottomIOS
       }} />
+
+      <Stack.Screen name="DiscoverMeetings" component={DiscoverMeetings} options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
+      }} />
+      <Stack.Screen name="DiscoverWorkshops" component={DiscoverWorkshops} options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
+      }} />
       <Stack.Screen name="MarkEvent" component={MarkEvent} options={{
         ...TransitionPresets.ModalSlideFromBottomIOS
       }} />
+      <Stack.Screen name="MarkMeeting" component={MarkMeeting} options={{
+        ...TransitionPresets.ModalSlideFromRightIOS
+      }} />
+
+      <Stack.Screen name="MarkWorkshop" component={MarkWorkshop} options={{
+        ...TransitionPresets.ModalSlideFromRightIOS
+      }} />
+
       <Stack.Screen name="LeaderBoard" component={LeaderBoard} options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
+      }} />
+      <Stack.Screen name="Notification" component={Notification} options={{
         ...TransitionPresets.ModalSlideFromBottomIOS
       }} />
 
       <Stack.Screen name="Store" component={Store} options={{
         ...TransitionPresets.ModalSlideFromBottomIOS
       }} />
-
       <Stack.Screen name="StoreFeed" component={StoreFeed} options={{
         ...TransitionPresets.ModalSlideFromBottomIOS
       }} />
@@ -245,6 +274,12 @@ function AuthStack() {
       <Stack.Screen name="RegisterEvent" component={RegisterEvent} options={{
         ...TransitionPresets.SlideFromRightIOS
       }} />
+      <Stack.Screen name="RegisterMeeting" component={RegisterMeeting} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }} />
+      <Stack.Screen name="RegisterWorkshop" component={RegisterWorkshop} options={{
+        ...TransitionPresets.SlideFromRightIOS
+      }} />
       <Stack.Screen name="CreateEventOwner" component={CreateEventOwner} options={{
         ...TransitionPresets.ModalSlideFromBottomIOS
       }} />
@@ -260,10 +295,27 @@ function AuthStack() {
       <Stack.Screen name="DiscoverEvents" component={DiscoverEvents} options={{
         ...TransitionPresets.ModalSlideFromBottomIOS
       }} />
+      <Stack.Screen name="DiscoverMeetings" component={DiscoverMeetings} options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
+      }} />
+      <Stack.Screen name="DiscoverWorkshops" component={DiscoverWorkshops} options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
+      }} />
       <Stack.Screen name="MarkEvent" component={MarkEvent} options={{
         ...TransitionPresets.ModalSlideFromRightIOS
       }} />
+      <Stack.Screen name="MarkMeeting" component={MarkMeeting} options={{
+        ...TransitionPresets.ModalSlideFromRightIOS
+      }} />
+      <Stack.Screen name="MarkWorkshop" component={MarkWorkshop} options={{
+        ...TransitionPresets.ModalSlideFromRightIOS
+      }} />
+
+
       <Stack.Screen name="LeaderBoard" component={LeaderBoard} options={{
+        ...TransitionPresets.ModalSlideFromBottomIOS
+      }} />
+      <Stack.Screen name="Notification" component={Notification} options={{
         ...TransitionPresets.ModalSlideFromBottomIOS
       }} />
       <Stack.Screen name="Store" component={Store} options={{
@@ -278,8 +330,6 @@ function AuthStack() {
       <Stack.Screen name="TrackPreviousOrder" component={TrackPreviousOrder} options={{
         ...TransitionPresets.ModalSlideFromRightIOS
       }} />
-
-
     </Stack.Navigator>
   )
 }

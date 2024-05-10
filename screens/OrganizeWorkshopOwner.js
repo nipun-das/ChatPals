@@ -13,7 +13,7 @@ import {
 import { Gif } from 'react-native-gif';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { auth, database } from '../config/firebase';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, doc, updateDoc,getDoc } from 'firebase/firestore';
 
 const OrganizeWorkshopOwner = ({ route, navigation }) => {
     const [workshopTopic, setWorkshopTopic] = useState('');
@@ -101,14 +101,43 @@ const OrganizeWorkshopOwner = ({ route, navigation }) => {
             const workshopRef = await addDoc(collection(database, `clubs/${clubId}/workshops`), {
                 workshop_topic: workshopTopic,
                 club_id: clubId,
-                workshop_status: 'active',
+                workshop_status: 'open',
+                workshop_reg_status: 'open',
                 workshop_description: workshopDescription,
                 workshop_date: formattedDate,
                 workshop_time: formattedTime,
                 workshop_location: workshopLocation,
+                workshop_registered_members: [],
+                workshop_price: 'free',
+                workshop_reg_count: 0,
                 created_by: currentUser.uid,
                 created_at: new Date(),
             });
+            const workshopId = workshopRef.id;
+
+            await updateDoc(doc(database, `clubs/${clubId}/workshops`, workshopId), {
+                workshop_id: workshopId
+            });
+
+            const workshopNotificationMessage = `New Workshop: ${workshopTopic} is created!`;
+            const clubDoc = await getDoc(doc(database, `clubs/${clubId}`));
+            const clubData = clubDoc.data();
+            const members = clubData.members || [];
+            console.log("------------------", members)
+            const notificationPromises = [];
+            for (const memberId of members) {
+                console.log("member ->", memberId)
+                const notificationRef = collection(database, `users/${memberId}/notifications`);
+                const notificationPromise = addDoc(notificationRef, {
+                    message: workshopNotificationMessage,
+                    type:'workshopCreate',
+                    workshopId: workshopId,
+                    timestamp: new Date()
+                });
+                notificationPromises.push(notificationPromise);
+            }
+
+
 
             const workshopMessage = `workshop Created: ${workshopTopic}`;
             await addDoc(collection(database, `chatrooms/${clubId}/messages`), {
@@ -118,6 +147,7 @@ const OrganizeWorkshopOwner = ({ route, navigation }) => {
                 messageType: 'workshopMessage',
                 workshopId: workshopRef.id,
                 workshopTopic: workshopTopic,
+                clubId: clubId,
                 workshopTime: formattedTime,
                 workshopDate: formattedDate,
                 workshopLocation: workshopLocation,

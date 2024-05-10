@@ -10,14 +10,17 @@ import { Ionicons } from '@expo/vector-icons';
 
 const RegisteredMembers = ({ route, navigation }) => {
 
-    const { eventId, event_registered_members } = route.params;
+
+
+    const { id, registered_members } = route.params;
     const [membersDetails, setMembersDetails] = useState([]);
 
     useEffect(() => {
         const fetchMembersDetails = async () => {
             try {
+
                 const currentUserID = auth.currentUser.uid;
-                const membersPromises = event_registered_members.map(async (currentUserID) => {
+                const membersPromises = registered_members.map(async (currentUserID) => {
 
                     const userDocRef = doc(database, 'users', currentUserID);
                     const userDocSnapshot = await getDoc(userDocRef);
@@ -31,13 +34,14 @@ const RegisteredMembers = ({ route, navigation }) => {
                 });
                 const membersData = await Promise.all(membersPromises);
                 setMembersDetails(membersData.filter(member => member !== null));
+
             } catch (error) {
                 console.error('Error fetching members details:', error);
             }
         };
 
         fetchMembersDetails();
-    }, [event_registered_members]);
+    }, [registered_members]);
 
     const findAvatarSource = (avatarId) => {
         const avatars = [
@@ -52,6 +56,9 @@ const RegisteredMembers = ({ route, navigation }) => {
             { id: 9, source: require('../assets/avatar9.png') },
         ];
 
+
+        console.log(membersDetails)
+        console.log(membersDetails.length)
         const avatar = avatars.find((avatar) => avatar.id === avatarId);
         return "../assets/avatar" + avatar + ".png" ? avatar.source : null;
     };
@@ -73,16 +80,22 @@ const RegisteredMembers = ({ route, navigation }) => {
                     flex: 1,
                     justifyContent: 'center',
                     padding: 0,
-
                     alignItems: 'center',
                     backgroundColor: '#E5F1FF'
                 }]}>
-                    <View style={[styles.post, { height: 10 }]}>
+                    <View style={[styles.post, {
+                        height: 100, justifyContent: 'center',
+                        alignContent: 'center',
+                        alignItems: 'center',
+                    }]}>
                         <Text style={[styles.noPostsText, {
                             fontSize: 18,
                             fontFamily: 'DMSans-Bold',
-                            color: '#333',
-                            padding: 10,
+                            color: 'black',
+                            padding: 0,
+                            justifyContent: 'center',
+                            alignContent: 'center',
+                            alignItems: 'center',
                             textAlign: 'center'
                         }]}>Seems like no one has{'\n'} registered yet!!</Text>
                     </View>
@@ -108,10 +121,8 @@ const RegisteredMembers = ({ route, navigation }) => {
                 </View>
             )}
         </View>
-
     );
 };
-
 const styles = StyleSheet.create({
     container: {
         backgroundColor: 'white',
@@ -128,7 +139,6 @@ const styles = StyleSheet.create({
         height: 70,
         borderBottomWidth: 2,
         borderBottomColor: 'black'
-        // marginTop: 30,
     },
     topBar: {
         marginTop: 0.1,
@@ -137,8 +147,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderTopColor: 'white',
         borderWidth: 3,
-        // borderTopColor: '#3E96FF',
-
         borderBottomColor: '#3E96FF'
     },
     backButton: {

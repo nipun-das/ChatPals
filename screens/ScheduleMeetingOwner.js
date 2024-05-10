@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -9,11 +9,12 @@ import {
     TouchableHighlight,
     Image,
     StatusBar,
+    Alert,
 } from 'react-native';
 import { Gif } from 'react-native-gif';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { auth, database } from '../config/firebase';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, doc, getDoc, updateDoc } from 'firebase/firestore';
 
 const ScheduleMeetingOwner = ({ route, navigation }) => {
     const [meetingTopic, setMeetingTopic] = useState('');
@@ -33,6 +34,26 @@ const ScheduleMeetingOwner = ({ route, navigation }) => {
     const [isAmPmModalVisible, setAmPmModalVisible] = useState(false);
     const [isSuccessModalVisible, setSuccessModalVisible] = useState(false);
 
+    useEffect(() => {
+        const handleDateSelection = () => {
+            if (!selectedDay || !selectedMonth || !selectedYear) {
+                Alert.alert('Error', 'Please select a complete date');
+                return;
+            }
+
+            const currentDate = new Date();
+            const selectedDate = new Date(selectedYear, months.indexOf(selectedMonth), selectedDay);
+
+            if (selectedDate < currentDate) {
+                Alert.alert('Error', 'Please select a date after the current date');
+                return;
+            }
+        };
+
+        if (selectedDay && selectedMonth && selectedYear) {
+            handleDateSelection();
+        }
+    }, [selectedDay, selectedMonth, selectedYear]);
 
 
     const days = Array.from({ length: 31 }, (_, i) => (i + 1).toString());
@@ -101,14 +122,41 @@ const ScheduleMeetingOwner = ({ route, navigation }) => {
             const meetingRef = await addDoc(collection(database, `clubs/${clubId}/meetings`), {
                 meeting_topic: meetingTopic,
                 club_id: clubId,
-                meeting_status: 'active',
+                meeting_status: 'open',
+                meeting_reg_status: 'open',
                 meeting_description: meetingDescription,
                 meeting_date: formattedDate,
                 meeting_time: formattedTime,
                 meeting_link: meetingLink,
+                meeting_registered_members: [],
+                meeting_price: 'free',
+                meeting_reg_count: 0,
                 created_by: currentUser.uid,
                 created_at: new Date(),
             });
+            const meetingId = meetingRef.id;
+
+            await updateDoc(doc(database, `clubs/${clubId}/meetings`, meetingId), {
+                meeting_id: meetingId
+            });
+
+            const meetingNotificationMessage = `New Meeting: ${meetingTopic} is created!`;
+            const clubDoc = await getDoc(doc(database, `clubs/${clubId}`));
+            const clubData = clubDoc.data();
+            const members = clubData.members || [];
+            console.log("------------------", members)
+            const notificationPromises = [];
+            for (const memberId of members) {
+                console.log("member ->", memberId)
+                const notificationRef = collection(database, `users/${memberId}/notifications`);
+                const notificationPromise = addDoc(notificationRef, {
+                    message: meetingNotificationMessage,
+                    type:'meetingCreate',
+                    meetingId: meetingId,
+                    timestamp: new Date()
+                });
+                notificationPromises.push(notificationPromise);
+            }
 
             const meetingMessage = `Meeting Created: ${meetingTopic}`;
             await addDoc(collection(database, `chatrooms/${clubId}/messages`), {
@@ -118,6 +166,7 @@ const ScheduleMeetingOwner = ({ route, navigation }) => {
                 messageType: 'meetingMessage',
                 meetingId: meetingRef.id,
                 meetingTopic: meetingTopic,
+                clubId: clubId,
                 meetingTime: formattedTime,
                 meetingDate: formattedDate,
                 meetingLink: meetingLink,
@@ -140,7 +189,7 @@ const ScheduleMeetingOwner = ({ route, navigation }) => {
             <View style={styles.createContainer}>
                 <Text style={styles.title}>Schedule Meeting</Text>
             </View>
-            <View style={{ backgroundColor: 'white', paddingHorizontal: 25, paddingTop: 15 ,borderTopColor:'black',borderTopWidth:2}}>
+            <View style={{ backgroundColor: 'white', paddingHorizontal: 25, paddingTop: 15, borderTopColor: 'black', borderTopWidth: 2 }}>
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Meeting Agenda</Text>
                     <TextInput
@@ -599,11 +648,11 @@ const styles = StyleSheet.create({
         right: 0,
         width: 28,
         height: 28,
-        borderTopRightRadius:9,
-        borderBottomRightRadius:9,
+        borderTopRightRadius: 9,
+        borderBottomRightRadius: 9,
         resizeMode: 'contain',
         marginLeft: 10,
-        backgroundColor:'#90EE90',
+        backgroundColor: '#90EE90',
         padding: 24,
     },
 });

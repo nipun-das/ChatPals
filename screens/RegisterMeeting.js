@@ -5,21 +5,21 @@ import { Ionicons } from '@expo/vector-icons';
 import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, database } from '../config/firebase';
 import { Image } from 'react-native';
-const RegisterEvent = ({ route, navigation }) => {
 
-    const { eventId, clubId } = route.params;
+const RegisterMeeting = ({ route, navigation }) => {
 
-    console.log("received eventId : ", eventId)
-    // console.log("clubId : ", clubId)
+    const { meetingId, clubId } = route.params;
+
+    console.log("received meetingId : ", meetingId)
 
 
     const [role, setRole] = useState('');
     const [roleFetched, setRoleFetched] = useState(false);
-    const [event, setEvent] = useState(null);
+    const [meeting, setMeeting] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [modalVisibleClose, setModalVisibleClose] = useState(false);
     const [modalVisibleCompleted, setModalVisibleCompleted] = useState(false);
-const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
+    const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
     const [isRegistered, setIsRegistered] = useState(false);
     const [forceRender, setForceRender] = useState(false);
     const [menuVisible, setMenuVisible] = useState(false);
@@ -29,13 +29,13 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
         const checkRegistrationStatus = async () => {
             try {
                 const currentUserUID = auth.currentUser.uid;
-                const eventDocRef = doc(database, `clubs/${clubId}/events/${eventId}`);
-                const eventDocSnapshot = await getDoc(eventDocRef);
-                if (eventDocSnapshot.exists()) {
-                    const eventData = eventDocSnapshot.data();
-                    if (eventData.event_registered_members.includes(currentUserUID)) {
+                const meetingtDocRef = doc(database, `clubs/${clubId}/meetings/${meetingId}`);
+                const meetingDocSnapshot = await getDoc(meetingtDocRef);
+                if (meetingDocSnapshot.exists()) {
+                    const meetingData = meetingDocSnapshot.data();
+                    if (meetingData.meeting_registered_members.includes(currentUserUID)) {
                         setIsRegistered(true);
-                        console.log(currentUserUID, "--", eventData.event_registered_members.includes(currentUserUID))
+                        console.log(currentUserUID, "--", meetingData.meeting_registered_members.includes(currentUserUID))
                         console.log("already registered")
                     } else {
                         setIsRegistered(false);
@@ -43,7 +43,7 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
 
                     }
                 } else {
-                    console.error('Event document not found.');
+                    console.error('meeting document not found.');
                 }
             } catch (error) {
                 console.error('Error checking registration status:', error);
@@ -51,27 +51,27 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
         };
 
         checkRegistrationStatus();
-    }, [clubId, eventId]);
+    }, [clubId, meetingId]);
 
     useEffect(() => {
-        const fetchEventDetails = async () => {
+        const fetchMeetingDetails = async () => {
             try {
-                const eventDocRef = doc(database, `clubs/${clubId}/events/${eventId}`);
-                const eventDocSnapshot = await getDoc(eventDocRef);
+                const meetingDocRef = doc(database, `clubs/${clubId}/meetings/${meetingId}`);
+                const meetingDocSnapshot = await getDoc(meetingDocRef);
 
-                if (eventDocSnapshot.exists()) {
-                    const eventData = eventDocSnapshot.data();
-                    setEvent(eventData);
+                if (meetingDocSnapshot.exists()) {
+                    const meetingData = meetingDocSnapshot.data();
+                    setMeeting(meetingData);
                 } else {
-                    console.error('Event data not found.');
+                    console.error('meeting data not found.');
                 }
             } catch (error) {
-                console.error('Error fetching event data:', error);
+                console.error('Error fetching meeting data:', error);
             }
         };
 
-        fetchEventDetails();
-    }, [eventId]);
+        fetchMeetingDetails();
+    }, [meetingId]);
 
 
 
@@ -108,64 +108,64 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
 
 
     useEffect(() => {
-        const fetchEventDetails = async () => {
+        const fetchMeetingDetails = async () => {
             try {
-                const eventDocRef = doc(database, `clubs/${clubId}/events/${eventId}`);
-                const eventDocSnapshot = await getDoc(eventDocRef);
+                const meetingDocRef = doc(database, `clubs/${clubId}/meetings/${meetingId}`);
+                const meetingDocSnapshot = await getDoc(meetingDocRef);
 
-                if (eventDocSnapshot.exists()) {
-                    const eventData = eventDocSnapshot.data();
-                    setEvent(eventData);
+                if (meetingDocSnapshot.exists()) {
+                    const meetingtData = meetingDocSnapshot.data();
+                    setMeeting(meetingtData);
                 } else {
-                    console.error('Event data not found.');
+                    console.error('meeting data not found.');
                 }
             } catch (error) {
-                console.error('Error fetching event data:', error);
+                console.error('Error fetching meeting data:', error);
             }
         };
 
-        fetchEventDetails();
-    }, [eventId, forceRender]);
+        fetchMeetingDetails();
+    }, [meetingId, forceRender]);
 
-    if (!event) {
+    if (!meeting) {
         return null;
     }
-    const registerForEvent = async () => {
+    const registerForMeeting = async () => {
         try {
             const currentUserUID = auth.currentUser.uid;
-            const eventDocRef = doc(database, `clubs/${clubId}/events/${eventId}`);
-            await updateDoc(eventDocRef, {
-                event_registered_members: arrayUnion(currentUserUID),
-                event_reg_count: event.event_registered_members.length + 1,
+            const meetingDocRef = doc(database, `clubs/${clubId}/meetings/${meetingId}`);
+            await updateDoc(meetingDocRef, {
+                meeting_registered_members: arrayUnion(currentUserUID),
+                meetings_reg_count: meeting.meeting_registered_members.length + 1,
             });
 
             const userDocRef = doc(database, 'users', currentUserUID);
             await updateDoc(userDocRef, {
-                reg_event: arrayUnion(eventId)
+                reg_meeting: arrayUnion(meetingId)
             });
 
             setIsRegistered(true);
         } catch (error) {
-            console.error('Error registering for event:', error);
+            console.error('Error registering for meeting:', error);
         }
     };
 
-    const closeRegisterEvent = async () => {
+    const closeRegisterMeeting = async () => {
         try {
             const currentUserUID = auth.currentUser.uid;
-            const eventDocRef = doc(database, `clubs/${clubId}/events/${eventId}`);
-            await updateDoc(eventDocRef, {
-                event_reg_status: 'closed',
+            const meetingDocRef = doc(database, `clubs/${clubId}/meetings/${meetingId}`);
+            await updateDoc(meetingDocRef, {
+                meeting_reg_status: 'closed',
 
             });
             setForceRender(prev => !prev);
         } catch (error) {
-            console.error('Error registering for event:', error);
+            console.error('Error registering for meeting:', error);
         }
     };
 
     const goToRegisteredPage = () => {
-        navigation.navigate("RegisteredMembers", { eventId, registered_members: event.event_registered_members });
+        navigation.navigate("RegisteredMembers", { meetingId, registered_members: meeting.meeting_registered_members });
 
 
     }
@@ -174,17 +174,17 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
     };
 
 
-    const closeEvent = async () => {
+    const closeMeeting= async () => {
         try {
-            const eventDocRef = doc(database, `clubs/${clubId}/events/${eventId}`);
-            await updateDoc(eventDocRef, {
-                event_status: 'closed',
-                event_reg_status: 'closed'
+            const meetingDocRef = doc(database, `clubs/${clubId}/meetings/${meetingId}`);
+            await updateDoc(meetingDocRef, {
+                meeting_status: 'closed',
+                meeting_reg_status: 'closed'
             });
             setForceRender(prev => !prev);
             closeMenu()
         } catch (error) {
-            console.error('Error closing/marking event as closed:', error);
+            console.error('Error closing/marking meeting as closed:', error);
         }
     }
     const closeMenu = () => {
@@ -192,27 +192,27 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
     };
 
 
-    const cancelEvent = async () => {
+    const cancelMeeting =async () => {
         try {
-            const eventDocRef = doc(database, `clubs/${clubId}/events/${eventId}`);
+            const eventDocRef = doc(database, `clubs/${clubId}/meetings/${meetingId}`);
             await updateDoc(eventDocRef, {
-                event_status: 'cancelled',
-                event_reg_status: 'closed'
+                meeting_status: 'cancelled',
+                meeting_reg_status: 'closed'
             });
             setForceRender(prev => !prev);
             closeMenu()
         } catch (error) {
-            console.error('Error cancelling event:', error);
+            console.error('Error cancelling meeting:', error);
         }
     }
 
     const handleMarkAttendance = () => {
         console.log("sent clubId", clubId)
-        navigation.navigate("MarkEvent", { eventId, event_registered_members: event.event_registered_members, role: role, clubId: clubId });
+        navigation.navigate("MarkMeeting", { meetingId, meeting_registered_members: meeting.meeting_registered_members, role: role, clubId: clubId });
         closeMenu();
     };
-    const { event_name, event_date, event_time, event_price, event_description, event_location, event_reg_count, event_reg_status, event_status, event_registered_members } = event;
-    const [year, month, day] = event_date.split('-');
+    const { meeting_topic, meeting_date, meeting_time, meeting_price, meeting_description, meeting_link, meeting_reg_count, meeting_reg_status, meeting_status, meeting_registered_members } = meeting;
+    const [year, month, day] = meeting_date.split('-');
     const shortMonth = month.slice(0, 3).toUpperCase();
 
 
@@ -225,7 +225,7 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
             </TouchableOpacity>
 
             <View style={styles.createContainer}>
-                <Text style={styles.title}>Event Details</Text>
+                <Text style={styles.title}>Meeting Details</Text>
             </View>
 
             {role === 'owner' && (
@@ -248,14 +248,14 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
                     </TouchableOpacity>
                     <TouchableOpacity style={{ marginBottom: 0, marginTop: 0, padding: 10, backgroundColor: '#D34444', borderBottomLeftRadius: 0, width: '100%', borderBottomColor: 'white', borderWidth: 1 }} onPress={() =>
                     setModalVisibleCancelled(true)}>
-                        <Text style={{ fontFamily: "DMSans-Regular", fontSize: 17, color: 'white' }}>Cancel Event</Text>
+                        <Text style={{ fontFamily: "DMSans-Regular", fontSize: 17, color: 'white' }}>Cancel Meeting</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={{ marginBottom: 0, marginTop: 0, padding: 10, backgroundColor: 'black', borderBottomLeftRadius: 0, width: '100%', borderBottomColor: 'white', borderWidth: 1 }} onPress={() => setModalVisibleCompleted(true)}>
                         <Text style={{ fontFamily: "DMSans-Regular", fontSize: 17, color: 'white' }} >Mark as Complete</Text>
                     </TouchableOpacity>
                 </View>
             )}
-            <Text style={styles.eventName}>{event_name}</Text>
+            <Text style={styles.eventName}>{meeting_topic}</Text>
 
             <View style={styles.dateTimeContainer}>
 
@@ -267,22 +267,22 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
                 <View style={styles.timePriceContainer}>
 
                     <View style={[styles.timeContainer, { backgroundColor: '#D9E7EC', padding: 3, borderRadius: 7, width: 90 }]}>
-                        <Text style={[styles.eventTime, { fontSize: 19, fontFamily: 'DMSans-Bold' }]}>{event_time}</Text>
+                        <Text style={[styles.eventTime, { fontSize: 19, fontFamily: 'DMSans-Bold' }]}>{meeting_time}</Text>
                     </View>
 
                     <View style={[styles.priceContainer, { backgroundColor: '#D1FFAD', padding: 3, borderRadius: 7, width: 65, marginTop: 2 }]}>
-                        <Text style={[styles.eventPrice, { fontSize: 19, fontFamily: 'DMSans-Bold' }]}>{event_price.toUpperCase()}</Text>
+                        <Text style={[styles.eventPrice, { fontSize: 19, fontFamily: 'DMSans-Bold' }]}>{meeting_price.toUpperCase()}</Text>
                     </View>
                 </View>
 
             </View>
             <View style={[styles.locationContainer, { backgroundColor: 'white', height: 100 }]}>
-                <Image source={require('../assets/placeholder.png')} style={[styles.locationIcon, { width: 22, resizeMode: 'contain', marginTop: -225, marginLeft: 30 }]} />
-                <Text style={[styles.eventLocation, { fontSize: 17, fontFamily: 'DMSans-Medium', marginTop: -266, marginLeft: 56 }]}>{event_location}</Text>
+                <Image source={require('../assets/meet.png')} style={[styles.locationIcon, { width: 22, resizeMode: 'contain', marginTop: -225, marginLeft: 30 }]} />
+                <Text style={[styles.eventLocation, { fontSize: 17, fontFamily: 'DMSans-Medium', marginTop: -266, marginLeft: 56 }]}>{meeting_link}</Text>
             </View>
 
             <View style={[styles.descContainer, { marginLeft: 30, marginRight: 30, marginTop: -30, textAlign: 'left' }]}>
-                <Text style={[styles.desc, { fontSize: 17, fontFamily: 'DMSans-Medium' }]}>{event_description}</Text>
+                <Text style={[styles.desc, { fontSize: 17, fontFamily: 'DMSans-Medium' }]}>{meeting_description}</Text>
             </View>
             <View style={[styles.regCount, { backgroundColor: '#FFEFF2', width: 150, marginLeft: 30, marginTop: 20, borderRadius: 8, flexDirection: 'row' }]}>
                 <View style={{ padding: 6, }}>
@@ -290,7 +290,7 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
                     <Text style={{ fontSize: 15, fontFamily: 'DMSans-Medium' }}>Count</Text>
                 </View>
                 <View style={{ borderLeftColor: 'white', borderLeftWidth: 2.5, }}>
-                    <Text style={{ fontSize: 30, fontFamily: 'DMSans-Bold', textAlign: 'center', width: 50, marginTop: 5 }}>{event_reg_count}</Text>
+                    <Text style={{ fontSize: 30, fontFamily: 'DMSans-Bold', textAlign: 'center', width: 50, marginTop: 5 }}>{meeting_reg_count}</Text>
                 </View>
             </View>
 
@@ -308,7 +308,7 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
 
             )}
 
-            {role === 'owner' && event_reg_status === 'closed' && (
+            {role === 'owner' && meeting_reg_status === 'closed' && (
                 <>
                     <View style={styles.ownerButtons}>
                         <TouchableOpacity style={styles.viewButton} onPress={goToRegisteredPage}>
@@ -321,20 +321,20 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
                 </>
 
             )}
-            {role === 'owner' && event_reg_status === 'closed' && event_status==='cancelled'&& (
+            {role === 'owner' && meeting_reg_status === 'closed' && meeting_status==='cancelled'&& (
                 <>
                     <View style={styles.ownerButtons}>
                         <TouchableOpacity style={styles.viewButton} onPress={goToRegisteredPage}>
                             <Text style={styles.viewButtonText}>View Registered Members</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.closeButton}>
-                            <Text style={styles.closeButtonText}>Event Cancelled</Text>
+                            <Text style={styles.closeButtonText}>Meeting Cancelled</Text>
                         </TouchableOpacity>
                     </View>
                 </>
 
             )}
-            {role === 'member' && event_reg_status === 'closed' && (
+            {role === 'member' && meeting_reg_status === 'closed' && (
                 <>
                     <View style={styles.ownerButtons}>
 
@@ -345,25 +345,24 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
                 </>
 
             )}
-            {role === 'member' && event_reg_status === 'closed' && event_status==='cancelled'&& (
+            {role === 'member' && meeting_reg_status === 'closed' && meeting_status==='cancelled'&& (
                 <>
                     <View style={styles.ownerButtons}>
-
                         <TouchableOpacity style={styles.closeButton}>
-                            <Text style={styles.closeButtonText}>Event Cancelled</Text>
+                            <Text style={styles.closeButtonText}>Meeting Cancelled</Text>
                         </TouchableOpacity>
                     </View>
                 </>
 
             )}
-            {role === 'owner' && event_status === 'closed' && (
+            {role === 'owner' && meeting_status === 'closed' && (
                 <>
                     <View style={styles.ownerButtons}>
                         <TouchableOpacity style={styles.viewButton} onPress={goToRegisteredPage}>
                             <Text style={styles.viewButtonText}>View Registered Members</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={[styles.closeButton, { borderWidth: 0.5, borderColor: 'green', backgroundColor: 'white' }]}>
-                            <Text style={[styles.closeButtonText, { color: 'black', fontFamily: 'DMSans-Bold' }]}>Event Completed ✅</Text>
+                            <Text style={[styles.closeButtonText, { color: 'black', fontFamily: 'DMSans-Bold' }]}>Meeting Completed ✅</Text>
                         </TouchableOpacity>
                     </View>
                 </>
@@ -402,14 +401,14 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
 
                     }]}>
                         <View style={[styles.contentContainer, { backgroundColor: 'white', }]}>
-                            <Text style={[styles.clubDescription, { fontFamily: "DMSans-Regular", marginTop: 3, fontSize: 20.7, marginLeft: 0.5, marginRight: 0.5, textAlign: 'center' }]}>Do you want to mark the event as completed?</Text>
+                            <Text style={[styles.clubDescription, { fontFamily: "DMSans-Regular", marginTop: 3, fontSize: 20.7, marginLeft: 0.5, marginRight: 0.5, textAlign: 'center' }]}>Do you want to mark the meeting as completed?</Text>
                             <Image source={require('../assets/loading.gif')} style={{
                                 backgroundColor: 'white', width: "100%", height: 60, resizeMode: 'contain',
                             }} />
 
                             <TouchableOpacity style={[styles.joinButton, { marginLeft: 0, marginRight: 0, backgroundColor: 'black', height: 50, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginTop: 20, }]}
                                 onPress={() => {
-                                    closeEvent();
+                                    closeMeeting();
                                     setModalVisibleCompleted(false);
                                 }}>
                                 <Text style={[styles.joinButtonText, { color: 'white', fontSize: 17, fontFamily: 'Inter-SemiBold' }]}>Yes</Text>
@@ -420,8 +419,8 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
                 </View>
             </Modal>
 
-            {/* Cancel Event */}
-            <Modal
+{/* Cancel Meeting*/}
+<Modal
                 visible={modalVisibleCancelled}
                 animationType="slide"
                 transparent={true}
@@ -439,7 +438,8 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
 
                     </View>
 
-                    {/* Cancel Event */}
+                   {/* Cancel Meeting*/}
+
                     <View style={[styles.modalContent, {
                         width: '89%',
                         backgroundColor: 'white',
@@ -452,14 +452,14 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
 
                     }]}>
                         <View style={[styles.contentContainer, { backgroundColor: 'white', }]}>
-                            <Text style={[styles.clubDescription, { fontFamily: "DMSans-Regular", marginTop: 3, fontSize: 20.7, marginLeft: 0.5, marginRight: 0.5, textAlign: 'center' }]}>Do you want to cancel the event?</Text>
+                            <Text style={[styles.clubDescription, { fontFamily: "DMSans-Regular", marginTop: 3, fontSize: 20.7, marginLeft: 0.5, marginRight: 0.5, textAlign: 'center' }]}>Do you want to cancel the meeting?</Text>
                             <Image source={require('../assets/loading.gif')} style={{
                                 backgroundColor: 'white', width: "100%", height: 60, resizeMode: 'contain',
                             }} />
 
                             <TouchableOpacity style={[styles.joinButton, { marginLeft: 0, marginRight: 0, backgroundColor: 'black', height: 50, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginTop: 20, }]}
                                 onPress={() => {
-                                    cancelEvent();
+                                    cancelMeeting();
                                     setModalVisibleCancelled(false);
                                 }}>
                                 <Text style={[styles.joinButtonText, { color: 'white', fontSize: 17, fontFamily: 'Inter-SemiBold' }]}>Yes</Text>
@@ -469,7 +469,6 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
 
                 </View>
             </Modal>
-
 
 
 
@@ -504,14 +503,14 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
 
                     }]}>
                         <View style={[styles.contentContainer, { backgroundColor: 'white', }]}>
-                            <Text style={[styles.clubDescription, { fontFamily: "DMSans-Regular", marginTop: 3, fontSize: 20.7, marginLeft: 0.5, marginRight: 0.5, textAlign: 'center' }]}>Do you want to close the event registration?</Text>
+                            <Text style={[styles.clubDescription, { fontFamily: "DMSans-Regular", marginTop: 3, fontSize: 20.7, marginLeft: 0.5, marginRight: 0.5, textAlign: 'center' }]}>Do you want to close the meeting registration?</Text>
                             <Image source={require('../assets/loading.gif')} style={{
                                 backgroundColor: 'white', width: "100%", height: 60, resizeMode: 'contain',
                             }} />
 
                             <TouchableOpacity style={[styles.joinButton, { marginLeft: 0, marginRight: 0, backgroundColor: 'black', height: 50, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginTop: 20, }]}
                                 onPress={() => {
-                                    closeRegisterEvent();
+                                    closeRegisterMeeting();
                                     setModalVisibleClose(false);
                                 }}>
                                 <Text style={[styles.joinButtonText, { color: 'white', fontSize: 17, fontFamily: 'Inter-SemiBold' }]}>Yes</Text>
@@ -522,7 +521,7 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
             </Modal>
 
 
-            {role === 'member' && event_reg_status === 'open' && event_status === 'open' && (
+            {role === 'member' && meeting_reg_status === 'open' && meeting_status === 'open' && (
                 <>
                     <View style={styles.ownerButtons}>
                         <TouchableOpacity style={styles.regButton} onPress={() => setModalVisible(true)}>
@@ -531,7 +530,15 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
                     </View>
                 </>
             )}
-      
+            {/* {role === 'member' && event_reg_status === 'closed' && event_status === 'closed' && (
+                <>
+                    <View style={styles.ownerButtons}>
+                        <TouchableOpacity style={styles.regButton} >
+                            <Text style={[styles.regButtonText,{backgroundColor:'#'}]}>Registration Closed</Text>
+                        </TouchableOpacity>
+                    </View>
+                </>
+            )} */}
 
             <Modal
                 visible={modalVisible}
@@ -556,14 +563,14 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
 
                     }]}>
                         <View style={[styles.contentContainer, { backgroundColor: 'white', }]}>
-                            <Text style={[styles.clubDescription, { fontFamily: "DMSans-Regular", marginTop: 3, fontSize: 20.7, marginLeft: 0.5, marginRight: 0.5, textAlign: 'center' }]}>Do you want to register for this event?</Text>
+                            <Text style={[styles.clubDescription, { fontFamily: "DMSans-Regular", marginTop: 3, fontSize: 20.7, marginLeft: 0.5, marginRight: 0.5, textAlign: 'center' }]}>Do you want to register for this meeting?</Text>
                             <Image source={require('../assets/loading.gif')} style={{
                                 backgroundColor: 'white', width: "100%", height: 60, resizeMode: 'contain',
                             }} />
 
                             <TouchableOpacity style={[styles.joinButton, { marginLeft: 0, marginRight: 0, backgroundColor: 'black', height: 50, borderRadius: 10, justifyContent: 'center', alignItems: 'center', marginTop: 20, }]}
                                 onPress={() => {
-                                    registerForEvent();
+                                    registerForMeeting();
                                     setModalVisible(false);
                                 }}>
                                 <Text style={[styles.joinButtonText, { color: 'white', fontSize: 17, fontFamily: 'Inter-SemiBold' }]}>Yes</Text>
@@ -581,23 +588,23 @@ const [modalVisibleCancelled,setModalVisibleCancelled]= useState(false);
                     </View>
                 </>
             )}
-            {isRegistered && event_status==='cancelled'&&(
+            {isRegistered && meeting_status==='cancelled'&&(
                 <>
                     <View style={styles.ownerButtons}>
                     <TouchableOpacity style={styles.closeButton}>
-                            <Text style={styles.closeButtonText}>Event Cancelled</Text>
+                            <Text style={styles.closeButtonText}>Meeting Cancelled</Text>
                         </TouchableOpacity>
                     </View>
                 </>
             )}
-            {role==='member'&&!isRegistered && event_status==='cancelled'&&(
+            {role==='member'&&!isRegistered && meeting_status==='cancelled'&&(
                 <>
-                    <View style={styles.ownerButtons}>
-                    <TouchableOpacity style={styles.closeButton}>
-                            <Text style={styles.closeButtonText}>Event Cancelled</Text>
-                        </TouchableOpacity>
-                    </View>
-                </>
+                <View style={styles.ownerButtons}>
+                <TouchableOpacity style={styles.closeButton}>
+                        <Text style={styles.closeButtonText}>Meeting Cancelled</Text>
+                    </TouchableOpacity>
+                </View>
+            </>
             )}
 
         </View>
@@ -749,5 +756,5 @@ const styles = StyleSheet.create({
     },
 });
 
-export default RegisterEvent;
+export default RegisterMeeting;
 

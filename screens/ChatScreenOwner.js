@@ -32,8 +32,8 @@ const ChatScreenOwner = ({ route, navigation }) => {
                 console.error('ClubId is undefined.');
                 return;
             }
-            console.log("clubid : ", clubId)
-            console.log("fetchClubData running!!!")
+            // console.log("clubid : ", clubId)
+            // console.log("fetchClubData running!!!")
             const currentUser = auth.currentUser;
             console.log("Current User in Chat : ", currentUser.uid);
 
@@ -41,14 +41,14 @@ const ChatScreenOwner = ({ route, navigation }) => {
             const clubsSnapshot = await getDocs(clubsQuery);
 
             if (!clubsSnapshot.empty) {
-                console.log("yes!!!!!")
+                // console.log("yes!!!!!")
                 const clubData = clubsSnapshot.docs[0].data();
-                console.log("Snapshot----------->", clubsSnapshot.docs[0].data())
+                // console.log("Snapshot----------->", clubsSnapshot.docs[0].data())
 
                 const fetchedClubId = clubData.cid;
                 const fetchedOwnerId = clubData.ownerId;
 
-                console.log("fetchedClubId: ", fetchedClubId, " owner: ", fetchedOwnerId)
+                // console.log("fetchedClubId: ", fetchedClubId, " owner: ", fetchedOwnerId)
 
                 setClubId(fetchedClubId);
                 setOwnerId(fetchedOwnerId);
@@ -95,7 +95,8 @@ const ChatScreenOwner = ({ route, navigation }) => {
 
     useEffect(() => {
         if (clubId && ownerId && role) {
-            const messagesQuery = query(collection(database, `chatrooms/${clubId}/messages`), orderBy('timestamp', 'asc'));
+            const messagesQuery = query(collection(database, `chatrooms/${clubId}/messages`), 
+            orderBy('timestamp', 'asc'));
 
             const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
                 const newMessages = snapshot.docs.map((doc) => doc.data());
@@ -178,6 +179,7 @@ const ChatScreenOwner = ({ route, navigation }) => {
         }
         console.log("Message deleted!")
     };
+    
     const handleLongPress = (message) => {
         const options = [
             { text: 'Delete Message', onPress: () => handleDeleteMessage(message.messageId) },
@@ -234,7 +236,7 @@ const ChatScreenOwner = ({ route, navigation }) => {
     const handleRenderMessage = (item) => {
         if (item.messageType === 'normalMessage') {
             const currentUserId = auth.currentUser.uid;
-            console.log(item.senderId)
+            // console.log(item.senderId)
 
             return (
                 <TouchableWithoutFeedback onLongPress={() => { if (role === 'owner') { handleLongPress(item); } }}>
@@ -264,12 +266,12 @@ const ChatScreenOwner = ({ route, navigation }) => {
         } else if (item.messageType === 'eventMessage') {
             const handleEventPress = () => {
                 Vibration.vibrate(110);
-                console.log(item.eventId, "-------------", clubId);
+                // console.log(item.eventId, "-------------", clubId);
 
                 navigation.navigate('RegisterEvent', { eventId: item.eventId, clubId: item.clubId });
             }
             const dateComponents = item.eventDate.split('-');
-            console.log("dateevent:", dateComponents)
+            // console.log("dateevent:", dateComponents)
             const year = parseInt(dateComponents[0]);
             const monthName = dateComponents[1];
             const day = parseInt(dateComponents[2]);
@@ -303,8 +305,15 @@ const ChatScreenOwner = ({ route, navigation }) => {
             );
         }
         else if (item.messageType === 'meetingMessage') {
+            const handleMeetingPress = () => {
+                Vibration.vibrate(110);
+                // console.log(item.meetingId, "-------------", clubId);
+
+                navigation.navigate('RegisterMeeting', { meetingId: item.meetingId, clubId: item.clubId });
+            }
+
             const dateComponents = item.meetingDate.split('-');
-            console.log("datemeet:", dateComponents)
+            // console.log("datemeet:", dateComponents)
             const year = parseInt(dateComponents[0]);
             const monthName = dateComponents[1];
             const day = parseInt(dateComponents[2]);
@@ -312,7 +321,7 @@ const ChatScreenOwner = ({ route, navigation }) => {
             const eventDateObj = new Date(year, monthIndex, day);
             const formattedDate = `${day} ${monthName}`;
             return (
-                <TouchableHighlight onPress={handleTouch} underlayColor="transparent">
+                <TouchableHighlight onPress={handleMeetingPress} underlayColor="transparent">
                     <View style={styles.eventMessageContainer}>
                         <View style={[styles.contentContainer, { backgroundColor: '#211155' }]}>
                             <View style={styles.leftSection}>
@@ -337,8 +346,16 @@ const ChatScreenOwner = ({ route, navigation }) => {
             );
         }
         else if (item.messageType === 'workshopMessage') {
+            const handleWorkshopPress = () => {
+                Vibration.vibrate(110);
+                // console.log(item.workshopId, "-------------", clubId);
+
+                navigation.navigate('RegisterWorkshop', { workshopId: item.workshopId, clubId: item.clubId });
+            }
+
+
             const dateComponents = item.workshopDate.split('-');
-            console.log("dateworkshop:", dateComponents)
+            // console.log("dateworkshop:", dateComponents)
             const year = parseInt(dateComponents[0]);
             const monthName = dateComponents[1];
             const day = parseInt(dateComponents[2]);
@@ -346,7 +363,7 @@ const ChatScreenOwner = ({ route, navigation }) => {
             const eventDateObj = new Date(year, monthIndex, day);
             const formattedDate = `${day} ${monthName}`;
             return (
-                <TouchableHighlight onPress={handleTouch} underlayColor="transparent">
+                <TouchableHighlight onPress={handleWorkshopPress} underlayColor="transparent">
                     <View style={styles.eventMessageContainer}>
                         <View style={[styles.contentContainer, { backgroundColor: '#00160A' }]}>
                             <View style={styles.leftSection}>
@@ -498,7 +515,7 @@ const ChatScreenOwner = ({ route, navigation }) => {
                                     </View>
                                 </TouchableHighlight>
 
-                                <TouchableHighlight onPress={() => { handleTouch(); handleOptionSelect('BrainstormSession'); }} underlayColor="transparent" >
+                                {/* <TouchableHighlight onPress={() => { handleTouch(); handleOptionSelect('BrainstormSession'); }} underlayColor="transparent" >
                                     <View style={styles.optionContainer}>
 
                                         <View style={[styles.optionBox, { backgroundColor: '#ADD8E6' }]}>
@@ -506,7 +523,7 @@ const ChatScreenOwner = ({ route, navigation }) => {
                                         </View>
                                         <Text style={[styles.modalOption, { backgroundColor: '#ADD8E6' }]}>Brainstorm Session</Text>
                                     </View>
-                                </TouchableHighlight>
+                                </TouchableHighlight> */}
                             </View>
                         </View>
                     </View>

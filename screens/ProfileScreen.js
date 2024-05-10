@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, StatusBar, TouchableOpacity } from 'react-native';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getDoc, doc } from 'firebase/firestore';
 import { database } from '../config/firebase';
 import BottomNavigation from './BottomNavigator';
+import { Ionicons } from '@expo/vector-icons';
 
 
-const ProfileScreen = () => {
+const ProfileScreen = ({ navigation }) => {
   const auth = getAuth();
   const [user, setUser] = useState(null);
 
@@ -41,7 +42,7 @@ const ProfileScreen = () => {
   if (!user) {
     return (
       <View style={styles.container}>
-        <Text>Loading...</Text>
+        <Text></Text>
       </View>
     );
   }
@@ -58,14 +59,32 @@ const ProfileScreen = () => {
     { id: 9, source: require('../assets/avatar9.png') },
 
   ];
-
+  const handleSignOut = async () => {
+    try {
+      await auth.signOut();
+      console.log("Logged out")
+      navigation.navigate('Login')
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
   const selectedAvatarId = user.avatarId;
 
   const selectedAvatar = avatars.find(avatar => avatar.id === selectedAvatarId);
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <StatusBar backgroundColor="white" />
+      {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderTopColor: 'white', }}> */}
+      <TouchableOpacity style={{ position: 'absolute', zIndex: 60000, top: 18, right: 25, }} onPress={handleSignOut}>
+        <Ionicons name="exit-outline" size={30} color="black" />
+      </TouchableOpacity>
+      {/* </View> */}
+      <View style={{ backgroundColor: 'white', height: 70, borderBottomWidth: 0.19999999, borderBottomColor: 'black' }}>
+        <Text style={{ fontSize: 24, marginTop: 19, textAlign: 'center', color: 'black', fontFamily: "DMSans-Bold", }}>Profile</Text>
+      </View>
+
+      <View style={{ alignItems: 'center', }}>
         <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', backgroundColor: '#3E96FF', height: 150 }}>
           <Image source={selectedAvatar ? selectedAvatar.source : null} style={styles.avatar} />
         </View>
@@ -73,7 +92,7 @@ const ProfileScreen = () => {
         {/* <Text style={styles.role}>{user.role == 'owner' ? 'Club Leader' : 'Member'}</Text> */}
 
 
-        <View style={[styles.roleContainer, { backgroundColor: '#E0EEFF', width: 85, height: 25,marginTop:5, justifyContent: 'center', alignItems: 'center', borderRadius: 5, }]}>
+        <View style={[styles.roleContainer, { backgroundColor: '#E0EEFF', width: 85, height: 25, marginTop: 5, justifyContent: 'center', alignItems: 'center', borderRadius: 5, }]}>
           <Text style={[styles.roleText, { color: '#206CC6', fontFamily: 'DMSans-Bold', fontSize: 12 }]}>{user.role == 'owner' ? 'Club Leader' : 'Member'}</Text>
         </View>
 
@@ -104,25 +123,18 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-  },
-  header: {
-    alignItems: 'center',
-    // marginTop: 70,
-
+    backgroundColor: 'white',
   },
   avatar: {
     width: 150,
     height: 150,
     position: 'absolute',
     top: 35,
-    // padding:10,
     borderRadius: 75,
     marginBottom: 10,
     borderWidth: 10,
     borderColor: '#206CC6',
     backgroundColor: 'white',
-
   },
   name: {
     marginTop: 45,
@@ -150,13 +162,11 @@ const styles = StyleSheet.create({
   detailLabel: {
     fontSize: 16,
     fontFamily: 'DMSans-Bold',
-
     marginBottom: 5,
   },
   detailValue: {
     fontSize: 16,
     fontFamily: 'DMSans-Medium',
-
   },
 });
 
