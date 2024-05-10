@@ -29,7 +29,6 @@ const ClubFeed = ({ navigation }) => {
   const isFocused = useIsFocused();
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const videoRef = useRef(null);
 
 
   const notifications = [
@@ -211,27 +210,17 @@ const ClubFeed = ({ navigation }) => {
       }
     }
   };
-  // const openVideoPicker = async () => {
-  //   try {
-  //     const result = await DocumentPicker.getDocumentAsync({ type: 'video/*', copyToCacheDirectory: false });
 
-  //     if (result.type === 'success') {
-  //       const selectedVideo = result;
-  //       // Add the selected video to your videoFiles array
-  //       setVideoFiles(prevVideoFiles => [...prevVideoFiles, selectedVideo]);
-  //       console.log(videoFiles);
-  //       console.log('Video selected:', selectedVideo);
-  //     } else {
-  //       console.log('User cancelled video picker');
-  //     }
-  //   } catch (error) {
-  //     console.error('Error picking video:', error);
-  //   }
-  // };
+  const videoRefs = useRef([]);
 
-  const playVideo = async () => {
+  const playVideo = async (videoUrl, index) => {
     try {
-      await videoRef.current.playAsync();
+      console.log("video playinggggg--- : ", videoUrl);
+
+      await videoRefs.current[index].playAsync();
+      console.log("video playback")
+
+
     } catch (error) {
       console.error('Error playing video:', error);
     }
@@ -547,36 +536,86 @@ const ClubFeed = ({ navigation }) => {
                 <Text style={styles.title}>{post.postTitle}</Text>
                 <Text style={styles.description}>{post.postDesc}</Text>
 
+
+
+
+
                 <>
                   {(post.imageUrls.length > 0 && post.videoUrls.length > 0) && (
-                    <Swiper
-                      style={{ height: 470 }}
-                      dotStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.2)', width: 10, height: 10, borderRadius: 5 }}
-                      activeDotStyle={{ backgroundColor: '#000', width: 10, height: 10, borderRadius: 5 }}
-                      paginationStyle={{ bottom: 10 }}
-                    >
-                      {post.imageUrls.map((imageUrl, index) => (
-                        <View key={`image_${index}`}>
-                          <Image
-                            source={{ uri: imageUrl }}
-                            style={{ width: '100%', height: '100%', resizeMode: 'contain', backgroundColor: '#E5F1FF' }}
-                          />
-                        </View>
-                      ))}
-                      {post.videoUrls.map((videoUrl, index) => (
-                        <View key={`video_${index}`}>
-                          <TouchableOpacity onPress={playVideo}>
-                            <Video
-                              source={{ uri: videoUrl }}
-                              style={{ width: '100%', height: '100%' }}
-                              resizeMode="contain"
-                              paused={true} 
+
+                    // <Swiper
+                    //   style={{ height: 570 }}
+                    //   dotStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.2)', width: 10, height: 10, borderRadius: 5 }}
+                    //   activeDotStyle={{ backgroundColor: '#000', width: 10, height: 10, borderRadius: 5 }}
+                    //   paginationStyle={{ bottom: 10 }}
+                    // >
+                    //   {/* Render slides */}
+                    //   {post.imageUrls.map((imageUrl, index) => (
+                    //     <View key={`image_${index}`}>
+                    //       <Image
+                    //         source={{ uri: imageUrl }}
+                    //         style={{ width: '100%', height: '100%', resizeMode: 'contain', backgroundColor: '#E5F1FF' }}
+                    //       />
+                    //     </View>
+                    //   ))}
+                    //   {post.videoUrls.map((videoUrl, index) => (
+                    //     <View key={`video_${index}`}>
+                    //       <TouchableOpacity onPress={() => playVideo(videoUrl)}>
+                    //         <Video
+                    //           ref={(ref) => videoRefs.current[index] = ref}
+                    //           source={{ uri: videoUrl }}
+                    //           style={{ width: '100%', height: '100%' }}
+                    //           resizeMode="contain"
+                    //           paused={true}
+                    //           useNativeControls
+                    //         />
+                    //       </TouchableOpacity>
+                    //     </View>
+                    //   ))}
+                    // </Swiper>
+                    <View style={{ height: 570, backgroundColor: 'cyan' }}>
+                      <ScrollView
+                        horizontal
+                        pagingEnabled
+                        showsHorizontalScrollIndicator={true}
+                        style={{ height: 570}}
+                      >
+                        {/* Render slides */}
+                        {post.imageUrls.map((imageUrl, index) => (
+                          <View key={`image_${index}`} style={{ width: '100%', height: 570  }}>
+                            <Image
+                              source={{ uri: imageUrl }}
+                              style={{ width: '100%', height: '100%', resizeMode: 'contain'}}
                             />
-                          </TouchableOpacity>
-                        </View>
-                      ))}
-                    </Swiper>
+                          </View>
+                        ))}
+                        {
+                          console.log('-----------post :------- ', post.postTitle)
+                        }
+                        {
+                          console.log('Image URLs length:', post.imageUrls.length)
+                        }
+                        {
+                          console.log('video URLs length:', post.videoUrls.length)
+                        }
+                        {/* {post.videoUrls.map((videoUrl, index) => (
+                          <View key={`video_${index}`} style={{ width: '100%', height: '100%' }}>
+                            <TouchableOpacity onPress={() => playVideo(videoUrl)}>
+                              <Video
+                                ref={(ref) => videoRefs.current[index] = ref}
+                                source={{ uri: videoUrl }}
+                                style={{ width: '100%', height: '100%' }}
+                                resizeMode="contain"
+                                paused={true}
+                                useNativeControls
+                              />
+                            </TouchableOpacity>
+                          </View>
+                        ))} */}
+                      </ScrollView>
+                    </View>
                   )}
+
 
                   {post.imageUrls.length > 0 && post.videoUrls.length === 0 && (
                     <Swiper
@@ -605,17 +644,14 @@ const ClubFeed = ({ navigation }) => {
                     >
                       {post.videoUrls.map((videoUrl, index) => (
                         <View key={`video_${index}`}>
-                          <TouchableOpacity onPress={playVideo}>
+                          <TouchableOpacity onPress={() => playVideo(videoUrl)}>
                             <Video
-                              // source={{ uri: videoUrl }}
-                              // style={{ width: '100%', height: 300 }}
-                              // resizeMode="contain"
-                              // paused={true} // Set paused to true to prevent automatic playback
-                              ref={videoRef}
-                              source={{ uri: post.videoUrls[0] }}
+                              ref={videoRefs}
+                              source={{ uri: videoUrl }}
                               style={{ width: '100%', height: '100%' }}
-                              useNativeControls
                               resizeMode="contain"
+                              paused={true}
+                              useNativeControls
                             />
                           </TouchableOpacity>
                         </View>
