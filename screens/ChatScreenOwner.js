@@ -179,6 +179,7 @@ const ChatScreenOwner = ({ route, navigation }) => {
         }
         console.log("Message deleted!")
     };
+    
     const handleLongPress = (message) => {
         const options = [
             { text: 'Delete Message', onPress: () => handleDeleteMessage(message.messageId) },
